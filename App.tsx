@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ModalScreen } from "./ModalScreen";
+
 interface AppProps {}
 
 const App: React.FC<AppProps> = () => {
@@ -14,17 +16,13 @@ const App: React.FC<AppProps> = () => {
           <Text style={styles.subtitle}>Total Gasto:</Text>
           <Text style={styles.value}>$0.00</Text>
         </View>
-        <Modal
+
+        {/*----------------modal------------------*/}
+        <ModalScreen
           visible={isModalVisible}
-          transparent={true}
-          animationType="slide"
-        >
-          <View style={styles.modalcard}>
-            <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-              <Text style={styles.modaltext}>X</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
+          onClose={() => setIsModalVisible(false)}
+        />
+
         <View style={styles.triggercard}>
           <TouchableOpacity onPress={() => setIsModalVisible(true)}>
             <Text style={styles.triggertext}> + </Text>
@@ -73,32 +71,6 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     color: "#333",
-  },
-  modalcard: {
-    position: "absolute",
-    top: "25%",
-    right: "10%",
-    alignItems: "flex-end",
-    justifyContent: "flex-start",
-    width: "80%",
-    height: "50%",
-    borderRadius: 16,
-    elevation: 15,
-    shadowRadius: 5,
-    backgroundColor: "#888",
-    opacity: 0.9,
-  },
-  modaltext: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#333",
-    margin: 10,
-    padding: 10,
-    paddingRight: 15,
-    paddingLeft: 15,
-    borderWidth: 1,
-    borderColor: "#000",
-    borderRadius: 5,
   },
   triggercard: {
     position: "absolute",
