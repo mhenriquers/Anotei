@@ -224,7 +224,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 25,
   },
 
   closeImageContainer: {

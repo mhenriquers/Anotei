@@ -19,9 +19,8 @@ const HomeScreen: React.FC<{
   navigation: any;
   onOpenModal: () => void;
   expenses: Type[];
-}> = ({ navigation, onOpenModal, expenses }) => {
-  const valorExpense = expenses.reduce((total, item) => total + item.amount, 0);
-
+  totalGasto: number;
+}> = ({ navigation, onOpenModal, expenses, totalGasto }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -38,7 +37,7 @@ const HomeScreen: React.FC<{
             style={[styles.card, styles.subCard]}
           >
             <Text style={styles.subtitle}> Cartão: </Text>
-            <Text style={styles.value}> R$ {valorExpense.toFixed(2)} </Text>
+            <Text style={styles.value}> R$ {totalGasto.toFixed(2)} </Text>
           </TouchableOpacity>
         </View>
 
@@ -56,16 +55,13 @@ const HomeScreen: React.FC<{
 
         {/*----------------modal------------------*/}
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate("ExpenseList")}
           style={styles.linkButton}
         >
           <Text style={styles.linkButtonText}> Meus gastos </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onOpenModal}
-          style={styles.triggercard} // 🚀 Apply the green box styles directly HERE
-        >
+        </TouchableOpacity> */}
+        <TouchableOpacity onPress={onOpenModal} style={styles.triggercard}>
           <Text style={styles.triggertext}> + </Text>
         </TouchableOpacity>
       </View>
@@ -144,7 +140,7 @@ const styles = StyleSheet.create({
   },
 
   value: {
-    fontSize: 26,
+    fontSize: 18,
     color: "#333",
   },
 
