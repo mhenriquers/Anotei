@@ -9,9 +9,9 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ModalScreen } from "./ModalScreen";
+import ModalScreen from "./ModalScreen";
 import { Type, RootStackParamList } from "./Types";
-import { ExpenseList } from "./ExpensesList";
+import ExpenseList from "./ExpensesList";
 
 interface AppProps {}
 
@@ -53,7 +53,7 @@ const HomeScreen: React.FC<{ navigation: any; onOpenModal: () => void }> = ({
         {/*----------------modal------------------*/}
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("expenseList")}
+          onPress={() => navigation.navigate("ExpenseList")}
           style={styles.linkButton}
         >
           <Text style={styles.linkButtonText}> Meus gastos </Text>
@@ -72,7 +72,6 @@ const HomeScreen: React.FC<{ navigation: any; onOpenModal: () => void }> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#faf7e7",
     paddingHorizontal: 20,
@@ -92,10 +91,10 @@ const styles = StyleSheet.create({
 
   containerCards: {
     flexDirection: "row",
+    top: 20,
   },
 
   logo: {
-    position: "absolute",
     width: 250,
     height: 250,
     top: 0,
@@ -112,7 +111,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 10, height: 0 },
     backgroundColor: "#fff",
     margin: 5,
-    marginTop: 30,
+    marginTop: 20,
   },
 
   subCard: {

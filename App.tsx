@@ -5,7 +5,7 @@ import {
   createNativeStackNavigator,
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
-import { ExpenseList } from "./ExpensesList";
+import ExpenseList from "./ExpensesList";
 import HomeScreen from "./HomeScreen";
 import ModalScreen from "./ModalScreen";
 
@@ -31,7 +31,7 @@ const App: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name={"Home"}>
+        <Stack.Screen name={"Home"} options={{ headerShown: false }}>
           {(props) => (
             <HomeScreen
               {...props}
@@ -51,3 +51,4 @@ const App: React.FC = () => {
     </NavigationContainer>
   );
 };
+export default App;

@@ -1,10 +1,10 @@
 export interface Type {
   id: string;
-  name: string;
+  title: string;
   amount: number;
   createdAt: Date;
   category: "credit card" | "debit";
-  isWaste: boolean;
+  observacao?: string;
 }
 export type RootStackParamList = {
   Home: undefined;

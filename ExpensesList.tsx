@@ -12,15 +12,16 @@ import { Type } from "./Types";
 interface ExpenseProps {
   expenseList: Type[];
 }
-export const ExpenseList: React.FC<ExpenseProps> = ({ expenseList }) => {
+const ExpenseList: React.FC<ExpenseProps> = ({ expenseList }) => {
   return (
     <FlatList
       data={expenseList}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <View style={styles.expenseCard}>
-          <Text style={styles.expenseName}> {item.name}</Text>
-          <Text style={styles.expenseValue}> {item.amount.toFixed(2)}</Text>
+          <Text style={styles.expenseName}> {item.title}</Text>
+          <Text style={styles.expenseValue}> R$ {item.amount.toFixed(2)}</Text>
+          <Text style={styles.expenseObs}> Obs:{item.observacao} </Text>
         </View>
       )}
     />
@@ -28,11 +29,26 @@ export const ExpenseList: React.FC<ExpenseProps> = ({ expenseList }) => {
 };
 
 const styles = StyleSheet.create({
-  expenseCard: {},
+  expenseCard: {
+    borderWidth: 1,
+    borderColor: "#333",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginHorizontal: 20,
+    marginVertical: 5,
+    backgroundColor: "#FFF",
+  },
 
-  expenseName: {},
+  expenseName: {
+    fontWeight: "bold",
+    fontSize: 18,
+  },
 
-  expenseValue: {},
+  expenseValue: {
+    fontWeight: "bold",
+  },
+
+  expenseObs: {},
 });
 
 export default ExpenseList;

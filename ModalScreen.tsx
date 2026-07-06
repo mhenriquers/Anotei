@@ -20,16 +20,38 @@ interface ModalScreenProps {
   onSave: (expenseData: Omit<Type, "id" | "createdAt">) => void;
 }
 
-export const ModalScreen: React.FC<ModalScreenProps> = ({
+const ModalScreen: React.FC<ModalScreenProps> = ({
   visible,
   onClose,
+  onSave,
 }) => {
   const [paymentMethod, setPaymentMethod] = useState<"credit card" | "debit">(
     "credit card",
   );
   const [nameExpense, setNameExpense] = useState("");
   const [amount, setAmount] = useState("");
+  const [obs, setObs] = useState("");
+
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  const handleAdd = () => {
+    if (nameExpense.trim() === "" || amount.trim() === "") {
+      return;
+    }
+    const valorNumerico = parseFloat(amount.replace(",", "."));
+
+    if (isNaN(valorNumerico)) {
+      return;
+    }
+    onSave({
+      title: nameExpense,
+      amount: valorNumerico,
+      category: paymentMethod,
+      observacao: obs,
+    });
+    setNameExpense("");
+    setAmount("");
+  };
 
   React.useEffect(() => {
     const showlistener = Keyboard.addListener("keyboardDidShow", () => {
@@ -87,6 +109,8 @@ export const ModalScreen: React.FC<ModalScreenProps> = ({
                     <TextInput
                       style={styles.input}
                       placeholder="Valor da Compra"
+                      value={amount}
+                      onChangeText={setAmount}
                       keyboardType="numeric"
                     />
                   </View>
@@ -96,6 +120,8 @@ export const ModalScreen: React.FC<ModalScreenProps> = ({
                     <TextInput
                       style={styles.input}
                       placeholder="Digite a observação"
+                      value={obs}
+                      onChangeText={setObs}
                     />
                   </View>
 
@@ -150,7 +176,7 @@ export const ModalScreen: React.FC<ModalScreenProps> = ({
                       </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={handleAdd}>
                       <View style={styles.buttonSave}>
                         <Text style={styles.buttonText}> Adicionar </Text>
                       </View>
