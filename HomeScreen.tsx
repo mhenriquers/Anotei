@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ModalScreen from "./ModalScreen";
 import { Type, RootStackParamList } from "./Types";
 import ExpenseList from "./ExpensesList";
+import Bills from "./Bills";
 
 interface AppProps {}
 
@@ -36,7 +37,10 @@ const HomeScreen: React.FC<{
         <Image source={require("./assets/logo.png")} style={styles.logo} />
 
         <View style={styles.containerCards}>
-          <TouchableOpacity style={[styles.card, styles.subCard]}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Bills")}
+            style={[styles.card, styles.subCard]}
+          >
             <Text style={styles.subtitle}> Fixas: </Text>
             <Text style={styles.value}> R$ 0,00 </Text>
           </TouchableOpacity>
@@ -54,7 +58,10 @@ const HomeScreen: React.FC<{
         </View>
 
         <View style={styles.containerCards}>
-          <TouchableOpacity style={[styles.card, styles.subCard]}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ExpenseList")}
+            style={[styles.card, styles.subCard]}
+          >
             <Text style={styles.subtitle}> Débito </Text>
             <Text style={styles.value}> R$ {totalGastoDebito.toFixed(2)} </Text>
           </TouchableOpacity>
@@ -168,11 +175,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 10,
     flex: 1,
-  },
-
-  buttonTrigger: {
-    alignItems: "center",
-    justifyContent: "center",
   },
 
   triggertext: {

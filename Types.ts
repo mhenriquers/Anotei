@@ -9,4 +9,5 @@ export interface Type {
 export type RootStackParamList = {
   Home: undefined;
   ExpenseList: undefined;
+  Bills: undefined;
 };

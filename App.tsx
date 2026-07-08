@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Type, RootStackParamList } from "./Types";
 import { NavigationContainer } from "@react-navigation/native";
 import {
@@ -9,7 +9,11 @@ import ExpenseList from "./ExpensesList";
 import HomeScreen from "./HomeScreen";
 import ModalScreen from "./ModalScreen";
 import { TouchableOpacity, Image, StyleSheet, Text, View } from "react-native";
-// import { View } from "react-native/types_generated/index";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import Bills from "./Bills";
+
+//import { create } from "react-native/types_generated/Libraries/ReactNative/ReactFabricPublicInstance/ReactNativeAttributePayload";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -27,16 +31,6 @@ const App: React.FC = () => {
 
   const valorTotal = valorTotalCredito + valorTotalDebito;
 
-  const handleSaveExpense = (newExpenseData: any) => {
-    const completeExpense: Type = {
-      ...newExpenseData,
-      id: Math.random().toString(),
-      createdAt: new Date(),
-    };
-    setExpenses((currentExpenses) => [...currentExpenses, completeExpense]);
-    setIsModalVisible(false);
-  };
-
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [selectedExpenseIds, setSelectedExpenseIds] = useState<string[]>([]);
@@ -44,20 +38,6 @@ const App: React.FC = () => {
   const [isDeleteMode, setIsDeleteMode] = useState(false);
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-
-  const handleDeleteExpense = () => {
-    if (selectedExpenseIds) {
-      setExpenses((currentExpenses) =>
-        currentExpenses.filter(
-          (expense) => !selectedExpenseIds.includes(expense.id),
-        ),
-      );
-      setSelectedExpenseIds([]);
-      alert("Gasto deletado!");
-    } else {
-      alert("Selecione ao menos um gasto");
-    }
-  };
 
   //----------------------------- estudar oq isso faz ----------------------------------------
 
@@ -68,6 +48,66 @@ const App: React.FC = () => {
         : [...prev, id],
     );
   };
+  // ------------------------função para salvar os dados
+  const saveExpenses = async (expensesToSave: Type[]) => {
+    try {
+      await AsyncStorage.setItem("expenses", JSON.stringify(expensesToSave));
+    } catch (error) {
+      console.error("Erro ao salvar gastos", error);
+    }
+  };
+  //--------------------------função para carregar os dados
+
+  const loadExpenses = async () => {
+    try {
+      const savedExpenses = await AsyncStorage.getItem("expenses");
+      if (savedExpenses) {
+        const parsedExpenses = JSON.parse(savedExpenses);
+
+        //converter as datas para Date
+
+        const expenseWithDates = parsedExpenses.map((expense: any) => ({
+          ...expense,
+          createdAt: new Date(expense.createdAt),
+        }));
+        setExpenses(expenseWithDates);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dados", error);
+    }
+  };
+  //------------------------------------------função para salvar
+  const handleSaveExpense = (newExpenseData: any) => {
+    const completeExpense: Type = {
+      ...newExpenseData,
+      id: Math.random().toString(),
+      createdAt: new Date(),
+    };
+
+    const updateExpenses = [...expenses, completeExpense];
+    setExpenses(updateExpenses);
+    saveExpenses(updateExpenses);
+    setIsModalVisible(false);
+  };
+
+  //----------------------------------------- função para deletar
+  const handleDeleteExpense = () => {
+    if (selectedExpenseIds.length > 0) {
+      const updatedExpenses = expenses.filter(
+        (expense) => !selectedExpenseIds.includes(expense.id),
+      );
+      setExpenses(updatedExpenses);
+      saveExpenses(updatedExpenses);
+      setSelectedExpenseIds([]);
+      alert("Gasto deletado!");
+    } else {
+      alert("Selecione ao menos um gasto");
+    }
+  };
+
+  useEffect(() => {
+    loadExpenses();
+  }, []);
 
   return (
     <NavigationContainer>
@@ -126,6 +166,12 @@ const App: React.FC = () => {
             />
           )}
         </Stack.Screen>
+
+        <Stack.Screen
+          name={"Bills"}
+          component={Bills}
+          options={{ headerShown: true, headerTitle: "Contas Fixas" }}
+        ></Stack.Screen>
       </Stack.Navigator>
 
       {isMenuVisible && (
