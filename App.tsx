@@ -12,7 +12,7 @@ import { TouchableOpacity, Image, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Bills from "./Screens/Bills";
 import ModalBill from "./components/ModalBills";
-import RenderCard from "./components/RenderCard";
+import MenuOverlay from "./components/MenuOverlay";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -253,29 +253,27 @@ const App: React.FC = () => {
                 setModalType("bill");
                 setIsModalVisible(true);
               }}
+              onDeleteBills={(updatedBills) => setBills(updatedBills)}
             />
           )}
         </Stack.Screen>
       </Stack.Navigator>
 
-      {/*----------------------condicional Menu De Exclusão------------------ */}
-
-      {isMenuVisible && (
-        <View style={styles.menuOverlay}>
-          <TouchableOpacity
-            onPress={() => {
-              if (expenses.length > 0) {
-                setIsDeleteMode(true);
-                setIsMenuVisible(false);
-              } else {
-                alert("Não há mais que possa ser feito! ");
-              }
-            }}
-          >
-            <Text style={styles.menuOption}> Apagar </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {/*---------------------- Menu Suspenso (3 Pontos) Reutilizável ------------------ */}
+      <MenuOverlay
+        isVisible={isMenuVisible}
+        dataLength={expenses.length}
+        dataType="expenses"
+        onOpen={() => {
+          if (expenses.length > 0) {
+            setIsDeleteMode(true); // Abre o modal de exclusão
+            setIsMenuVisible(false); // Fecha o menu de 3 pontos
+          } else {
+            alert("Não há gastos para excluir!");
+          }
+        }}
+        onClose={() => setIsMenuVisible(false)}
+      />
 
       {/*----------------------Variavel de controle Modal------------------ */}
 

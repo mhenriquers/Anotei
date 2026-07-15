@@ -1,31 +1,37 @@
 {
   "expo": {
     "name": "Anotei",
-    "slug": "Anotei",
+    "slug": "trackingwaste",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/IconLogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+
     "ios": {
       "supportsTablet": true
     },
+
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
+
       "edgeToEdgeEnabled": true,
-      "package": "com.owdail10.trackingwaste"
+      "package": "com.owdail10.anotei"
     },
+
     "web": {
       "favicon": "./assets/favicon.png"
     },
+
     "extra": {
       "eas": {
         "projectId": "f01286d3-cc88-4de7-aca3-bcd598ad36e7"

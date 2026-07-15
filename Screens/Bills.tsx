@@ -19,9 +19,14 @@ import ProgressBar from "../components/ProgressBar";
 interface BillProps {
   onOpenModal: () => void;
   innerBill: InterfaceBill[];
+  onDeleteBills: (updatedBills: InterfaceBill[]) => void;
 }
 
-const Bills: React.FC<BillProps> = ({ onOpenModal, innerBill }) => {
+const Bills: React.FC<BillProps> = ({
+  onOpenModal,
+  innerBill,
+  onDeleteBills,
+}) => {
   //-------------------------------- variaveis de controle
 
   const navigation = useNavigation();
@@ -54,6 +59,7 @@ const Bills: React.FC<BillProps> = ({ onOpenModal, innerBill }) => {
       // Nota: O próprio modal já pode salvar no AsyncStorage,
       // mas manter aqui garante que o estado local fique idêntico.
       saveBills(updatedBills);
+      onDeleteBills(updatedBills);
 
       alert("Conta(s) excluída(s) com sucesso!");
     } else {
