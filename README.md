@@ -1,5 +1,5 @@
 <p align= 'center'>
-  <img src= './assets/anotei-faixa.gif">
+  <img src= './assets/anotei-faixa.gif'>
   </p>
 # 📱 Anotei - Controle Financeiro Pessoal
 
