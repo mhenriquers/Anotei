@@ -66,5 +66,5 @@ Se você deseja clonar o repositório e executar o código em sua máquina:
 
 1. Clone o repositório:
    ```bash
-   git clone [https://github.com/mhenriquers/Anotei.git](https://github.com/mhenriquers/Anotei.git)
+   git clone https://github.com/mhenriquers/Anotei.git
    ```
