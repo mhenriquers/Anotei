@@ -1,7 +1,7 @@
 <p align= 'center'>
   <img src= './assets/anotei-faixa.gif'>
   </p>
-# 📱 Anotei - Controle Financeiro Pessoal
+## 📱 Anotei - Controle Financeiro Pessoal
 
 **Anotei** é um aplicativo móvel leve, moderno e intuitivo desenvolvido para ajudar você a registrar seus gastos diários e gerenciar suas contas recorrentes de forma simples. Focado em praticidade e privacidade, o app funciona de maneira totalmente offline, mantendo todos os seus dados financeiros seguros dentro do seu próprio dispositivo.
 
