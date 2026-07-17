@@ -10,18 +10,6 @@
 
 ---
 
-## 📸 Demonstração
-
-_(Substitua as imagens abaixo pelos prints do seu aplicativo funcionando)_
-
-<p align="center">
-  <img src="./assets/print_home.png" width="30%" alt="Tela Inicial" />
-  <img src="./assets/print_gastos.png" width="30%" alt="Tela de Gastos" />
-  <img src="./assets/print_contas.png" width="30%" alt="Tela de Contas Fixas" />
-</p>
-
----
-
 ## ✨ Principais Funcionalidades
 
 - **Registro de Gastos Diários:** Cadastre suas despesas de forma rápida, separando os registros entre transações no Débito e Crédito.
@@ -50,13 +38,26 @@ Este projeto foi construído utilizando as melhores práticas do ecossistema Rea
 
 Você pode testar a versão estável do aplicativo diretamente no seu celular Android sem precisar configurar um ambiente de desenvolvimento:
 
-👉 **[Clique aqui para baixar o Anotei v1.0.0 (Download Direto do APK)](COLE_AQUI_O_LINK_DIRETO_DA_SUA_RELEASE)**
+👉 **[Clique aqui para baixar o Anotei v1.0.0 (Download Direto do APK)](https://github.com/mhenriquers/Anotei/releases/download/v1.0.0/Anotei.apk)**
 
 ### Passo a passo para instalar:
 
 1. Clique no link acima para baixar o arquivo `.apk` diretamente em seu smartphone.
 2. Ao finalizar o download, toque no arquivo para iniciar a instalação (caso o Android solicite permissão para "Instalar aplicativos de fontes desconhecidas", basta habilitar nas configurações).
 3. Abra o app e comece a organizar suas finanças!
+
+---
+
+## 📸 Permissões para app de terceiros:
+
+Como o app não é esta na GooglePlay, talvez o dispositivo bloqueie a instalação. abaixo estão algumas soluções:
+
+<p align="center">
+  <img src="./assets/mais-detalhes.jpeg" width="30%" alt="Google Play Protect" />
+  <img src="./assets/instalar-assim-mesmo.jpeg" width="30%" alt="Google Play Protect" />
+  <img src="./assets/samsumg-browser.jpeg" width="30%" alt="Samsumg browser" />
+  <img src="./assets/config.jpeg" width="30%" alt="Samsumg browser" />
+</p>
 
 ---
 
