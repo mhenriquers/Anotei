@@ -15,7 +15,6 @@
 - **Resumo Financeiro Automático:** Acompanhe em tempo real na tela principal o total geral acumulado, além dos valores específicos gastos em cada modalidade de cartão.
 - **Gestão de Contas Fixas (Recorrentes):** Controle seus boletos e contas do mês informando o nome, valor, data de vencimento e observações personalizadas.
 - **Barra de Progresso Dinâmica:** Veja de forma visual a porcentagem de contas pagas no mês conforme você marca as pendências como concluídas.
-- **Exclusão Avançada em Lote:** Selecione múltiplos itens de uma vez e apague-os rapidamente usando um modal de exclusão genérico e interativo.
 - **Privacidade Absoluta (100% Offline):** Seus dados são seus. Nenhuma informação é enviada para servidores externos ou bancos de dados na nuvem; tudo é persistido de forma segura localmente no aparelho.
 
 ## 🛠️ Tecnologias Utilizadas
