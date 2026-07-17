@@ -48,13 +48,15 @@ Você pode testar a versão estável do aplicativo diretamente no seu celular An
 
 ---
 
-## 📸 Permissões para app de terceiros:
+## 📸 Permissão para app de terceiros:
 
 Como o app não é esta na GooglePlay, talvez o dispositivo bloqueie a instalação. abaixo estão algumas soluções:
 
 <p align="center">
+Google PLay Protect
   <img src="./assets/mais-detalhes.jpeg" width="30%" alt="Google Play Protect" />
   <img src="./assets/instalar-assim-mesmo.jpeg" width="30%" alt="Google Play Protect" />
+Samsumg browser
   <img src="./assets/samsumg-browser.jpeg" width="30%" alt="Samsumg browser" />
   <img src="./assets/config.jpeg" width="30%" alt="Samsumg browser" />
 </p>
