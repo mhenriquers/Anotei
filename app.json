@@ -6,36 +6,36 @@
     "orientation": "portrait",
     "icon": "./assets/IconLogo.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-
-    "splash": {
-      "image": "./assets/IconLogo.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-
     "ios": {
       "supportsTablet": true
     },
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/IconLogo.png",
         "backgroundColor": "#000000"
       },
-
-      "edgeToEdgeEnabled": true,
       "package": "com.owdail10.anotei"
     },
-
     "web": {
       "favicon": "./assets/favicon.png"
     },
-
     "extra": {
       "eas": {
         "projectId": "f01286d3-cc88-4de7-aca3-bcd598ad36e7"
       }
-    }
+    },
+    "plugins": [
+      "expo-status-bar",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/IconLogo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ]
   }
 }

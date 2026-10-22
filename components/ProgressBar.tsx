@@ -1,20 +1,22 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Animated } from "react-native";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import { colors } from "../theme";
 
 interface ProgressBarProps {
   progress: number; // 0 a 100
   label?: string;
+  compact?: boolean; // só a barra, sem título
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   label = "Progresso",
+  compact = false,
 }) => {
   const getBarColor = (): string => {
-    if (progress < 33) return "#e74c3c";
-    if (progress < 66) return "#f39c12";
-    return "#41d606";
+    if (progress < 33) return colors.danger;
+    if (progress < 66) return colors.warning;
+    return colors.primary;
   };
 
   const animatedWidth = React.useRef(new Animated.Value(progress)).current;
@@ -28,11 +30,15 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   }, [progress]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.labelRow}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.percentage}>{Math.round(progress)}%</Text>
-      </View>
+    <View>
+      {!compact && (
+        <View style={styles.labelRow}>
+          <Text style={styles.label}>{label}</Text>
+          <Text style={[styles.percentage, { color: getBarColor() }]}>
+            {Math.round(progress)}%
+          </Text>
+        </View>
+      )}
       <View style={styles.barBackground}>
         <Animated.View
           style={[
@@ -52,12 +58,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-  },
   labelRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -66,22 +66,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: colors.text,
   },
   percentage: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#41d606",
+    fontWeight: "700",
   },
   barBackground: {
     height: 8,
-    backgroundColor: "#ddd",
+    backgroundColor: colors.border,
     borderRadius: 4,
     overflow: "hidden",
   },
   barFill: {
     height: "100%",
-    backgroundColor: "#41d606",
     borderRadius: 4,
   },
 });

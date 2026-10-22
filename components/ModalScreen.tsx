@@ -1,18 +1,20 @@
-import React, { FC, useState } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
-  Image,
   TouchableWithoutFeedback,
   TextInput,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
+import { colors } from "../theme";
+import { formStyles as styles } from "./formStyles";
 
 interface ModalScreenProps {
   visible: boolean;
@@ -31,11 +33,14 @@ export const handleBackgroundTap = (
     onClose();
   }
 };
+
 const ModalScreen: React.FC<ModalScreenProps> = ({
   visible,
   onClose,
   onSave,
 }) => {
+  const insets = useSafeAreaInsets();
+
   //-----------------------varavel de controle do teclado-----------------------------
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
@@ -49,18 +54,20 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
   //-------------------------------- função que adiciona e salva card---------------------
   const handleAdd = () => {
     if (nameExpense.trim() === "" || amount.trim() === "") {
-      alert("Preencha os Campos de Nome e Valor!");
+      alert("Preencha os campos de Nome e Valor!");
+      return;
     }
     const valorNumerico = parseFloat(amount.replace(",", "."));
 
     if (isNaN(valorNumerico)) {
+      alert("Digite um valor válido.");
       return;
     }
     onSave({
-      title: nameExpense,
+      title: nameExpense.trim(),
       amount: valorNumerico,
       category: paymentMethod,
-      observacao: obs,
+      observacao: obs.trim(),
     });
     setNameExpense("");
     setAmount("");
@@ -83,119 +90,137 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
 
   const handlePress = () => handleBackgroundTap(isKeyboardVisible, onClose);
 
+  //-------------------------- botão do tipo de pagamento --------------------------
+  const renderOption = (
+    value: "credit card" | "debit",
+    label: string,
+    icon: "card-outline" | "cash-outline",
+    color: string,
+  ) => {
+    const active = paymentMethod === value;
+    return (
+      <TouchableOpacity
+        style={[styles.segmentButton, active && styles.segmentButtonActive]}
+        onPress={() => setPaymentMethod(value)}
+      >
+        <Ionicons
+          name={icon}
+          size={18}
+          color={active ? color : colors.textMuted}
+        />
+        <Text style={[styles.segmentText, active && { color }]}>{label}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <Modal visible={visible} transparent={true} animationType="fade">
-      <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
         <TouchableWithoutFeedback onPress={handlePress}>
-          <View style={styles.modalOverlay}>
+          <View style={styles.overlay}>
             <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-              <View style={styles.modalCard}>
-                <View style={styles.titleContainer}>
-                  <Text style={styles.titleText}> Adicionar Gasto </Text>
-                  <TouchableOpacity onPress={onClose}>
-                    <View style={styles.closeImageContainer}>
-                      <Image
-                        source={require("./../assets/closeImage.png")}
-                        style={styles.closeImage}
-                      />
-                    </View>
+              <View
+                style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}
+              >
+                <View style={styles.handle} />
+
+                <View style={styles.header}>
+                  <Text style={styles.title}>Novo gasto</Text>
+                  <TouchableOpacity
+                    onPress={onClose}
+                    style={styles.closeButton}
+                    accessibilityLabel="Fechar"
+                  >
+                    <Ionicons name="close" size={20} color={colors.text} />
                   </TouchableOpacity>
                 </View>
-                {/*-----------------------------Cards de Inputs -----------------------------*/}
 
-                <View style={styles.generalContainer}>
-                  {/*---------------input Nome--------------*/}
-
-                  <View style={styles.containerLabel}>
-                    <Text style={styles.modaltext}>Nome: </Text>
+                {/*---------------input Nome--------------*/}
+                <View style={styles.field}>
+                  <Text style={styles.label}>Nome</Text>
+                  <View style={styles.inputWrapper}>
                     <TextInput
                       style={styles.input}
-                      placeholder="Nome da compra"
+                      placeholder="Ex: Mercado"
+                      placeholderTextColor={colors.textLight}
                       value={nameExpense}
                       onChangeText={setNameExpense}
                     />
                   </View>
-                  {/*--------------input Valor--------------*/}
-                  <View style={styles.containerLabel}>
-                    <Text style={styles.modaltext}>Valor: </Text>
+                </View>
+
+                {/*--------------input Valor--------------*/}
+                <View style={styles.field}>
+                  <Text style={styles.label}>Valor</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.prefix}>R$</Text>
                     <TextInput
                       style={styles.input}
-                      placeholder="Valor da Compra"
+                      placeholder="0,00"
+                      placeholderTextColor={colors.textLight}
                       value={amount}
                       onChangeText={setAmount}
-                      keyboardType="numeric"
+                      keyboardType="decimal-pad"
                     />
                   </View>
+                </View>
 
-                  {/*-------------input Obs-----------------*/}
-
-                  <View style={styles.containerLabel}>
-                    <Text style={styles.modaltext}> Obs : </Text>
+                {/*-------------input Obs-----------------*/}
+                <View style={styles.field}>
+                  <Text style={styles.label}>Observação (opcional)</Text>
+                  <View style={styles.inputWrapper}>
                     <TextInput
                       style={styles.input}
-                      placeholder="Observação (opcional)"
+                      placeholder="Ex: compra parcelada"
+                      placeholderTextColor={colors.textLight}
                       value={obs}
                       onChangeText={setObs}
                     />
                   </View>
+                </View>
 
-                  <View style={styles.containerLabel}>
-                    <Text style={styles.modaltext}> Tipo: </Text>
-                    <View style={styles.menu}>
-                      {/*-----------------------------------Credit Card Option----------------------------------------*/}
-
-                      <TouchableOpacity
-                        style={[
-                          styles.menuButton,
-                          paymentMethod === "credit card" &&
-                            styles.activeMenuButton,
-                        ]}
-                        onPress={() => setPaymentMethod("credit card")}
-                      >
-                        <Text
-                          style={[
-                            styles.menuButtonText,
-                            paymentMethod === "credit card" &&
-                              styles.activeMenuText,
-                          ]}
-                        >
-                          Crédito
-                        </Text>
-                      </TouchableOpacity>
-
-                      {/*-----------------------------------Debit Option--------------------------------------------- */}
-                      <TouchableOpacity
-                        style={[
-                          styles.menuButton,
-                          paymentMethod === "debit" && styles.activeMenuButton,
-                        ]}
-                        onPress={() => setPaymentMethod("debit")}
-                      >
-                        <Text
-                          style={[
-                            styles.menuButtonText,
-                            paymentMethod === "debit" && styles.activeMenuText,
-                          ]}
-                        >
-                          Débito
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
+                {/*-------------tipo de pagamento-----------------*/}
+                <View style={styles.field}>
+                  <Text style={styles.label}>Forma de pagamento</Text>
+                  <View style={styles.segment}>
+                    {renderOption(
+                      "credit card",
+                      "Crédito",
+                      "card-outline",
+                      colors.credit,
+                    )}
+                    {renderOption(
+                      "debit",
+                      "Débito",
+                      "cash-outline",
+                      colors.debit,
+                    )}
                   </View>
+                </View>
 
-                  <View style={styles.containerButton}>
-                    <TouchableOpacity onPress={onClose}>
-                      <View style={styles.buttonCancel}>
-                        <Text style={styles.buttonText}> Cancelar </Text>
-                      </View>
-                    </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    onPress={onClose}
+                    style={[styles.button, styles.buttonSecondary]}
+                  >
+                    <Text style={styles.buttonSecondaryText}>Cancelar</Text>
+                  </TouchableOpacity>
 
-                    <TouchableOpacity onPress={handleAdd}>
-                      <View style={styles.buttonSave}>
-                        <Text style={styles.buttonText}> Adicionar </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    onPress={handleAdd}
+                    style={[styles.button, styles.buttonPrimary]}
+                  >
+                    <Text style={styles.buttonPrimaryText}>Adicionar</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -205,148 +230,5 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-
-  modalCard: {
-    position: "absolute",
-    top: "20%",
-    right: "10%",
-    width: "80%",
-    borderRadius: 16,
-    elevation: 15,
-    shadowRadius: 5,
-    backgroundColor: "#fff",
-  },
-
-  generalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingBottom: 20,
-  },
-
-  titleContainer: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  titleText: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
-    paddingLeft: 10,
-    paddingTop: 10,
-  },
-
-  closeImageContainer: {
-    alignSelf: "flex-end",
-  },
-
-  closeImage: {
-    width: 30,
-    height: 30,
-    margin: 15,
-    alignSelf: "flex-end",
-    justifyContent: "flex-end",
-  },
-
-  containerLabel: {
-    flexDirection: "row",
-    height: 60,
-    justifyContent: "center",
-  },
-
-  modaltext: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginLeft: 10,
-    marginTop: 15,
-    width: "20%",
-  },
-
-  input: {
-    width: "65%",
-    height: "auto",
-    margin: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-  },
-
-  menu: {
-    flexDirection: "row",
-    width: "65%",
-    height: 45,
-    margin: 10,
-    borderWidth: 1,
-    borderColor: "#CCC",
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-
-  menuButton: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fafafa",
-  },
-
-  activeMenuButton: {
-    backgroundColor: "#41d606",
-  },
-
-  menuButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#666",
-  },
-
-  activeMenuText: {
-    color: "#fff",
-  },
-
-  containerButton: {
-    flexDirection: "row",
-  },
-
-  buttonCancel: {
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#fafafa",
-    borderRadius: 10,
-    marginTop: 15,
-    marginRight: 20,
-    backgroundColor: "red",
-  },
-
-  buttonSave: {
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#fafafa",
-    borderRadius: 10,
-    marginTop: 15,
-    marginLeft: 20,
-    backgroundColor: "#41d606",
-  },
-
-  buttonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    margin: 15,
-    color: "#fff",
-  },
-});
 
 export default ModalScreen;

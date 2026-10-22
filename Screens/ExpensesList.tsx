@@ -1,14 +1,11 @@
-import React, { useState } from "react"; // Adicionado useState aqui
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import React from "react";
+import { View, Text, StyleSheet, FlatList } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
 import MenuExclusaoGenerico from "../components/ExcluseMenu";
+import ExpenseItem from "../components/ExpenseItem";
+import { colors, radius, shadow, formatBRL } from "../theme";
 
 interface ExpenseProps {
   expenseList: Type[];
@@ -27,180 +24,147 @@ const ExpenseList: React.FC<ExpenseProps> = ({
   setIsDeleteMode,
   onDeleteExpenses,
 }) => {
+  //-------------------------- mais recentes primeiro --------------------------
+  const sortedExpenses = [...expenseList].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+
   return (
-    <View style={{ flex: 1 }}>
+    // edges "bottom": a lista termina acima dos botões do celular
+    <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
       <FlatList
+        contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           //--------------------------------CARD TOTAL---------------------------------//
-          <View style={styles.containerCards}>
-            <View style={[styles.totalCard, styles.totalCredit]}>
-              <Text style={styles.textTotal}>Crédito:</Text>
-              <Text style={styles.textoNumberTotal}>
-                R$ {totalGastoCredito.toFixed(2)}
-              </Text>
+          <View>
+            <View style={styles.summaryRow}>
+              <View style={[styles.summaryCard, { marginRight: 12 }]}>
+                <View style={styles.summaryLabelRow}>
+                  <Ionicons
+                    name="card-outline"
+                    size={16}
+                    color={colors.credit}
+                  />
+                  <Text style={styles.summaryLabel}>Crédito</Text>
+                </View>
+                <Text style={styles.summaryValue}>
+                  {formatBRL(totalGastoCredito)}
+                </Text>
+              </View>
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryLabelRow}>
+                  <Ionicons
+                    name="cash-outline"
+                    size={16}
+                    color={colors.debit}
+                  />
+                  <Text style={styles.summaryLabel}>Débito</Text>
+                </View>
+                <Text style={styles.summaryValue}>
+                  {formatBRL(totalGastoDebito)}
+                </Text>
+              </View>
             </View>
-            <View style={[styles.totalCard, styles.totalDebit]}>
-              <Text style={styles.textTotal}>Débito:</Text>
-              <Text style={styles.textoNumberTotal}>
-                R$ {totalGastoDebito.toFixed(2)}
+            {expenseList.length > 0 && (
+              <Text style={styles.sectionTitle}>
+                Histórico ({expenseList.length})
               </Text>
-            </View>
+            )}
           </View>
         }
-        data={expenseList}
+        data={sortedExpenses}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.expenseCard}>
-            <TouchableOpacity>
-              <View style={styles.cardSuperior}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    flex: 1,
-                  }}
-                >
-                  <Image
-                    source={
-                      item.category === "credit card"
-                        ? require("./../assets/credit-card-icon.png")
-                        : require("./../assets/money-icon.png")
-                    }
-                    style={styles.cardIcon}
-                  />
-                  <View style={styles.cardTitle}>
-                    <Text style={styles.expenseTitle} numberOfLines={2}>
-                      {item.title}
-                    </Text>
-                  </View>
-                </View>
-
-                <View>
-                  <Text style={styles.expenseValue}>
-                    R$ {item.amount.toFixed(2)}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.expenseInferior}>
-                {item.createdAt instanceof Date
-                  ? item.createdAt.toLocaleString("pt-BR")
-                  : String(item.createdAt)}
-              </Text>
-              {item.observacao && (
-                <Text style={styles.expenseInferior}>{item.observacao} </Text>
-              )}
-            </TouchableOpacity>
+        renderItem={({ item }) => <ExpenseItem item={item} />}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Ionicons
+              name="receipt-outline"
+              size={40}
+              color={colors.textLight}
+            />
+            <Text style={styles.emptyTitle}>Nenhum gasto registrado</Text>
+            <Text style={styles.emptyText}>
+              Volte para o início e toque no botão + para adicionar.
+            </Text>
           </View>
-        )}
+        }
       />
 
       {/* RENDERIZAÇÃO DO MODAL GENÉRICO PARA A LISTA DE GASTOS */}
       {isDeleteMode && (
         <MenuExclusaoGenerico
-          items={expenseList} // Aqui dentro da ExpenseList essa variável existe!
+          items={expenseList}
           storageKey="expenses"
-          title="Excluir Gastos"
-          subtitle="Selecione os gastos que deseja remover da lista:"
+          title="Excluir gastos"
+          subtitle="Selecione os gastos que deseja remover da lista."
           renderTitle={(item) => item.title}
-          renderSubtitle={(item) => `R$ ${item.amount.toFixed(2)}`}
-          onDelete={onDeleteExpenses} // Aqui dentro essa variável também existe!
+          renderSubtitle={(item) => formatBRL(item.amount)}
+          onDelete={onDeleteExpenses}
           onCancel={() => setIsDeleteMode(false)}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  containerCards: {
-    overflow: "visible",
-    paddingHorizontal: 12,
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  listContent: {
+    padding: 20,
+    paddingBottom: 10, // + 10 de margem do último card = 20, igual às laterais
+  },
+  summaryRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    marginBottom: 20,
   },
-  expenseCard: {
-    borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingBottom: 15,
-    marginHorizontal: 20,
-    marginVertical: 5,
-    backgroundColor: "#FFF",
-    elevation: 10,
+  summaryCard: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: 16,
+    ...shadow,
   },
-  totalCard: {
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 12,
-    marginVertical: 10,
+  summaryLabelRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#333",
   },
-  totalCredit: {
-    left: 10,
-    backgroundColor: "#90CAF9",
-    minWidth: "40%",
-  },
-  totalDebit: {
-    right: 15,
-    marginLeft: 5,
-    backgroundColor: "#bfffab",
-    minWidth: "40%",
-  },
-  textTotal: {
-    fontSize: 14,
-    color: "#666",
+  summaryLabel: {
+    fontSize: 13,
+    color: colors.textMuted,
     fontWeight: "500",
+    marginLeft: 6,
   },
-  textoNumberTotal: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    marginTop: 6,
+  summaryValue: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.text,
+    marginTop: 8,
   },
-  cardSuperior: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  expenseValue: {
-    fontWeight: "bold",
-    fontSize: 20,
-    textAlign: "right",
-  },
-  cardTitle: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    maxWidth: 165,
-  },
-  expenseTitle: {
-    paddingTop: 10,
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  expenseInferior: {
+  sectionTitle: {
     fontSize: 16,
-    marginTop: 2,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: 12,
   },
-  cardIcon: {
-    height: 50,
-    width: 50,
-  },
-  triggerCard: {
-    backgroundColor: "#e74c3c",
-    padding: 12,
-    margin: 20,
-    borderRadius: 8,
+  empty: {
     alignItems: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 20,
   },
-  triggerText: {
-    color: "#fff",
+  emptyTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
+    color: colors.text,
+    marginTop: 12,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: colors.textMuted,
+    textAlign: "center",
+    marginTop: 4,
   },
 });
 

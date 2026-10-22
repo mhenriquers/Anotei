@@ -1,8 +1,19 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { InterfaceBill, Type } from "../Types";
-import Bills from "./Bills";
+import ProgressBar from "../components/ProgressBar";
+import ExpenseItem from "../components/ExpenseItem";
+import DraggableFab from "../components/DraggableFab";
+import { colors, radius, shadow, formatBRL } from "../theme";
 
 interface HomeProps {
   navigation: any;
@@ -17,6 +28,7 @@ interface HomeProps {
 const HomeScreen: React.FC<HomeProps> = ({
   navigation,
   onOpenModal,
+  expenses,
   totalGastoCredito,
   totalGastoDebito,
   valorTotal,
@@ -24,154 +36,365 @@ const HomeScreen: React.FC<HomeProps> = ({
 }) => {
   const paidBills = innerBill.filter((bill) => bill.pago).length;
   const totalBills = innerBill.length;
+  const totalContas = innerBill.reduce(
+    (total, bill) => total + (bill.valor || 0),
+    0,
+  );
+  const billsProgress = totalBills > 0 ? (paidBills / totalBills) * 100 : 0;
+
+  //-------------------------- 3 gastos mais recentes --------------------------
+  const recentExpenses = [...expenses]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, 3);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <Image source={require("./../assets/logo.png")} style={styles.logo} />
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Bills")}
-          style={[styles.card, styles.subCard]}
+    <SafeAreaView
+      style={styles.safe}
+      edges={["top", "bottom", "left", "right"]}
+    >
+      {/* View interno: a tela e o botão + terminam acima dos botões do celular */}
+      <View style={styles.inner}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.subtitle}> Fixas: </Text>
-          <Text style={styles.progressText}>
-            {" "}
-            {paidBills}/{totalBills}{" "}
-          </Text>
-          <Text style={styles.value}> R$ 0,00 </Text>
-        </TouchableOpacity>
+          {/*-------------------------- Cabeçalho -------------------------- */}
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.greeting}>Olá!</Text>
+              <Text style={styles.headerTitle}>Suas finanças</Text>
+            </View>
+            <View style={styles.logoBox}>
+              <Image
+                source={require("./../assets/logo.png")}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+          </View>
 
-        <TouchableOpacity
-          onPress={() => navigation.navigate("ExpenseList")}
-          style={[styles.card, styles.subCard]}
-        >
-          <Text style={styles.subtitle}> Cartão: </Text>
-          <Text style={styles.value}> R$ {totalGastoCredito.toFixed(2)} </Text>
-        </TouchableOpacity>
+          {/*-------------------------- Card Total -------------------------- */}
+          <View style={styles.heroCard}>
+            <Text style={styles.heroLabel}>Total gasto</Text>
+            <Text style={styles.heroValue}>{formatBRL(valorTotal)}</Text>
+            <Text style={styles.heroHint}>
+              {expenses.length === 1
+                ? "1 gasto registrado"
+                : `${expenses.length} gastos registrados`}
+            </Text>
+          </View>
 
-        <TouchableOpacity
-          onPress={() => navigation.navigate("ExpenseList")}
-          style={[styles.card, styles.subCard]}
-        >
-          <Text style={styles.subtitle}> Débito </Text>
-          <Text style={styles.value}> R$ {totalGastoDebito.toFixed(2)} </Text>
-        </TouchableOpacity>
+          {/*-------------------------- Crédito e Débito -------------------------- */}
+          <View style={styles.statsRow}>
+            <TouchableOpacity
+              style={[styles.statCard, { marginRight: 12 }]}
+              onPress={() => navigation.navigate("ExpenseList")}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.iconBadge,
+                  { backgroundColor: colors.creditSoft },
+                ]}
+              >
+                <Ionicons name="card-outline" size={20} color={colors.credit} />
+              </View>
+              <Text style={styles.statLabel}>Crédito</Text>
+              <Text style={styles.statValue}>
+                {formatBRL(totalGastoCredito)}
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.card, styles.subCard]}>
-          <Text style={styles.subtitle}>Total:</Text>
-          <Text style={styles.value}>R$ {valorTotal.toFixed(2)} </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onOpenModal} style={styles.triggercard}>
-          <Text style={styles.triggertext}> + </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.statCard}
+              onPress={() => navigation.navigate("ExpenseList")}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.iconBadge,
+                  { backgroundColor: colors.debitSoft },
+                ]}
+              >
+                <Ionicons name="cash-outline" size={20} color={colors.debit} />
+              </View>
+              <Text style={styles.statLabel}>Débito</Text>
+              <Text style={styles.statValue}>
+                {formatBRL(totalGastoDebito)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/*-------------------------- Contas Fixas -------------------------- */}
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate("Bills")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.cardHeader}>
+              <View
+                style={[
+                  styles.iconBadge,
+                  { backgroundColor: colors.primarySoft },
+                ]}
+              >
+                <Ionicons
+                  name="calendar-outline"
+                  size={20}
+                  color={colors.primary}
+                />
+              </View>
+              <View style={styles.cardInfo}>
+                <Text style={styles.cardTitle}>Contas fixas</Text>
+                <Text style={styles.cardSubtitle}>
+                  {totalBills === 0
+                    ? "Nenhuma conta cadastrada"
+                    : `${paidBills} de ${totalBills} pagas`}
+                </Text>
+              </View>
+              <Text style={styles.cardValue}>{formatBRL(totalContas)}</Text>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={colors.textLight}
+              />
+            </View>
+            <ProgressBar progress={billsProgress} compact />
+          </TouchableOpacity>
+
+          {/*-------------------------- Últimos gastos -------------------------- */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Últimos gastos</Text>
+            {expenses.length > 0 && (
+              <TouchableOpacity
+                onPress={() => navigation.navigate("ExpenseList")}
+              >
+                <Text style={styles.link}>Ver todos</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {recentExpenses.length === 0 ? (
+            <View style={styles.empty}>
+              <Ionicons
+                name="receipt-outline"
+                size={36}
+                color={colors.textLight}
+              />
+              <Text style={styles.emptyTitle}>Nenhum gasto ainda</Text>
+              <Text style={styles.emptyText}>
+                Toque no botão + para registrar seu primeiro gasto.
+              </Text>
+            </View>
+          ) : (
+            recentExpenses.map((item) => (
+              <ExpenseItem key={item.id} item={item} />
+            ))
+          )}
+        </ScrollView>
+
+        <DraggableFab
+          onPress={onOpenModal}
+          storageKey="fab-position-home"
+          accessibilityLabel="Adicionar gasto"
+        />
       </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
-    alignItems: "center",
-    backgroundColor: "#faf7e7",
+    backgroundColor: colors.background,
+  },
+
+  inner: {
+    flex: 1,
+  },
+
+  content: {
     paddingHorizontal: 20,
+    paddingBottom: 10, // + 10 de margem do último card = 20, igual às laterais
   },
 
-  linkButton: {
-    marginTop: 20,
-    padding: 12,
-    backgroundColor: "#333",
-    borderRadius: 8,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 12,
+    paddingBottom: 20,
   },
 
-  linkButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+  greeting: {
+    fontSize: 15,
+    color: colors.textMuted,
   },
 
-  containerCards: {
-    borderWidth: 1,
-    borderColor: "#333",
-    width: "90%",
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: colors.text,
+  },
+
+  logoBox: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.lg,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadow,
   },
 
   logo: {
-    width: 250,
-    height: 250,
-    top: 0,
+    width: 48,
+    height: 48,
+  },
+
+  heroCard: {
+    backgroundColor: colors.hero,
+    borderRadius: radius.xl,
+    padding: 22,
+    marginBottom: 16,
+  },
+
+  heroLabel: {
+    fontSize: 14,
+    color: colors.heroMuted,
+    fontWeight: "500",
+  },
+
+  heroValue: {
+    fontSize: 34,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    marginTop: 6,
+  },
+
+  heroHint: {
+    fontSize: 13,
+    color: colors.heroMuted,
+    marginTop: 8,
+  },
+
+  statsRow: {
+    flexDirection: "row",
+    marginBottom: 16,
+  },
+
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: 16,
+    ...shadow,
+  },
+
+  iconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  statLabel: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 12,
+  },
+
+  statValue: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.text,
+    marginTop: 2,
   },
 
   card: {
-    alignSelf: "flex-start",
-    justifyContent: "center",
-    width: "97%",
-    borderRadius: 16,
-    elevation: 15,
-    shadowRadius: 5,
-    padding: 10,
-    shadowOffset: { width: 10, height: 0 },
-    backgroundColor: "#fff",
-    margin: 5,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: 16,
+    marginBottom: 24,
+    ...shadow,
   },
 
-  subCard: {
-    margin: 5,
-    marginTop: 0,
-    paddingVertical: 25,
+  cardHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  title: {
-    position: "absolute",
-    top: 50,
-    fontSize: 34,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 10,
-    alignSelf: "center",
-    justifyContent: "flex-start",
-  },
-
-  progressText: {
-    textAlign: "center",
-    alignSelf: "center",
-    fontSize: 20,
-  },
-
-  subtitle: {
-    fontSize: 20,
-    color: "#333",
-    fontWeight: "bold",
-    alignItems: "flex-start",
-    paddingLeft: 5,
-  },
-
-  value: {
-    fontSize: 18,
-    color: "#333",
-    fontWeight: "bold",
-  },
-
-  triggercard: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    backgroundColor: "#41d606",
-    justifyContent: "center",
     alignItems: "center",
-    elevation: 10,
-    flex: 1,
+    marginBottom: 14,
   },
 
-  triggertext: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#333",
+  cardInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.text,
+  },
+
+  cardSubtitle: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+
+  cardValue: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.text,
+    marginRight: 4,
+  },
+
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.text,
+  },
+
+  link: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.primary,
+  },
+
+  empty: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    paddingVertical: 28,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: "dashed",
+  },
+
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.text,
+    marginTop: 10,
+  },
+
+  emptyText: {
+    fontSize: 14,
+    color: colors.textMuted,
+    textAlign: "center",
+    marginTop: 4,
   },
 });
 

@@ -1,31 +1,28 @@
 import React from "react";
-import { TouchableOpacity, Image, StyleSheet } from "react-native";
+import { TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../theme";
 
 interface HeaderMenuProps {
   onMenuPress: () => void;
-  imageStyle?: {
-    width: number;
-    height: number;
-    marginRight?: number;
-  };
 }
 
-const HeaderMenu: React.FC<HeaderMenuProps> = ({ onMenuPress, imageStyle }) => {
+const HeaderMenu: React.FC<HeaderMenuProps> = ({ onMenuPress }) => {
   return (
-    <TouchableOpacity onPress={onMenuPress}>
-      <Image
-        source={require("./../assets/3-pontos.png")}
-        style={[styles.image, imageStyle]}
-      />
+    <TouchableOpacity
+      onPress={onMenuPress}
+      style={styles.button}
+      hitSlop={10}
+      accessibilityLabel="Abrir menu"
+    >
+      <Ionicons name="ellipsis-vertical" size={22} color={colors.text} />
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  image: {
-    width: 40,
-    height: 40,
-    marginRight: 10,
+  button: {
+    padding: 6,
   },
 });
 

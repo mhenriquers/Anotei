@@ -8,8 +8,12 @@ import {
 import ExpenseList from "./Screens/ExpensesList";
 import HomeScreen from "./Screens/HomeScreen";
 import ModalScreen from "./components/ModalScreen";
-import { TouchableOpacity, Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import HeaderMenu from "./components/HeaderMenu";
+import { colors } from "./theme";
 import Bills from "./Screens/Bills";
 import ModalBill from "./components/ModalBills";
 import MenuOverlay from "./components/MenuOverlay";
@@ -158,150 +162,133 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        {/*--------------------------Tela Home------------------------------ */}
-
-        <Stack.Screen name={"Home"} options={{ headerShown: false }}>
-          {(props) => (
-            <HomeScreen
-              {...props}
-              onOpenModal={() => {
-                setModalType("expense");
-                setIsModalVisible(true);
-              }}
-              expenses={expenses}
-              totalGastoCredito={valorTotalCredito}
-              totalGastoDebito={valorTotalDebito}
-              valorTotal={valorTotal}
-              innerBill={bills}
-            />
-          )}
-        </Stack.Screen>
-
-        {/*--------------------------Tela de Gastos------------------------------ */}
-
-        <Stack.Screen
-          name={"ExpenseList"}
-          options={{
-            headerShown: true,
-            headerTitle: "Meus Gastos",
-            headerRight: () => (
-              <TouchableOpacity
-                onPress={() => {
-                  setIsMenuVisible(true);
-                }}
-              >
-                <Image
-                  source={require("./assets/3-pontos.png")}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    marginRight: 0,
-                  }}
-                />
-              </TouchableOpacity>
-            ),
+    <SafeAreaProvider>
+      <StatusBar style="dark" />
+      <NavigationContainer>
+        <Stack.Navigator
+          id="RootStack"
+          screenOptions={{
+            headerStyle: { backgroundColor: colors.background },
+            headerShadowVisible: false,
+            headerTintColor: colors.text,
+            headerTitleStyle: { fontWeight: "700" },
+            contentStyle: { backgroundColor: colors.background },
           }}
-          listeners={({ navigation }) => ({
-            beforeRemove: () => {
-              setIsDeleteMode(false);
-              setIsMenuVisible(false);
-              setSelectedExpenseIds([]);
-            },
-          })}
         >
-          {(props) => (
-            <ExpenseList
-              expenseList={expenses}
-              totalGastoCredito={valorTotalCredito}
-              totalGastoDebito={valorTotalDebito}
-              isDeleteMode={isDeleteMode}
-              setIsDeleteMode={setIsDeleteMode}
-              onDeleteExpenses={handleDeleteExpenses}
-            />
-          )}
-        </Stack.Screen>
+          {/*--------------------------Tela Home------------------------------ */}
 
-        {/*--------------------------Tela Contas Fixas------------------------ */}
-
-        <Stack.Screen
-          name={"Bills"}
-          options={{
-            headerShown: true,
-            headerTitle: "Contas Fixas",
-            headerRight: () => (
-              <TouchableOpacity
-                onPress={() => {
-                  setIsMenuVisible(true);
+          <Stack.Screen name={"Home"} options={{ headerShown: false }}>
+            {(props) => (
+              <HomeScreen
+                {...props}
+                onOpenModal={() => {
+                  setModalType("expense");
+                  setIsModalVisible(true);
                 }}
-              >
-                <Image
-                  source={require("./assets/3-pontos.png")}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    marginRight: 0,
-                  }}
-                />
-              </TouchableOpacity>
-            ),
+                expenses={expenses}
+                totalGastoCredito={valorTotalCredito}
+                totalGastoDebito={valorTotalDebito}
+                valorTotal={valorTotal}
+                innerBill={bills}
+              />
+            )}
+          </Stack.Screen>
+
+          {/*--------------------------Tela de Gastos------------------------------ */}
+
+          <Stack.Screen
+            name={"ExpenseList"}
+            options={{
+              headerShown: true,
+              headerTitle: "Meus Gastos",
+              headerRight: () => (
+                <HeaderMenu onMenuPress={() => setIsMenuVisible(true)} />
+              ),
+            }}
+            listeners={({ navigation }) => ({
+              beforeRemove: () => {
+                setIsDeleteMode(false);
+                setIsMenuVisible(false);
+                setSelectedExpenseIds([]);
+              },
+            })}
+          >
+            {(props) => (
+              <ExpenseList
+                expenseList={expenses}
+                totalGastoCredito={valorTotalCredito}
+                totalGastoDebito={valorTotalDebito}
+                isDeleteMode={isDeleteMode}
+                setIsDeleteMode={setIsDeleteMode}
+                onDeleteExpenses={handleDeleteExpenses}
+              />
+            )}
+          </Stack.Screen>
+
+          {/*--------------------------Tela Contas Fixas------------------------ */}
+
+          <Stack.Screen
+            name={"Bills"}
+            options={{
+              headerShown: true,
+              headerTitle: "Contas Fixas",
+            }}
+            listeners={({ navigation }) => ({
+              beforeRemove: () => {
+                setIsModalVisible(false);
+              },
+            })}
+          >
+            {(props: NativeStackScreenProps<RootStackParamList, "Bills">) => (
+              <Bills
+                {...props}
+                innerBill={bills}
+                onOpenModal={() => {
+                  setModalType("bill");
+                  setIsModalVisible(true);
+                }}
+                onDeleteBills={(updatedBills) => setBills(updatedBills)}
+                onUpdateBills={handleUpdateBills}
+              />
+            )}
+          </Stack.Screen>
+        </Stack.Navigator>
+
+        {/*---------------------- Menu Suspenso (3 Pontos) Reutilizável ------------------ */}
+        <MenuOverlay
+          isVisible={isMenuVisible}
+          dataLength={expenses.length}
+          dataType="expenses"
+          onOpen={() => {
+            if (expenses.length > 0) {
+              setIsDeleteMode(true); // Abre o modal de exclusão
+              setIsMenuVisible(false); // Fecha o menu de 3 pontos
+            } else {
+              alert("Não há gastos para excluir!");
+            }
           }}
-          listeners={({ navigation }) => ({
-            beforeRemove: () => {
-              setIsModalVisible(false);
-            },
-          })}
-        >
-          {(props: NativeStackScreenProps<RootStackParamList, "Bills">) => (
-            <Bills
-              {...props}
-              innerBill={bills}
-              onOpenModal={() => {
-                setModalType("bill");
-                setIsModalVisible(true);
-              }}
-              onDeleteBills={(updatedBills) => setBills(updatedBills)}
-              onUpdateBills={handleUpdateBills}
-            />
-          )}
-        </Stack.Screen>
-      </Stack.Navigator>
-
-      {/*---------------------- Menu Suspenso (3 Pontos) Reutilizável ------------------ */}
-      <MenuOverlay
-        isVisible={isMenuVisible}
-        dataLength={expenses.length}
-        dataType="expenses"
-        onOpen={() => {
-          if (expenses.length > 0) {
-            setIsDeleteMode(true); // Abre o modal de exclusão
-            setIsMenuVisible(false); // Fecha o menu de 3 pontos
-          } else {
-            alert("Não há gastos para excluir!");
-          }
-        }}
-        onClose={() => setIsMenuVisible(false)}
-      />
-
-      {/*----------------------Variavel de controle Modal------------------ */}
-
-      {isModalVisible && modalType === "expense" && (
-        <ModalScreen
-          visible={isModalVisible}
-          onClose={() => setIsModalVisible(false)}
-          onSave={handleSaveExpense}
+          onClose={() => setIsMenuVisible(false)}
         />
-      )}
 
-      {isModalVisible && modalType === "bill" && (
-        <ModalBill
-          visible={isModalVisible}
-          onClose={() => setIsModalVisible(false)}
-          onSave={handleSaveBill}
-        />
-      )}
-    </NavigationContainer>
+        {/*----------------------Variavel de controle Modal------------------ */}
+
+        {isModalVisible && modalType === "expense" && (
+          <ModalScreen
+            visible={isModalVisible}
+            onClose={() => setIsModalVisible(false)}
+            onSave={handleSaveExpense}
+          />
+        )}
+
+        {isModalVisible && modalType === "bill" && (
+          <ModalBill
+            visible={isModalVisible}
+            onClose={() => setIsModalVisible(false)}
+            onSave={handleSaveBill}
+          />
+        )}
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 };
 const styles = StyleSheet.create({

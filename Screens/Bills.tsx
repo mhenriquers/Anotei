@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { View, StyleSheet, Text, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { InterfaceBill } from "../Types";
 import RenderCard from "../components/RenderCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,6 +10,8 @@ import { useNavigation } from "@react-navigation/native";
 import HeaderMenu from "../components/HeaderMenu";
 import MenuExclusaoGenerico from "../components/ExcluseMenu";
 import ProgressBar from "../components/ProgressBar";
+import DraggableFab from "../components/DraggableFab";
+import { colors, radius, shadow, formatBRL } from "../theme";
 
 interface BillProps {
   onOpenModal: () => void;
@@ -35,7 +32,6 @@ const Bills: React.FC<BillProps> = ({
   const [bills, setBills] = useState<InterfaceBill[]>([]);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
-  const [selectedBillIds, setSelectedBillIds] = useState<string[]>([]);
   const [progress, setProgress] = useState<number>(0);
 
   //-------------------------função para salvar contas fixas
@@ -58,8 +54,6 @@ const Bills: React.FC<BillProps> = ({
       );
 
       setBills(updatedBills);
-      // Nota: O próprio modal já pode salvar no AsyncStorage,
-      // mas manter aqui garante que o estado local fique idêntico.
       saveBills(updatedBills);
       onDeleteBills(updatedBills);
 
@@ -69,28 +63,19 @@ const Bills: React.FC<BillProps> = ({
     }
   };
 
-  const handleSelectBill = (id: string) => {
-    setSelectedBillIds((prev) => (prev.includes(id) ? [] : [id]));
-  };
-
   useEffect(() => {
-    console.log("innerBill recebido:", innerBill);
     setBills(innerBill);
   }, [innerBill]);
 
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <HeaderMenu
-          onMenuPress={() => setIsMenuVisible(true)}
-          imageStyle={{ width: 40, height: 40, marginRight: 10 }}
-        />
+        <HeaderMenu onMenuPress={() => setIsMenuVisible(true)} />
       ),
     });
   }, [navigation]);
 
   useEffect(() => {
-    console.log("bills atualizado:", bills);
     setProgress(calculaProgress());
   }, [bills]);
 
@@ -111,103 +96,162 @@ const Bills: React.FC<BillProps> = ({
     }
   };
 
+  //-------------------------- resumo do mês --------------------------
+  const total = bills.reduce((soma, bill) => soma + (bill.valor || 0), 0);
+  const totalPago = bills
+    .filter((bill) => bill.pago)
+    .reduce((soma, bill) => soma + (bill.valor || 0), 0);
+  const paidCount = bills.filter((bill) => bill.pago).length;
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ProgressBar progress={progress} label="Contas Pagas" />
-      <FlatList
-        data={bills}
-        renderItem={({ item }) => (
-          <RenderCard
-            itemCard={item}
-            onTogglePaid={() => handleTogglePaid(item.id)}
-          />
-        )} // Removida a prop key daqui
-        keyExtractor={(item) => item.id} // Este cara já resolve tudo sozinho
-        ListEmptyComponent={<Text> </Text>}
-      />
-
-      <MenuOverlay
-        isVisible={isMenuVisible}
-        dataLength={bills.length}
-        dataType="bills"
-        onOpen={() => {
-          setIsDeleteMode(true);
-          setIsMenuVisible(false);
-        }}
-        onClose={() => setIsMenuVisible(false)}
-      />
-
-      {isDeleteMode && (
-        <MenuExclusaoGenerico
-          items={bills}
-          storageKey="bills" // Sua chave do AsyncStorage
-          title="Excluir Contas"
-          subtitle="Selecione as contas que deseja apagar:"
-          renderTitle={(item) => item.nome}
-          renderSubtitle={(item) => `R$ ${item.valor.toFixed(2)}`}
-          onDelete={handleDeleteBill}
-          onCancel={() => setIsDeleteMode(false)}
+    <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
+      {/* View interno: a lista e o botão + terminam acima dos botões do celular */}
+      <View style={styles.inner}>
+        <FlatList
+          data={bills}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryRow}>
+                <View>
+                  <Text style={styles.summaryLabel}>Pago</Text>
+                  <Text style={styles.summaryValue}>
+                    {formatBRL(totalPago)}
+                  </Text>
+                </View>
+                <View style={{ alignItems: "flex-end" }}>
+                  <Text style={styles.summaryLabel}>Total do mês</Text>
+                  <Text style={styles.summaryTotal}>{formatBRL(total)}</Text>
+                </View>
+              </View>
+              <ProgressBar
+                progress={progress}
+                label={`${paidCount} de ${bills.length} contas pagas`}
+              />
+            </View>
+          }
+          renderItem={({ item }) => (
+            <RenderCard
+              itemCard={item}
+              onTogglePaid={() => handleTogglePaid(item.id)}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Ionicons
+                name="calendar-outline"
+                size={40}
+                color={colors.textLight}
+              />
+              <Text style={styles.emptyTitle}>Nenhuma conta fixa</Text>
+              <Text style={styles.emptyText}>
+                Cadastre aluguel, internet, luz e outras contas no botão +.
+              </Text>
+            </View>
+          }
         />
-      )}
-      <TouchableOpacity onPress={onOpenModal} style={styles.triggercard}>
-        <Text style={styles.triggertext}> + </Text>
-      </TouchableOpacity>
+
+        <MenuOverlay
+          isVisible={isMenuVisible}
+          dataLength={bills.length}
+          dataType="bills"
+          onOpen={() => {
+            setIsDeleteMode(true);
+            setIsMenuVisible(false);
+          }}
+          onClose={() => setIsMenuVisible(false)}
+        />
+
+        {isDeleteMode && (
+          <MenuExclusaoGenerico
+            items={bills}
+            storageKey="bills"
+            title="Excluir contas"
+            subtitle="Selecione as contas que deseja apagar."
+            renderTitle={(item) => item.nome}
+            renderSubtitle={(item) => formatBRL(item.valor)}
+            onDelete={handleDeleteBill}
+            onCancel={() => setIsDeleteMode(false)}
+          />
+        )}
+
+        <DraggableFab
+          onPress={onOpenModal}
+          storageKey="fab-position-bills"
+          accessibilityLabel="Adicionar conta"
+        />
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  triggercard: {
-    position: "absolute",
-    bottom: 70,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    backgroundColor: "#41d606",
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 10,
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+
+  inner: {
     flex: 1,
   },
 
-  triggertext: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#333",
+  listContent: {
+    padding: 20,
+    paddingBottom: 10, // + 10 de margem do último card = 20, igual às laterais
   },
 
-  containerButtons: {
-    position: "absolute",
-    bottom: 50,
-    left: 20,
-    right: 20,
+  summaryCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: 18,
+    marginBottom: 20,
+    ...shadow,
+  },
+
+  summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    zIndex: 100,
+    marginBottom: 16,
   },
 
-  textButtons: {
+  summaryLabel: {
+    fontSize: 13,
+    color: colors.textMuted,
+  },
+
+  summaryValue: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: colors.primary,
+    marginTop: 2,
+  },
+
+  summaryTotal: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: colors.text,
+    marginTop: 2,
+  },
+
+  empty: {
+    alignItems: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+
+  emptyTitle: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: "600",
+    color: colors.text,
+    marginTop: 12,
   },
 
-  cancelButton: {
-    backgroundColor: "#75d0fa",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    flex: 1,
-    marginRight: 10,
-  },
-
-  eraserButton: {
-    backgroundColor: "#d60606",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    flex: 1,
+  emptyText: {
+    fontSize: 14,
+    color: colors.textMuted,
+    textAlign: "center",
+    marginTop: 4,
   },
 });
 export default Bills;

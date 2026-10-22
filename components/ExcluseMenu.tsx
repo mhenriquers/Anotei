@@ -9,20 +9,24 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, radius } from "../theme";
+import { formStyles } from "./formStyles";
 
 // Adicionado o tipo genérico <T> que estende um objeto com 'id'
 interface MenuExclusaoGenericoProps<T extends { id: string }> {
   items: T[]; // A lista de dados (bills, expenses, etc.)
-  storageKey: string; // A chave específica do AsyncStorage para salvar (@bills:data, @expenses:data)
+  storageKey: string; // A chave específica do AsyncStorage para salvar
   title: string; // O título principal do Modal (ex: "Excluir Gastos")
   subtitle: string; // O subtítulo descritivo
-  renderTitle: (item: T) => string; // Função que escolhe qual propriedade é o título (ex: item => item.nome)
-  renderSubtitle: (item: T) => string; // Função que escolhe qual propriedade é o valor/subtítulo (ex: item => `R$ ${item.valor}`)
+  renderTitle: (item: T) => string; // Função que escolhe qual propriedade é o título
+  renderSubtitle: (item: T) => string; // Função que escolhe qual propriedade é o valor/subtítulo
   onDelete: (ids: string[]) => void; // Disparado passando os IDs deletados para atualizar a tela principal
   onCancel: () => void; // Fecha o modal
 }
 
-// O componente agora aceita o tipo genérico <T>
+// O componente aceita o tipo genérico <T>
 const MenuExclusaoGenerico = <T extends { id: string }>({
   items,
   storageKey,
@@ -33,6 +37,7 @@ const MenuExclusaoGenerico = <T extends { id: string }>({
   onDelete,
   onCancel,
 }: MenuExclusaoGenericoProps<T>) => {
+  const insets = useSafeAreaInsets();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
@@ -82,21 +87,27 @@ const MenuExclusaoGenerico = <T extends { id: string }>({
     onCancel();
   };
 
-  const renderItem = ({ item }: { item: T }) => (
-    <TouchableOpacity
-      style={[
-        styles.item,
-        selectedIds.includes(item.id) && styles.itemSelected,
-      ]}
-      onPress={() => handleSelect(item.id)}
-    >
-      <View style={styles.itemContent}>
+  const renderItem = ({ item }: { item: T }) => {
+    const selected = selectedIds.includes(item.id);
+    return (
+      <TouchableOpacity
+        style={[styles.item, selected && styles.itemSelected]}
+        onPress={() => handleSelect(item.id)}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.check, selected && styles.checkSelected]}>
+          {selected && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
+        </View>
         {/* Usa as funções dinâmicas passadas por props para renderizar os textos */}
-        <Text style={styles.description}>{renderTitle(item)}</Text>
+        <Text style={styles.description} numberOfLines={1}>
+          {renderTitle(item)}
+        </Text>
         <Text style={styles.amount}>{renderSubtitle(item)}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
+
+  const disabled = selectedIds.length === 0 || isDeleting;
 
   return (
     <Modal
@@ -104,10 +115,18 @@ const MenuExclusaoGenerico = <T extends { id: string }>({
       transparent={true}
       visible={items.length > 0}
       onRequestClose={handleCancel}
+      statusBarTranslucent
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <Text style={styles.title}>{title}</Text>
+      <View style={formStyles.overlay}>
+        <View
+          style={[
+            formStyles.sheet,
+            styles.sheet,
+            { paddingBottom: insets.bottom + 20 },
+          ]}
+        >
+          <View style={formStyles.handle} />
+          <Text style={formStyles.title}>{title}</Text>
           <Text style={styles.subtitle}>{subtitle}</Text>
 
           <FlatList
@@ -120,26 +139,25 @@ const MenuExclusaoGenerico = <T extends { id: string }>({
             }
           />
 
-          <View style={styles.buttonRow}>
+          <View style={formStyles.buttonRow}>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+              style={[formStyles.button, formStyles.buttonSecondary]}
               onPress={handleCancel}
               disabled={isDeleting}
             >
-              <Text style={styles.cancelText}>Cancelar</Text>
+              <Text style={formStyles.buttonSecondaryText}>Cancelar</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
-                styles.button,
+                formStyles.button,
                 styles.deleteButton,
-                (selectedIds.length === 0 || isDeleting) &&
-                  styles.buttonDisabled,
+                disabled && styles.buttonDisabled,
               ]}
               onPress={handleConfirmDelete}
-              disabled={selectedIds.length === 0 || isDeleting}
+              disabled={disabled}
             >
-              <Text style={styles.deleteText}>
+              <Text style={formStyles.buttonPrimaryText}>
                 {isDeleting
                   ? "Excluindo..."
                   : `Excluir (${selectedIds.length})`}
@@ -153,61 +171,54 @@ const MenuExclusaoGenerico = <T extends { id: string }>({
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  container: {
-    width: "85%",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
+  sheet: {
     maxHeight: "80%",
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 8,
-    textAlign: "center",
+  subtitle: {
+    fontSize: 14,
+    color: colors.textMuted,
+    marginTop: 4,
+    marginBottom: 14,
   },
-  subtitle: { fontSize: 14, color: "#666", marginBottom: 12 },
-  list: { maxHeight: 300 },
+  list: { maxHeight: 340 },
   item: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 14,
-    borderRadius: 8,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.border,
     marginBottom: 8,
   },
-  itemSelected: { borderColor: "#e74c3c", backgroundColor: "#fdecea" },
-  itemContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  itemSelected: {
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerSoft,
+  },
+  check: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: colors.textLight,
     alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
   },
-  description: { fontSize: 16, color: "#333", flex: 1 },
-  amount: { fontSize: 16, fontWeight: "600", color: "#333" },
-  emptyText: { textAlign: "center", color: "#999", marginTop: 20 },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 16,
+  checkSelected: {
+    backgroundColor: colors.danger,
+    borderColor: colors.danger,
   },
-  button: {
+  description: {
+    fontSize: 15,
+    color: colors.text,
+    fontWeight: "500",
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 4,
+    marginRight: 8,
   },
-  cancelButton: { backgroundColor: "#ecf0f1" },
-  deleteButton: { backgroundColor: "#e74c3c" },
+  amount: { fontSize: 15, fontWeight: "700", color: colors.text },
+  emptyText: { textAlign: "center", color: colors.textLight, marginTop: 20 },
+  deleteButton: { backgroundColor: colors.danger },
   buttonDisabled: { opacity: 0.5 },
-  cancelText: { color: "#333", fontSize: 16, fontWeight: "600" },
-  deleteText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });
 
 export default MenuExclusaoGenerico;

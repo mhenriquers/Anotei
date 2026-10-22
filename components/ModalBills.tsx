@@ -3,15 +3,18 @@ import {
   Modal,
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   TextInput,
   Keyboard,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  Image,
+  Platform,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { handleBackgroundTap } from "./ModalScreen";
+import { colors } from "../theme";
+import { formStyles as styles } from "./formStyles";
 
 interface ModalBill {
   visible: boolean;
@@ -20,6 +23,7 @@ interface ModalBill {
 }
 
 const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
+  const insets = useSafeAreaInsets();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const handlePress = () => handleBackgroundTap(isKeyboardVisible, onClose);
 
@@ -48,101 +52,128 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
   const handleSaveBill = () => {
     if (nome.trim() === "" || valor.trim() === "" || venc.trim() === "") {
       alert("Preencha os campos obrigatórios");
-    } else {
-      onSave({
-        id: Date.now().toString(),
-        nome,
-        valor: parseFloat(valor),
-        venc,
-        obs,
-        pago: false,
-      });
+      return;
     }
+    const valorNumerico = parseFloat(valor.replace(",", "."));
+
+    if (isNaN(valorNumerico)) {
+      alert("Digite um valor válido.");
+      return;
+    }
+    onSave({
+      id: Date.now().toString(),
+      nome: nome.trim(),
+      valor: valorNumerico,
+      venc: venc.trim(),
+      obs: obs.trim(),
+      pago: false,
+    });
   };
 
   return (
-    <Modal visible={visible} transparent={true} animationType="fade">
-      <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
         <TouchableWithoutFeedback onPress={handlePress}>
-          <View style={styles.containerModal}>
+          <View style={styles.overlay}>
             <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-              <View style={styles.modalCard}>
-                <View style={styles.titleContainer}>
-                  <Text style={styles.titleText}> Adicionar Conta </Text>
-                  <TouchableOpacity onPress={onClose}>
-                    <View style={styles.closeImageContainer}>
-                      <Image
-                        source={require("./../assets/closeImage.png")}
-                        style={styles.closeImage}
-                      />
-                    </View>
+              <View
+                style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}
+              >
+                <View style={styles.handle} />
+
+                <View style={styles.header}>
+                  <Text style={styles.title}>Nova conta fixa</Text>
+                  <TouchableOpacity
+                    onPress={onClose}
+                    style={styles.closeButton}
+                    accessibilityLabel="Fechar"
+                  >
+                    <Ionicons name="close" size={20} color={colors.text} />
                   </TouchableOpacity>
                 </View>
 
-                {/*-----------------------------Cards de Inputs -----------------------------*/}
-
-                <View style={styles.generalContainer}>
-                  {/*---------------input Nome--------------*/}
-
-                  <View style={styles.containerLabel}>
-                    <Text style={styles.modaltext}>Nome:</Text>
+                {/*---------------input Nome--------------*/}
+                <View style={styles.field}>
+                  <Text style={styles.label}>Nome</Text>
+                  <View style={styles.inputWrapper}>
                     <TextInput
                       style={styles.input}
-                      placeholder="Digite o nome da compra"
+                      placeholder="Ex: Internet"
+                      placeholderTextColor={colors.textLight}
                       value={nome}
                       onChangeText={setNome}
                     />
                   </View>
+                </View>
 
-                  {/*--------------input Valor--------------*/}
-
-                  <View style={styles.containerLabel}>
-                    <Text style={styles.modaltext}>Valor:</Text>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Digite o valor da compra"
-                      keyboardType="numeric"
-                      value={valor}
-                      onChangeText={setValor}
-                    />
-                  </View>
-                  {/*--------------input Venc.---------------*/}
-
-                  <View style={styles.containerLabel}>
-                    <Text style={styles.modaltext}>Venc:</Text>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Ex: Dia 5"
-                      value={venc}
-                      onChangeText={setVenc}
-                    />
+                {/*--------------input Valor e Venc.--------------*/}
+                <View style={{ flexDirection: "row" }}>
+                  <View style={[styles.field, { flex: 1, marginRight: 10 }]}>
+                    <Text style={styles.label}>Valor</Text>
+                    <View style={styles.inputWrapper}>
+                      <Text style={styles.prefix}>R$</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="0,00"
+                        placeholderTextColor={colors.textLight}
+                        keyboardType="decimal-pad"
+                        value={valor}
+                        onChangeText={setValor}
+                      />
+                    </View>
                   </View>
 
-                  {/*-------------input Obs-----------------*/}
+                  <View style={[styles.field, { flex: 1 }]}>
+                    <Text style={styles.label}>Vencimento</Text>
+                    <View style={styles.inputWrapper}>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Ex: Dia 5"
+                        placeholderTextColor={colors.textLight}
+                        value={venc}
+                        onChangeText={setVenc}
+                      />
+                    </View>
+                  </View>
+                </View>
 
-                  <View style={styles.containerLabel}>
-                    <Text style={styles.modaltext}>Obs:</Text>
+                {/*-------------input Obs-----------------*/}
+                <View style={styles.field}>
+                  <Text style={styles.label}>Observação (opcional)</Text>
+                  <View style={styles.inputWrapper}>
                     <TextInput
                       style={styles.input}
-                      placeholder="Observação (opcional)"
+                      placeholder="Ex: débito automático"
+                      placeholderTextColor={colors.textLight}
                       value={obs}
                       onChangeText={setObs}
                     />
                   </View>
+                </View>
 
-                  <View style={styles.containerButton}>
-                    <TouchableOpacity onPress={onClose}>
-                      <View style={styles.buttonCancel}>
-                        <Text style={styles.buttonText}> Cancelar </Text>
-                      </View>
-                    </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    onPress={onClose}
+                    style={[styles.button, styles.buttonSecondary]}
+                  >
+                    <Text style={styles.buttonSecondaryText}>Cancelar</Text>
+                  </TouchableOpacity>
 
-                    <TouchableOpacity onPress={handleSaveBill}>
-                      <View style={styles.buttonSave}>
-                        <Text style={styles.buttonText}> Adicionar </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    onPress={handleSaveBill}
+                    style={[styles.button, styles.buttonPrimary]}
+                  >
+                    <Text style={styles.buttonPrimaryText}>Adicionar</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -153,112 +184,4 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  containerModal: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-
-  modalCard: {
-    position: "absolute",
-    top: "20%",
-    right: "10%",
-    width: "80%",
-    borderRadius: 16,
-    elevation: 15,
-    shadowRadius: 5,
-    backgroundColor: "#fff",
-  },
-
-  generalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingBottom: 20,
-  },
-
-  titleContainer: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  titleText: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
-    paddingLeft: 10,
-    paddingTop: 10,
-  },
-
-  closeImageContainer: {
-    alignSelf: "flex-end",
-  },
-
-  closeImage: {
-    width: 30,
-    height: 30,
-    margin: 15,
-    alignSelf: "flex-end",
-    justifyContent: "flex-end",
-  },
-
-  containerLabel: {
-    flexDirection: "row",
-    height: 60,
-    justifyContent: "center",
-  },
-
-  modaltext: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginLeft: 10,
-    marginTop: 15,
-    width: "20%",
-  },
-
-  input: {
-    width: "65%",
-    height: "auto",
-    margin: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-  },
-
-  containerButton: {
-    flexDirection: "row",
-  },
-
-  buttonCancel: {
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#fafafa",
-    borderRadius: 10,
-    marginTop: 15,
-    marginRight: 20,
-    backgroundColor: "red",
-  },
-
-  buttonSave: {
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#fafafa",
-    borderRadius: 10,
-    marginTop: 15,
-    marginLeft: 20,
-    backgroundColor: "#41d606",
-  },
-
-  buttonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    margin: 15,
-    color: "#fff",
-  },
-});
 export default ModalBill;

@@ -8,6 +8,9 @@ import {
   Alert,
   TouchableWithoutFeedback,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, radius } from "../theme";
 
 interface MenuOverlayProps {
   isVisible: boolean;
@@ -24,6 +27,8 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
   onOpen,
   onClose,
 }) => {
+  const insets = useSafeAreaInsets();
+
   const handlePressDelete = () => {
     if (dataLength > 0) {
       onOpen();
@@ -31,7 +36,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
       const message =
         dataType === "bills"
           ? "Não há contas para apagar."
-          : "Não há despesas para apagar.";
+          : "Não há gastos para apagar.";
 
       Alert.alert("Aviso", message);
       onClose();
@@ -44,16 +49,20 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
       transparent
       animationType="fade"
       onRequestClose={onClose}
+      statusBarTranslucent
     >
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.overlay}>
+        <View style={[styles.overlay, { paddingTop: insets.top + 52 }]}>
           <View style={styles.menuContainer}>
             <TouchableOpacity
               style={styles.menuItem}
               onPress={handlePressDelete}
               activeOpacity={0.7}
             >
-              <Text style={styles.deleteText}>Apagar</Text>
+              <Ionicons name="trash-outline" size={18} color={colors.danger} />
+              <Text style={styles.deleteText}>
+                {dataType === "bills" ? "Excluir contas" : "Excluir gastos"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -65,35 +74,32 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-    justifyContent: "flex-start",
+    backgroundColor: "rgba(15, 23, 42, 0.2)",
     alignItems: "flex-end",
-    paddingTop: 60,
-    paddingRight: 20,
+    paddingRight: 16,
   },
   menuContainer: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    width: 150,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    overflow: "hidden",
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    minWidth: 180,
+    paddingVertical: 4,
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
   },
   menuItem: {
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
   deleteText: {
-    color: "#FF3B30",
-    fontSize: 16,
+    color: colors.danger,
+    fontSize: 15,
     fontWeight: "600",
+    marginLeft: 10,
   },
 });
 
