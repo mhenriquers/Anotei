@@ -11,6 +11,10 @@ import HeaderMenu from "../components/HeaderMenu";
 import MenuExclusaoGenerico from "../components/ExcluseMenu";
 import ProgressBar from "../components/ProgressBar";
 import DraggableFab from "../components/DraggableFab";
+import BillDetails from "../components/BillDetails";
+import ConfirmDialog, {
+  ConfirmDialogContent,
+} from "../components/ConfirmDialog";
 import { colors, radius, shadow, formatBRL } from "../theme";
 
 interface BillProps {
@@ -19,6 +23,9 @@ interface BillProps {
   onDeleteBills: (updatedBills: InterfaceBill[]) => void;
   onUpdateBills?: (updatedBills: InterfaceBill[]) => void;
 }
+
+// caixas de confirmação abertas pelo menu ⋮
+type DialogKind = "uncheck" | "nonePaid" | "deleteAll";
 
 const Bills: React.FC<BillProps> = ({
   onOpenModal,
@@ -33,6 +40,9 @@ const Bills: React.FC<BillProps> = ({
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [progress, setProgress] = useState<number>(0);
+  const [selectedBillId, setSelectedBillId] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<DialogKind | null>(null);
+  const closeDialog = () => setDialog(null);
 
   //-------------------------função para salvar contas fixas
 
@@ -61,6 +71,47 @@ const Bills: React.FC<BillProps> = ({
     } else {
       alert("Nenhuma conta foi selecionada.");
     }
+  };
+
+  //----------------------------------- função para desmarcar todas as contas pagas
+
+  const handleUncheckAllBills = () => {
+    const pagas = bills.filter((bill) => bill.pago).length;
+    setDialog(pagas === 0 ? "nonePaid" : "uncheck");
+  };
+
+  const confirmUncheckAll = () => {
+    const updatedBills = bills.map((bill) => ({ ...bill, pago: false }));
+    setBills(updatedBills);
+    saveBills(updatedBills);
+    if (onUpdateBills) {
+      onUpdateBills(updatedBills);
+    }
+    closeDialog();
+  };
+
+  //----------------------------------- liga/desliga o aviso no vencimento de uma conta
+
+  const handleToggleReminder = (id: string, avisar: boolean) => {
+    const updatedBills = bills.map((bill) =>
+      bill.id === id ? { ...bill, avisar } : bill,
+    );
+    setBills(updatedBills);
+    saveBills(updatedBills);
+    if (onUpdateBills) {
+      onUpdateBills(updatedBills);
+    }
+  };
+
+  //----------------------------------- função para apagar todas as contas fixas
+
+  const handleDeleteAllBills = () => setDialog("deleteAll");
+
+  const confirmDeleteAll = () => {
+    setBills([]);
+    saveBills([]);
+    onDeleteBills([]);
+    closeDialog();
   };
 
   useEffect(() => {
@@ -103,6 +154,46 @@ const Bills: React.FC<BillProps> = ({
     .reduce((soma, bill) => soma + (bill.valor || 0), 0);
   const paidCount = bills.filter((bill) => bill.pago).length;
 
+  //-------------------------- conta aberta no modal de detalhes --------------------------
+  const selectedBill = bills.find((bill) => bill.id === selectedBillId) ?? null;
+
+  //-------------------------- conteúdo das caixas de confirmação --------------------------
+  const dialogContent: Record<DialogKind, ConfirmDialogContent> = {
+    uncheck: {
+      title: "Desmarcar todas as contas?",
+      message:
+        paidCount === 1
+          ? "1 conta paga volta para pendente."
+          : `${paidCount} contas pagas voltam para pendente.`,
+      icon: "refresh-outline",
+      tone: "brand",
+      confirmLabel: "Desmarcar",
+      cancelLabel: "Cancelar",
+      onConfirm: confirmUncheckAll,
+    },
+    nonePaid: {
+      title: "Nenhuma conta paga",
+      message: "Não há contas marcadas como pagas para desmarcar.",
+      icon: "information-circle-outline",
+      tone: "brand",
+      confirmLabel: "Entendi",
+      onConfirm: closeDialog,
+    },
+    deleteAll: {
+      title: "Apagar todas as contas fixas?",
+      message: `${
+        bills.length === 1
+          ? "1 conta será apagada."
+          : `${bills.length} contas serão apagadas.`
+      } Essa ação não pode ser desfeita.`,
+      icon: "trash-outline",
+      tone: "danger",
+      confirmLabel: "Apagar tudo",
+      cancelLabel: "Cancelar",
+      onConfirm: confirmDeleteAll,
+    },
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
       {/* View interno: a lista e o botão + terminam acima dos botões do celular */}
@@ -134,6 +225,7 @@ const Bills: React.FC<BillProps> = ({
             <RenderCard
               itemCard={item}
               onTogglePaid={() => handleTogglePaid(item.id)}
+              onPress={() => setSelectedBillId(item.id)}
             />
           )}
           keyExtractor={(item) => item.id}
@@ -161,6 +253,8 @@ const Bills: React.FC<BillProps> = ({
             setIsMenuVisible(false);
           }}
           onClose={() => setIsMenuVisible(false)}
+          onDeleteAll={handleDeleteAllBills}
+          onUncheckAll={handleUncheckAllBills}
         />
 
         {isDeleteMode && (
@@ -180,6 +274,20 @@ const Bills: React.FC<BillProps> = ({
           onPress={onOpenModal}
           storageKey="fab-position-bills"
           accessibilityLabel="Adicionar conta"
+        />
+
+        <BillDetails
+          bill={selectedBill}
+          onClose={() => setSelectedBillId(null)}
+          onToggleReminder={(avisar) => {
+            if (selectedBill) handleToggleReminder(selectedBill.id, avisar);
+          }}
+        />
+
+        <ConfirmDialog
+          visible={dialog !== null}
+          onCancel={closeDialog}
+          {...dialogContent[dialog ?? "uncheck"]}
         />
       </View>
     </SafeAreaView>

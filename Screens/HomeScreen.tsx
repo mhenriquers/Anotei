@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { InterfaceBill, Type } from "../Types";
 import ProgressBar from "../components/ProgressBar";
 import ExpenseItem from "../components/ExpenseItem";
 import DraggableFab from "../components/DraggableFab";
+import ExpenseDetails from "../components/ExpenseDetails";
 import { colors, radius, shadow, formatBRL } from "../theme";
 
 interface HomeProps {
@@ -50,6 +51,13 @@ const HomeScreen: React.FC<HomeProps> = ({
     )
     .slice(0, 3);
 
+  //-------------------------- gasto aberto no modal de detalhes --------------------------
+  const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(
+    null,
+  );
+  const selectedExpense =
+    expenses.find((expense) => expense.id === selectedExpenseId) ?? null;
+
   return (
     <SafeAreaView
       style={styles.safe}
@@ -86,6 +94,43 @@ const HomeScreen: React.FC<HomeProps> = ({
                 : `${expenses.length} gastos registrados`}
             </Text>
           </View>
+
+          {/*-------------------------- Contas Fixas -------------------------- */}
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate("Bills")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.cardHeader}>
+              <View
+                style={[
+                  styles.iconBadge,
+                  { backgroundColor: colors.primarySoft },
+                ]}
+              >
+                <Ionicons
+                  name="calendar-outline"
+                  size={20}
+                  color={colors.primary}
+                />
+              </View>
+              <View style={styles.cardInfo}>
+                <Text style={styles.cardTitle}>Contas fixas</Text>
+                <Text style={styles.cardSubtitle}>
+                  {totalBills === 0
+                    ? "Nenhuma conta cadastrada"
+                    : `${paidBills} de ${totalBills} pagas`}
+                </Text>
+              </View>
+              <Text style={styles.cardValue}>{formatBRL(totalContas)}</Text>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={colors.textLight}
+              />
+            </View>
+            <ProgressBar progress={billsProgress} compact />
+          </TouchableOpacity>
 
           {/*-------------------------- Crédito e Débito -------------------------- */}
           <View style={styles.statsRow}>
@@ -128,43 +173,6 @@ const HomeScreen: React.FC<HomeProps> = ({
             </TouchableOpacity>
           </View>
 
-          {/*-------------------------- Contas Fixas -------------------------- */}
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate("Bills")}
-            activeOpacity={0.8}
-          >
-            <View style={styles.cardHeader}>
-              <View
-                style={[
-                  styles.iconBadge,
-                  { backgroundColor: colors.primarySoft },
-                ]}
-              >
-                <Ionicons
-                  name="calendar-outline"
-                  size={20}
-                  color={colors.primary}
-                />
-              </View>
-              <View style={styles.cardInfo}>
-                <Text style={styles.cardTitle}>Contas fixas</Text>
-                <Text style={styles.cardSubtitle}>
-                  {totalBills === 0
-                    ? "Nenhuma conta cadastrada"
-                    : `${paidBills} de ${totalBills} pagas`}
-                </Text>
-              </View>
-              <Text style={styles.cardValue}>{formatBRL(totalContas)}</Text>
-              <Ionicons
-                name="chevron-forward"
-                size={18}
-                color={colors.textLight}
-              />
-            </View>
-            <ProgressBar progress={billsProgress} compact />
-          </TouchableOpacity>
-
           {/*-------------------------- Últimos gastos -------------------------- */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Últimos gastos</Text>
@@ -191,7 +199,11 @@ const HomeScreen: React.FC<HomeProps> = ({
             </View>
           ) : (
             recentExpenses.map((item) => (
-              <ExpenseItem key={item.id} item={item} />
+              <ExpenseItem
+                key={item.id}
+                item={item}
+                onPress={() => setSelectedExpenseId(item.id)}
+              />
             ))
           )}
         </ScrollView>
@@ -200,6 +212,11 @@ const HomeScreen: React.FC<HomeProps> = ({
           onPress={onOpenModal}
           storageKey="fab-position-home"
           accessibilityLabel="Adicionar gasto"
+        />
+
+        <ExpenseDetails
+          expense={selectedExpense}
+          onClose={() => setSelectedExpenseId(null)}
         />
       </View>
     </SafeAreaView>
@@ -283,7 +300,7 @@ const styles = StyleSheet.create({
 
   statsRow: {
     flexDirection: "row",
-    marginBottom: 16,
+    marginBottom: 24,
   },
 
   statCard: {
@@ -319,7 +336,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 16,
     ...shadow,
   },
 

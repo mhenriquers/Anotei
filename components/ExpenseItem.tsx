@@ -1,19 +1,27 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
 import { colors, radius, shadow, formatBRL, formatDate } from "../theme";
 
 interface ExpenseItemProps {
   item: Type;
+  onPress?: () => void; // abre o modal com os detalhes do gasto
 }
 
 //---------------------- card de um gasto (usado na Home e na lista) ----------------------
-const ExpenseItem: React.FC<ExpenseItemProps> = ({ item }) => {
+const ExpenseItem: React.FC<ExpenseItemProps> = ({ item, onPress }) => {
   const isCredit = item.category === "credit card";
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      disabled={!onPress}
+      activeOpacity={0.7}
+      accessibilityRole={onPress ? "button" : undefined}
+      accessibilityHint={onPress ? "Abre os detalhes do gasto" : undefined}
+    >
       <View
         style={[
           styles.iconBadge,
@@ -50,7 +58,16 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({ item }) => {
           {isCredit ? "Crédito" : "Débito"}
         </Text>
       </View>
-    </View>
+
+      {onPress && (
+        <Ionicons
+          name="chevron-forward"
+          size={18}
+          color={colors.textLight}
+          style={styles.chevron}
+        />
+      )}
+    </TouchableOpacity>
   );
 };
 
@@ -103,6 +120,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
     marginTop: 2,
+  },
+  chevron: {
+    marginLeft: 6,
   },
 });
 

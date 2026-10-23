@@ -24,6 +24,7 @@ export const colors = {
   danger: "#DC2626",
   dangerSoft: "#FEE2E2",
   warning: "#F59E0B",
+  warningSoft: "#FEF3C7",
 
   overlay: "rgba(15, 23, 42, 0.45)",
 };
@@ -51,9 +52,50 @@ export const formatBRL = (value: number): string => {
   return `${safe < 0 ? "-" : ""}R$ ${comPontos},${decimal}`;
 };
 
-export const formatDate = (value: Date | string): string => {
+export const formatDate = (value: Date | string | number): string => {
   const date = value instanceof Date ? value : new Date(value);
   if (isNaN(date.getTime())) return String(value);
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} às ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
+const DIAS_DA_SEMANA = [
+  "domingo",
+  "segunda-feira",
+  "terça-feira",
+  "quarta-feira",
+  "quinta-feira",
+  "sexta-feira",
+  "sábado",
+];
+
+const MESES = [
+  "janeiro",
+  "fevereiro",
+  "março",
+  "abril",
+  "maio",
+  "junho",
+  "julho",
+  "agosto",
+  "setembro",
+  "outubro",
+  "novembro",
+  "dezembro",
+];
+
+// Ex: "Quarta-feira, 22 de outubro de 2026"
+export const formatLongDate = (value: Date | string | number): string => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (isNaN(date.getTime())) return String(value);
+  const dia = DIAS_DA_SEMANA[date.getDay()];
+  return `${dia.charAt(0).toUpperCase()}${dia.slice(1)}, ${date.getDate()} de ${MESES[date.getMonth()]} de ${date.getFullYear()}`;
+};
+
+// Ex: "14:30"
+export const formatTime = (value: Date | string | number): string => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (isNaN(date.getTime())) return "";
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };

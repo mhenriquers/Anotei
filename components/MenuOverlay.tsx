@@ -18,6 +18,8 @@ interface MenuOverlayProps {
   dataType: "bills" | "expenses";
   onOpen: () => void;
   onClose: () => void;
+  onDeleteAll?: () => void; // se for passado, o menu mostra a opção "Apagar todos"
+  onUncheckAll?: () => void; // se for passado, o menu mostra a opção "Desmarcar todas"
 }
 
 const MenuOverlay: React.FC<MenuOverlayProps> = ({
@@ -26,20 +28,35 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
   dataType,
   onOpen,
   onClose,
+  onDeleteAll,
+  onUncheckAll,
 }) => {
   const insets = useSafeAreaInsets();
+
+  const showEmptyWarning = () => {
+    const message =
+      dataType === "bills"
+        ? "Não há contas para apagar."
+        : "Não há gastos para apagar.";
+
+    Alert.alert("Aviso", message);
+    onClose();
+  };
 
   const handlePressDelete = () => {
     if (dataLength > 0) {
       onOpen();
     } else {
-      const message =
-        dataType === "bills"
-          ? "Não há contas para apagar."
-          : "Não há gastos para apagar.";
+      showEmptyWarning();
+    }
+  };
 
-      Alert.alert("Aviso", message);
+  const handlePressDeleteAll = () => {
+    if (dataLength > 0) {
       onClose();
+      onDeleteAll?.();
+    } else {
+      showEmptyWarning();
     }
   };
 
@@ -54,8 +71,29 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={[styles.overlay, { paddingTop: insets.top + 52 }]}>
           <View style={styles.menuContainer}>
+            {onUncheckAll && (
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  onClose();
+                  onUncheckAll();
+                }}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name="refresh-outline"
+                  size={18}
+                  color={colors.text}
+                />
+                <Text style={styles.actionText}>Desmarcar todas as contas</Text>
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
-              style={styles.menuItem}
+              style={[
+                styles.menuItem,
+                !!onUncheckAll && styles.menuItemDivider,
+              ]}
               onPress={handlePressDelete}
               activeOpacity={0.7}
             >
@@ -64,6 +102,25 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
                 {dataType === "bills" ? "Excluir contas" : "Excluir gastos"}
               </Text>
             </TouchableOpacity>
+
+            {onDeleteAll && (
+              <TouchableOpacity
+                style={[styles.menuItem, styles.menuItemDivider]}
+                onPress={handlePressDeleteAll}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name="close-circle-outline"
+                  size={18}
+                  color={colors.danger}
+                />
+                <Text style={styles.deleteText}>
+                  {dataType === "bills"
+                    ? "Apagar todas as contas"
+                    : "Apagar todos os gastos"}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -94,6 +151,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 14,
     paddingHorizontal: 16,
+  },
+  menuItemDivider: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionText: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: "600",
+    marginLeft: 10,
   },
   deleteText: {
     color: colors.danger,

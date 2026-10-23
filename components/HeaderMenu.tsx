@@ -15,7 +15,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ onMenuPress }) => {
       hitSlop={10}
       accessibilityLabel="Abrir menu"
     >
-      <Ionicons name="ellipsis-vertical" size={22} color={colors.text} />
+      <Ionicons name="ellipsis-vertical" size={22} color={colors.hero} />
     </TouchableOpacity>
   );
 };

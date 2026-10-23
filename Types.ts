@@ -21,4 +21,6 @@ export interface InterfaceBill {
   dueDate?: string;
   category?: string;
   pago: boolean;
+  diaVencimento?: number; // dia do mês (1 a 31), usado para agendar o aviso
+  avisar?: boolean; // aviso no dia do vencimento (ausente = ligado)
 }

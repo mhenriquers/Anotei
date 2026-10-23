@@ -7,101 +7,93 @@ import { colors, radius, shadow, formatBRL } from "../theme";
 interface RenderItemProps {
   itemCard: InterfaceBill;
   onTogglePaid?: () => void;
+  onPress?: () => void; // abre o modal com os detalhes da conta
 }
 
 //---------------------- card de uma conta fixa ----------------------
-const RenderCard: React.FC<RenderItemProps> = ({ itemCard, onTogglePaid }) => {
-  const [expanded, setExpanded] = React.useState(false);
+const RenderCard: React.FC<RenderItemProps> = ({
+  itemCard,
+  onTogglePaid,
+  onPress,
+}) => {
   const paid = itemCard.pago;
-  const hasObs = !!itemCard.obs && itemCard.obs.trim() !== "";
 
   return (
     <View style={styles.card}>
-      <View style={styles.row}>
-        <TouchableOpacity
-          onPress={onTogglePaid}
-          hitSlop={8}
-          accessibilityLabel={
-            paid ? "Marcar como não paga" : "Marcar como paga"
-          }
-          style={[styles.checkbox, paid && styles.checkboxChecked]}
-        >
-          {paid && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
-        </TouchableOpacity>
+      <TouchableOpacity
+        onPress={onTogglePaid}
+        hitSlop={8}
+        accessibilityLabel={paid ? "Marcar como não paga" : "Marcar como paga"}
+        style={[styles.checkbox, paid && styles.checkboxChecked]}
+      >
+        {paid && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.content}
-          onPress={() => setExpanded(!expanded)}
-          activeOpacity={0.7}
-          disabled={!hasObs}
-        >
-          <View style={styles.info}>
-            <Text
-              style={[styles.name, paid && styles.namePaid]}
-              numberOfLines={1}
-            >
-              {itemCard.nome}
-            </Text>
-            <View style={styles.metaRow}>
-              <Ionicons
-                name="calendar-outline"
-                size={13}
-                color={colors.textMuted}
-              />
-              <Text style={styles.meta}>Venc. {itemCard.venc}</Text>
-            </View>
-          </View>
-
-          <View style={styles.right}>
-            <Text style={[styles.value, paid && styles.namePaid]}>
-              {formatBRL(itemCard.valor)}
-            </Text>
-            <View
-              style={[styles.badge, paid ? styles.badgePaid : styles.badgeOpen]}
-            >
-              <Text
-                style={[
-                  styles.badgeText,
-                  { color: paid ? colors.primaryDark : colors.warning },
-                ]}
-              >
-                {paid ? "Paga" : "Pendente"}
-              </Text>
-            </View>
-          </View>
-
-          {hasObs && (
+      <TouchableOpacity
+        style={styles.content}
+        onPress={onPress}
+        disabled={!onPress}
+        activeOpacity={0.7}
+        accessibilityRole={onPress ? "button" : undefined}
+        accessibilityHint={onPress ? "Abre os detalhes da conta" : undefined}
+      >
+        <View style={styles.info}>
+          <Text
+            style={[styles.name, paid && styles.namePaid]}
+            numberOfLines={1}
+          >
+            {itemCard.nome}
+          </Text>
+          <View style={styles.metaRow}>
             <Ionicons
-              name={expanded ? "chevron-up" : "chevron-down"}
-              size={18}
-              color={colors.textLight}
-              style={{ marginLeft: 6 }}
+              name="calendar-outline"
+              size={13}
+              color={colors.textMuted}
             />
-          )}
-        </TouchableOpacity>
-      </View>
-
-      {expanded && hasObs && (
-        <View style={styles.obsBox}>
-          <Text style={styles.obsLabel}>Observação</Text>
-          <Text style={styles.obsText}>{itemCard.obs}</Text>
+            <Text style={styles.meta}>Venc. {itemCard.venc}</Text>
+          </View>
         </View>
-      )}
+
+        <View style={styles.right}>
+          <Text style={[styles.value, paid && styles.namePaid]}>
+            {formatBRL(itemCard.valor)}
+          </Text>
+          <View
+            style={[styles.badge, paid ? styles.badgePaid : styles.badgeOpen]}
+          >
+            <Text
+              style={[
+                styles.badgeText,
+                { color: paid ? colors.primaryDark : colors.warning },
+              ]}
+            >
+              {paid ? "Paga" : "Pendente"}
+            </Text>
+          </View>
+        </View>
+
+        {onPress && (
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={colors.textLight}
+            style={styles.chevron}
+          />
+        )}
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     padding: 14,
     marginBottom: 10,
     ...shadow,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   checkbox: {
     width: 26,
@@ -163,29 +155,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primarySoft,
   },
   badgeOpen: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: colors.warningSoft,
   },
   badgeText: {
     fontSize: 11,
     fontWeight: "700",
   },
-  obsBox: {
-    marginTop: 12,
-    marginLeft: 38,
-    padding: 10,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surfaceMuted,
-  },
-  obsLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: colors.textMuted,
-    textTransform: "uppercase",
-    marginBottom: 2,
-  },
-  obsText: {
-    fontSize: 14,
-    color: colors.text,
+  chevron: {
+    marginLeft: 6,
   },
 });
 

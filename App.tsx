@@ -17,6 +17,8 @@ import { colors } from "./theme";
 import Bills from "./Screens/Bills";
 import ModalBill from "./components/ModalBills";
 import MenuOverlay from "./components/MenuOverlay";
+import ConfirmDialog from "./components/ConfirmDialog";
+import { syncBillReminders } from "./notifications";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -51,6 +53,8 @@ const App: React.FC = () => {
   const [isDeleteMode, setIsDeleteMode] = useState(false);
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+  const [isDeleteAllVisible, setIsDeleteAllVisible] = useState(false);
 
   //----------------------------- estudar oq isso faz ----------------------------------------
 
@@ -123,12 +127,22 @@ const App: React.FC = () => {
     }
   };
 
+  //----------------------------------------- função para apagar todos os gastos
+  const handleDeleteAllExpenses = () => setIsDeleteAllVisible(true);
+
+  const confirmDeleteAllExpenses = () => {
+    setExpenses([]);
+    saveExpenses([]);
+    setIsDeleteAllVisible(false);
+  };
+
   useEffect(() => {
     loadExpenses();
   }, []);
 
   //-------------------------------função pra salvar conta fixa
   const [bills, setBills] = useState<InterfaceBill[]>([]);
+  const [billsLoaded, setBillsLoaded] = useState(false);
 
   const handleSaveBill = (billData: InterfaceBill) => {
     console.log("Nova conta:", billData); // ← Adicione isto
@@ -149,6 +163,8 @@ const App: React.FC = () => {
       }
     } catch (error) {
       alert("Erro ao carregar contas");
+    } finally {
+      setBillsLoaded(true);
     }
   };
 
@@ -161,6 +177,13 @@ const App: React.FC = () => {
     carregaConta();
   }, []);
 
+  //-------------------------- reagenda os avisos de vencimento sempre que as contas mudam
+  useEffect(() => {
+    if (billsLoaded) {
+      syncBillReminders(bills);
+    }
+  }, [bills, billsLoaded]);
+
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
@@ -168,10 +191,11 @@ const App: React.FC = () => {
         <Stack.Navigator
           id="RootStack"
           screenOptions={{
-            headerStyle: { backgroundColor: colors.background },
-            headerShadowVisible: false,
-            headerTintColor: colors.text,
-            headerTitleStyle: { fontWeight: "700" },
+            // cabeçalho branco com sombra leve, separado do fundo cinza das telas
+            headerStyle: { backgroundColor: colors.surface },
+            headerShadowVisible: true,
+            headerTintColor: colors.hero,
+            headerTitleStyle: { fontWeight: "800", fontSize: 20 },
             contentStyle: { backgroundColor: colors.background },
           }}
         >
@@ -268,6 +292,24 @@ const App: React.FC = () => {
             }
           }}
           onClose={() => setIsMenuVisible(false)}
+          onDeleteAll={handleDeleteAllExpenses}
+        />
+
+        {/*---------------------- Confirmação de apagar todos os gastos ------------------ */}
+        <ConfirmDialog
+          visible={isDeleteAllVisible}
+          title="Apagar todos os gastos?"
+          message={`${
+            expenses.length === 1
+              ? "1 gasto será apagado."
+              : `${expenses.length} gastos serão apagados.`
+          } Essa ação não pode ser desfeita.`}
+          icon="trash-outline"
+          tone="danger"
+          confirmLabel="Apagar tudo"
+          cancelLabel="Cancelar"
+          onConfirm={confirmDeleteAllExpenses}
+          onCancel={() => setIsDeleteAllVisible(false)}
         />
 
         {/*----------------------Variavel de controle Modal------------------ */}

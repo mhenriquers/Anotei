@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { handleBackgroundTap } from "./ModalScreen";
+import ReminderToggle from "./ReminderToggle";
 import { colors } from "../theme";
 import { formStyles as styles } from "./formStyles";
 
@@ -44,13 +45,21 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
   //----------------Variaveis de Controle dos inputs----------------------
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
-  const [venc, setVenc] = useState("");
+  const [dia, setDia] = useState("");
   const [obs, setObs] = useState("");
+  const [avisar, setAvisar] = useState(true);
+
+  // dia do vencimento válido (1 a 31) ou null
+  const diaNumero = Number(dia);
+  const dueDay =
+    Number.isInteger(diaNumero) && diaNumero >= 1 && diaNumero <= 31
+      ? diaNumero
+      : null;
 
   //--------------------função para salvar a conta--------------------------
 
   const handleSaveBill = () => {
-    if (nome.trim() === "" || valor.trim() === "" || venc.trim() === "") {
+    if (nome.trim() === "" || valor.trim() === "" || dia.trim() === "") {
       alert("Preencha os campos obrigatórios");
       return;
     }
@@ -60,11 +69,17 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
       alert("Digite um valor válido.");
       return;
     }
+    if (dueDay === null) {
+      alert("Informe um dia de vencimento entre 1 e 31.");
+      return;
+    }
     onSave({
       id: Date.now().toString(),
       nome: nome.trim(),
       valor: valorNumerico,
-      venc: venc.trim(),
+      venc: `Dia ${dueDay}`,
+      diaVencimento: dueDay,
+      avisar,
       obs: obs.trim(),
       pago: false,
     });
@@ -135,12 +150,15 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
                   <View style={[styles.field, { flex: 1 }]}>
                     <Text style={styles.label}>Vencimento</Text>
                     <View style={styles.inputWrapper}>
+                      <Text style={styles.prefix}>Dia</Text>
                       <TextInput
                         style={styles.input}
-                        placeholder="Ex: Dia 5"
+                        placeholder="5"
                         placeholderTextColor={colors.textLight}
-                        value={venc}
-                        onChangeText={setVenc}
+                        keyboardType="number-pad"
+                        maxLength={2}
+                        value={dia}
+                        onChangeText={(text) => setDia(text.replace(/\D/g, ""))}
                       />
                     </View>
                   </View>
@@ -159,6 +177,13 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
                     />
                   </View>
                 </View>
+
+                {/*-------------aviso no vencimento-----------------*/}
+                <ReminderToggle
+                  value={avisar}
+                  onValueChange={setAvisar}
+                  dueDay={dueDay}
+                />
 
                 <View style={styles.buttonRow}>
                   <TouchableOpacity

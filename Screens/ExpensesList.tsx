@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
 import MenuExclusaoGenerico from "../components/ExcluseMenu";
 import ExpenseItem from "../components/ExpenseItem";
+import ExpenseDetails from "../components/ExpenseDetails";
 import { colors, radius, shadow, formatBRL } from "../theme";
 
 interface ExpenseProps {
@@ -28,6 +29,13 @@ const ExpenseList: React.FC<ExpenseProps> = ({
   const sortedExpenses = [...expenseList].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+
+  //-------------------------- gasto aberto no modal de detalhes --------------------------
+  const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(
+    null,
+  );
+  const selectedExpense =
+    expenseList.find((expense) => expense.id === selectedExpenseId) ?? null;
 
   return (
     // edges "bottom": a lista termina acima dos botões do celular
@@ -74,7 +82,12 @@ const ExpenseList: React.FC<ExpenseProps> = ({
         }
         data={sortedExpenses}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ExpenseItem item={item} />}
+        renderItem={({ item }) => (
+          <ExpenseItem
+            item={item}
+            onPress={() => setSelectedExpenseId(item.id)}
+          />
+        )}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Ionicons
@@ -103,6 +116,12 @@ const ExpenseList: React.FC<ExpenseProps> = ({
           onCancel={() => setIsDeleteMode(false)}
         />
       )}
+
+      {/* MODAL COM OS DETALHES DO GASTO TOCADO */}
+      <ExpenseDetails
+        expense={selectedExpense}
+        onClose={() => setSelectedExpenseId(null)}
+      />
     </SafeAreaView>
   );
 };
