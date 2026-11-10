@@ -17,7 +17,13 @@
       "package": "com.owdail10.anotei"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "Anotei",
+      "shortName": "Anotei",
+      "lang": "pt-BR",
+      "themeColor": "#ffffff",
+      "backgroundColor": "#f4f6fa"
     },
     "extra": {
       "eas": {

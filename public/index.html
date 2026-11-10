@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <!-- maximum-scale=1 evita o zoom automático do iPhone ao tocar num campo de texto;
+         viewport-fit=cover deixa o app usar a tela toda (as margens seguras vêm do SafeAreaView) -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <title>%WEB_TITLE%</title>
+
+    <!-- PWA: os caminhos são relativos para funcionar dentro de /<repositorio>/ no GitHub Pages -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Anotei" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+        background-color: #f4f6fa;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+
+    <!-- service worker: guarda o app para abrir sem internet (só existe no build publicado) -->
+    <script>
+      if ("serviceWorker" in navigator && location.hostname !== "localhost") {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function (error) {
+            console.error("Falha ao registrar o service worker", error);
+          });
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    <noscript>Ative o JavaScript para usar o Anotei.</noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  </body>
+</html>
