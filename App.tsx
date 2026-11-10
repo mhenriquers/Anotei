@@ -19,6 +19,8 @@ import ModalBill from "./components/ModalBills";
 import MenuOverlay from "./components/MenuOverlay";
 import ConfirmDialog from "./components/ConfirmDialog";
 import { syncBillReminders } from "./notifications";
+import InstallScreen from "./components/InstallScreen";
+import { needsInstallFirst } from "./pwa";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -32,7 +34,7 @@ const SalvaConta = async (billsToSave: InterfaceBill[]) => {
   }
 };
 
-const App: React.FC = () => {
+const AnoteiApp: React.FC = () => {
   const [expenses, setExpenses] = useState<Type[]>([]);
 
   const valorTotalCredito = expenses
@@ -333,6 +335,21 @@ const App: React.FC = () => {
     </SafeAreaProvider>
   );
 };
+
+//-------------------------- iPhone pelo Safari: pede para instalar antes de usar
+// (lá a aba do Safari e o app instalado não compartilham os dados)
+const showInstallScreen = needsInstallFirst();
+
+const App: React.FC = () =>
+  showInstallScreen ? (
+    <SafeAreaProvider>
+      <StatusBar style="dark" />
+      <InstallScreen />
+    </SafeAreaProvider>
+  ) : (
+    <AnoteiApp />
+  );
+
 const styles = StyleSheet.create({
   menuOverlay: {
     position: "absolute",
