@@ -2,7 +2,8 @@ import React from "react";
 import { View, Text, Switch, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius } from "../theme";
-import { REMINDER_HOUR } from "../notifications";
+import { REMINDER_HOUR } from "../dueDates";
+import { isWeb } from "../pwa";
 
 interface ReminderToggleProps {
   value: boolean;
@@ -39,9 +40,11 @@ const ReminderToggle: React.FC<ReminderToggleProps> = ({
         <Text style={styles.subtitle}>
           {!enabled
             ? "Informe o dia do vencimento"
-            : value
-              ? `Notificação no dia ${dueDay}, às ${REMINDER_HOUR}h`
-              : "Desligado"}
+            : !value
+              ? "Desligado"
+              : isWeb
+                ? "Aparece na tela inicial perto do vencimento"
+                : `Notificação no dia ${dueDay}, às ${REMINDER_HOUR}h`}
         </Text>
       </View>
 

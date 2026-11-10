@@ -3,7 +3,7 @@ import { InterfaceBill } from "../Types";
 import DetailsSheet, { DetailRow } from "./DetailsSheet";
 import ReminderToggle from "./ReminderToggle";
 import { colors, formatBRL, formatDate } from "../theme";
-import { getDueDay, isReminderOn } from "../notifications";
+import { getDueDay, isReminderOn } from "../dueDates";
 
 interface BillDetailsProps {
   bill: InterfaceBill | null; // null = modal fechado

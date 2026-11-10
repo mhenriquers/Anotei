@@ -14,7 +14,9 @@ import ProgressBar from "../components/ProgressBar";
 import ExpenseItem from "../components/ExpenseItem";
 import DraggableFab from "../components/DraggableFab";
 import ExpenseDetails from "../components/ExpenseDetails";
+import UpcomingBills from "../components/UpcomingBills";
 import { colors, radius, shadow, formatBRL } from "../theme";
+import { isWeb } from "../pwa";
 
 interface HomeProps {
   navigation: any;
@@ -83,6 +85,14 @@ const HomeScreen: React.FC<HomeProps> = ({
               />
             </View>
           </View>
+
+          {/*---------- Contas a vencer (só na web, no lugar das notificações) ---------- */}
+          {isWeb && (
+            <UpcomingBills
+              bills={innerBill}
+              onPress={() => navigation.navigate("Bills")}
+            />
+          )}
 
           {/*-------------------------- Card Total -------------------------- */}
           <View style={styles.heroCard}>

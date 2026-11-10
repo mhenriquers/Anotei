@@ -2,8 +2,14 @@ import * as Notifications from "expo-notifications";
 import { LogBox, Platform } from "react-native";
 import { InterfaceBill } from "./Types";
 import { formatBRL } from "./theme";
+import {
+  REMINDER_HOUR,
+  dueDateInMonth,
+  getDueDay,
+  isReminderOn,
+} from "./dueDates";
 
-export const REMINDER_HOUR = 9; // horário do aviso no dia do vencimento
+// Só Android/iOS. Na web o Metro usa notifications.web.ts no lugar deste arquivo.
 const CHANNEL_ID = "vencimentos";
 
 // No Expo Go do Android, o expo-notifications avisa que notificações remotas (push de servidor)
@@ -23,27 +29,13 @@ Notifications.setNotificationHandler({
   }),
 });
 
-//---------------------- dia do vencimento (1 a 31) ----------------------
-// Contas novas guardam o número em diaVencimento. Nas antigas, o número é lido do texto (ex: "Dia 5").
-export const getDueDay = (bill: InterfaceBill): number | null => {
-  const day =
-    bill.diaVencimento ?? Number(bill.venc?.match(/\d{1,2}/)?.[0] ?? NaN);
-  return Number.isInteger(day) && day >= 1 && day <= 31 ? day : null;
-};
-
-// aviso ligado quando o campo não existe (contas antigas) ou é true
-export const isReminderOn = (bill: InterfaceBill): boolean =>
-  bill.avisar !== false;
-
 //---------------------- próxima data do aviso ----------------------
 // Dia do vencimento às 9h, neste mês ou no próximo. Conta já paga pula o mês atual.
 // Em meses mais curtos (ex: dia 31 em fevereiro), avisa no último dia do mês.
 const nextReminderDate = (dueDay: number, paid: boolean): Date => {
   const now = new Date();
-  const build = (year: number, month: number) => {
-    const lastDay = new Date(year, month + 1, 0).getDate();
-    return new Date(year, month, Math.min(dueDay, lastDay), REMINDER_HOUR, 0);
-  };
+  const build = (year: number, month: number) =>
+    dueDateInMonth(dueDay, year, month, REMINDER_HOUR);
 
   const thisMonth = build(now.getFullYear(), now.getMonth());
   if (!paid && thisMonth > now) return thisMonth;
