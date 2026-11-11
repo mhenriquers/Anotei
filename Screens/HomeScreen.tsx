@@ -15,8 +15,10 @@ import ExpenseItem from "../components/ExpenseItem";
 import DraggableFab from "../components/DraggableFab";
 import ExpenseDetails from "../components/ExpenseDetails";
 import UpcomingBills from "../components/UpcomingBills";
+import { BackupCard, BackupReminder } from "../components/BackupSection";
 import { colors, radius, shadow, formatBRL } from "../theme";
 import { isWeb } from "../pwa";
+import { useBackup } from "../backup";
 
 interface HomeProps {
   navigation: any;
@@ -60,6 +62,9 @@ const HomeScreen: React.FC<HomeProps> = ({
   const selectedExpense =
     expenses.find((expense) => expense.id === selectedExpenseId) ?? null;
 
+  //-------------------------- backup (só na web: lá os dados ficam só no aparelho) --------------------------
+  const backup = useBackup(expenses, innerBill, isWeb);
+
   return (
     <SafeAreaView
       style={styles.safe}
@@ -91,6 +96,14 @@ const HomeScreen: React.FC<HomeProps> = ({
             <UpcomingBills
               bills={innerBill}
               onPress={() => navigation.navigate("Bills")}
+            />
+          )}
+
+          {backup.shouldRemind && (
+            <BackupReminder
+              daysSinceBackup={backup.daysSinceBackup}
+              onBackup={backup.backupNow}
+              onSnooze={backup.snooze}
             />
           )}
 
@@ -215,6 +228,15 @@ const HomeScreen: React.FC<HomeProps> = ({
                 onPress={() => setSelectedExpenseId(item.id)}
               />
             ))
+          )}
+
+          {/*-------------------------- Backup (só na web) -------------------------- */}
+          {isWeb && (
+            <BackupCard
+              lastBackup={backup.lastBackup}
+              hasData={backup.hasData}
+              onBackup={backup.backupNow}
+            />
           )}
         </ScrollView>
 
