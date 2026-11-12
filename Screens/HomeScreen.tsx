@@ -16,7 +16,9 @@ import DraggableFab from "../components/DraggableFab";
 import ExpenseDetails from "../components/ExpenseDetails";
 import UpcomingBills from "../components/UpcomingBills";
 import { BackupCard, BackupReminder } from "../components/BackupSection";
+import PaymentSummary from "../components/PaymentSummary";
 import { colors, radius, shadow, formatBRL } from "../theme";
+import { PaymentTotals } from "../paymentMethods";
 import { isWeb } from "../pwa";
 import { useBackup } from "../backup";
 
@@ -24,8 +26,7 @@ interface HomeProps {
   navigation: any;
   onOpenModal: () => void;
   expenses: Type[];
-  totalGastoCredito: number;
-  totalGastoDebito: number;
+  paymentTotals: PaymentTotals;
   valorTotal: number;
   innerBill: InterfaceBill[];
 }
@@ -34,8 +35,7 @@ const HomeScreen: React.FC<HomeProps> = ({
   navigation,
   onOpenModal,
   expenses,
-  totalGastoCredito,
-  totalGastoDebito,
+  paymentTotals,
   valorTotal,
   innerBill,
 }) => {
@@ -155,46 +155,11 @@ const HomeScreen: React.FC<HomeProps> = ({
             <ProgressBar progress={billsProgress} compact />
           </TouchableOpacity>
 
-          {/*-------------------------- Crédito e Débito -------------------------- */}
-          <View style={styles.statsRow}>
-            <TouchableOpacity
-              style={[styles.statCard, { marginRight: 12 }]}
-              onPress={() => navigation.navigate("ExpenseList")}
-              activeOpacity={0.8}
-            >
-              <View
-                style={[
-                  styles.iconBadge,
-                  { backgroundColor: colors.creditSoft },
-                ]}
-              >
-                <Ionicons name="card-outline" size={20} color={colors.credit} />
-              </View>
-              <Text style={styles.statLabel}>Crédito</Text>
-              <Text style={styles.statValue}>
-                {formatBRL(totalGastoCredito)}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.statCard}
-              onPress={() => navigation.navigate("ExpenseList")}
-              activeOpacity={0.8}
-            >
-              <View
-                style={[
-                  styles.iconBadge,
-                  { backgroundColor: colors.debitSoft },
-                ]}
-              >
-                <Ionicons name="cash-outline" size={20} color={colors.debit} />
-              </View>
-              <Text style={styles.statLabel}>Débito</Text>
-              <Text style={styles.statValue}>
-                {formatBRL(totalGastoDebito)}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {/*-------------------------- Crédito, Débito e Pix -------------------------- */}
+          <PaymentSummary
+            totals={paymentTotals}
+            onPress={() => navigation.navigate("ExpenseList")}
+          />
 
           {/*-------------------------- Últimos gastos -------------------------- */}
           <View style={styles.sectionHeader}>
@@ -330,38 +295,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 
-  statsRow: {
-    flexDirection: "row",
-    marginBottom: 24,
-  },
-
-  statCard: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: 16,
-    ...shadow,
-  },
-
   iconBadge: {
     width: 40,
     height: 40,
     borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  statLabel: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginTop: 12,
-  },
-
-  statValue: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.text,
-    marginTop: 2,
   },
 
   card: {

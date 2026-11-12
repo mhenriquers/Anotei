@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
 import { colors, radius, shadow, formatBRL, formatDate } from "../theme";
+import { getPaymentInfo } from "../paymentMethods";
 
 interface ExpenseItemProps {
   item: Type;
@@ -11,7 +12,7 @@ interface ExpenseItemProps {
 
 //---------------------- card de um gasto (usado na Home e na lista) ----------------------
 const ExpenseItem: React.FC<ExpenseItemProps> = ({ item, onPress }) => {
-  const isCredit = item.category === "credit card";
+  const payment = getPaymentInfo(item.category);
 
   return (
     <TouchableOpacity
@@ -25,14 +26,10 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({ item, onPress }) => {
       <View
         style={[
           styles.iconBadge,
-          { backgroundColor: isCredit ? colors.creditSoft : colors.debitSoft },
+          { backgroundColor: payment.softColor },
         ]}
       >
-        <Ionicons
-          name={isCredit ? "card-outline" : "cash-outline"}
-          size={22}
-          color={isCredit ? colors.credit : colors.debit}
-        />
+        <Ionicons name={payment.icon} size={22} color={payment.color} />
       </View>
 
       <View style={styles.info}>
@@ -49,13 +46,8 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({ item, onPress }) => {
 
       <View style={styles.right}>
         <Text style={styles.amount}>{formatBRL(item.amount)}</Text>
-        <Text
-          style={[
-            styles.tag,
-            { color: isCredit ? colors.credit : colors.debit },
-          ]}
-        >
-          {isCredit ? "Crédito" : "Débito"}
+        <Text style={[styles.tag, { color: payment.color }]}>
+          {payment.label}
         </Text>
       </View>
 

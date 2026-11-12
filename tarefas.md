@@ -14,11 +14,11 @@
 
 ## 2. Pix como forma de pagamento
 
-- [ ] 2.1 Em `Types.ts`, adicionar `"pix"` ao campo `category` do gasto (`"credit card" | "debit" | "pix"`)
-- [ ] 2.2 No modal de novo gasto (`ModalScreen.tsx`), adicionar a opção "Pix" ao lado de Crédito e Débito
-- [ ] 2.3 Em `ExpenseItem.tsx` e `ExpenseDetails.tsx`, trocar o "se não é crédito, é débito" por um rótulo/cor para cada forma (Crédito, Débito, Pix)
-- [ ] 2.4 Em `App.tsx`, calcular `valorTotalPix` e somar no total geral
-- [ ] 2.5 Mostrar o total do Pix na Home e no resumo da lista de gastos (`ExpensesList.tsx`), ao lado de Crédito e Débito, sem quebrar o layout em telas pequenas
+- [x] 2.1 Em `Types.ts`, adicionar `"pix"` ao campo `category` do gasto (`"credit card" | "debit" | "pix"`)
+- [x] 2.2 No modal de novo gasto (`ModalScreen.tsx`), adicionar a opção "Pix" ao lado de Crédito e Débito
+- [x] 2.3 Em `ExpenseItem.tsx` e `ExpenseDetails.tsx`, trocar o "se não é crédito, é débito" por um rótulo/cor para cada forma (Crédito, Débito, Pix)
+- [x] 2.4 Em `App.tsx`, calcular `valorTotalPix` e somar no total geral
+- [x] 2.5 Mostrar o total do Pix na Home e no resumo da lista de gastos (`ExpensesList.tsx`), ao lado de Crédito e Débito, sem quebrar o layout em telas pequenas
 
 ## 3. Menu sanduíche (gaveta lateral) na Home
 

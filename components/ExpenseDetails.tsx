@@ -1,7 +1,8 @@
 import React, { useRef } from "react";
 import { Type } from "../Types";
 import DetailsSheet from "./DetailsSheet";
-import { colors, formatBRL, formatLongDate, formatTime } from "../theme";
+import { formatBRL, formatLongDate, formatTime } from "../theme";
+import { getPaymentInfo } from "../paymentMethods";
 
 interface ExpenseDetailsProps {
   expense: Type | null; // null = modal fechado
@@ -19,22 +20,22 @@ const ExpenseDetails: React.FC<ExpenseDetailsProps> = ({
   const item = expense ?? lastExpense.current;
   if (!item) return null;
 
-  const isCredit = item.category === "credit card";
+  const payment = getPaymentInfo(item.category);
 
   return (
     <DetailsSheet
       visible={expense !== null}
       onClose={onClose}
       title="Detalhes do gasto"
-      icon={isCredit ? "card-outline" : "cash-outline"}
-      iconColor={isCredit ? colors.credit : colors.debit}
-      iconBackground={isCredit ? colors.creditSoft : colors.debitSoft}
+      icon={payment.icon}
+      iconColor={payment.color}
+      iconBackground={payment.softColor}
       amount={formatBRL(item.amount)}
       name={item.title}
       badge={{
-        label: isCredit ? "Cartão de crédito" : "Débito",
-        color: isCredit ? colors.credit : colors.debit,
-        backgroundColor: isCredit ? colors.creditSoft : colors.debitSoft,
+        label: payment.longLabel,
+        color: payment.color,
+        backgroundColor: payment.softColor,
       }}
       rows={[
         {

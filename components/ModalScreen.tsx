@@ -23,6 +23,11 @@ import {
   maskTimeInput,
   parseDateTimeInput,
 } from "../theme";
+import {
+  PAYMENT_METHODS,
+  PaymentMethod,
+  getPaymentInfo,
+} from "../paymentMethods";
 import { formStyles as styles } from "./formStyles";
 
 interface ModalScreenProps {
@@ -53,9 +58,8 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
   //-----------------------varavel de controle do teclado-----------------------------
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState<"credit card" | "debit">(
-    "credit card",
-  );
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethod>("credit card");
   const [nameExpense, setNameExpense] = useState("");
   const [amount, setAmount] = useState("");
   const [obs, setObs] = useState("");
@@ -123,15 +127,12 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
   const handlePress = () => handleBackgroundTap(isKeyboardVisible, onClose);
 
   //-------------------------- botão do tipo de pagamento --------------------------
-  const renderOption = (
-    value: "credit card" | "debit",
-    label: string,
-    icon: "card-outline" | "cash-outline",
-    color: string,
-  ) => {
+  const renderOption = (value: PaymentMethod) => {
+    const { label, icon, color } = getPaymentInfo(value);
     const active = paymentMethod === value;
     return (
       <TouchableOpacity
+        key={value}
         style={[styles.segmentButton, active && styles.segmentButtonActive]}
         onPress={() => setPaymentMethod(value)}
       >
@@ -224,18 +225,7 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
                 <View style={styles.field}>
                   <Text style={styles.label}>Forma de pagamento</Text>
                   <View style={styles.segment}>
-                    {renderOption(
-                      "credit card",
-                      "Crédito",
-                      "card-outline",
-                      colors.credit,
-                    )}
-                    {renderOption(
-                      "debit",
-                      "Débito",
-                      "cash-outline",
-                      colors.debit,
-                    )}
+                    {PAYMENT_METHODS.map(renderOption)}
                   </View>
                 </View>
 

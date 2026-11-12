@@ -3,7 +3,7 @@ export interface Type {
   title: string;
   amount: number;
   createdAt: Date;
-  category: "credit card" | "debit";
+  category: "credit card" | "debit" | "pix"; // forma de pagamento
   observacao?: string;
 }
 export type RootStackParamList = {

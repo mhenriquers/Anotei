@@ -6,12 +6,13 @@ import { Type } from "../Types";
 import MenuExclusaoGenerico from "../components/ExcluseMenu";
 import ExpenseItem from "../components/ExpenseItem";
 import ExpenseDetails from "../components/ExpenseDetails";
-import { colors, radius, shadow, formatBRL } from "../theme";
+import PaymentSummary from "../components/PaymentSummary";
+import { colors, formatBRL } from "../theme";
+import { PaymentTotals } from "../paymentMethods";
 
 interface ExpenseProps {
   expenseList: Type[];
-  totalGastoCredito: number;
-  totalGastoDebito: number;
+  paymentTotals: PaymentTotals;
   isDeleteMode: boolean;
   setIsDeleteMode: (visible: boolean) => void;
   onDeleteExpenses: (ids: string[]) => void; // Mantemos a função que atualiza a lista global
@@ -19,8 +20,7 @@ interface ExpenseProps {
 
 const ExpenseList: React.FC<ExpenseProps> = ({
   expenseList,
-  totalGastoCredito,
-  totalGastoDebito,
+  paymentTotals,
   isDeleteMode,
   setIsDeleteMode,
   onDeleteExpenses,
@@ -45,34 +45,7 @@ const ExpenseList: React.FC<ExpenseProps> = ({
         ListHeaderComponent={
           //--------------------------------CARD TOTAL---------------------------------//
           <View>
-            <View style={styles.summaryRow}>
-              <View style={[styles.summaryCard, { marginRight: 12 }]}>
-                <View style={styles.summaryLabelRow}>
-                  <Ionicons
-                    name="card-outline"
-                    size={16}
-                    color={colors.credit}
-                  />
-                  <Text style={styles.summaryLabel}>Crédito</Text>
-                </View>
-                <Text style={styles.summaryValue}>
-                  {formatBRL(totalGastoCredito)}
-                </Text>
-              </View>
-              <View style={styles.summaryCard}>
-                <View style={styles.summaryLabelRow}>
-                  <Ionicons
-                    name="cash-outline"
-                    size={16}
-                    color={colors.debit}
-                  />
-                  <Text style={styles.summaryLabel}>Débito</Text>
-                </View>
-                <Text style={styles.summaryValue}>
-                  {formatBRL(totalGastoDebito)}
-                </Text>
-              </View>
-            </View>
+            <PaymentSummary totals={paymentTotals} />
             {expenseList.length > 0 && (
               <Text style={styles.sectionTitle}>
                 Histórico ({expenseList.length})
@@ -134,33 +107,6 @@ const styles = StyleSheet.create({
   listContent: {
     padding: 20,
     paddingBottom: 10, // + 10 de margem do último card = 20, igual às laterais
-  },
-  summaryRow: {
-    flexDirection: "row",
-    marginBottom: 20,
-  },
-  summaryCard: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: 16,
-    ...shadow,
-  },
-  summaryLabelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  summaryLabel: {
-    fontSize: 13,
-    color: colors.textMuted,
-    fontWeight: "500",
-    marginLeft: 6,
-  },
-  summaryValue: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.text,
-    marginTop: 8,
   },
   sectionTitle: {
     fontSize: 16,

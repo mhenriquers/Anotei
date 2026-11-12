@@ -21,6 +21,7 @@ import ConfirmDialog from "./components/ConfirmDialog";
 import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
 import { needsInstallFirst } from "./pwa";
+import { totalsByPaymentMethod } from "./paymentMethods";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -37,15 +38,10 @@ const SalvaConta = async (billsToSave: InterfaceBill[]) => {
 const AnoteiApp: React.FC = () => {
   const [expenses, setExpenses] = useState<Type[]>([]);
 
-  const valorTotalCredito = expenses
-    .filter((item) => item.category === "credit card")
-    .reduce((total, item) => total + item.amount, 0);
-
-  const valorTotalDebito = expenses
-    .filter((item) => item.category === "debit")
-    .reduce((total, item) => total + item.amount, 0);
-
-  const valorTotal = valorTotalCredito + valorTotalDebito;
+  // total por forma de pagamento (crédito, débito e pix)
+  const paymentTotals = totalsByPaymentMethod(expenses);
+  const valorTotal =
+    paymentTotals["credit card"] + paymentTotals.debit + paymentTotals.pix;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalType, setModalType] = useState<"expense" | "bill" | null>(null);
@@ -213,8 +209,7 @@ const AnoteiApp: React.FC = () => {
                   setIsModalVisible(true);
                 }}
                 expenses={expenses}
-                totalGastoCredito={valorTotalCredito}
-                totalGastoDebito={valorTotalDebito}
+                paymentTotals={paymentTotals}
                 valorTotal={valorTotal}
                 innerBill={bills}
               />
@@ -243,8 +238,7 @@ const AnoteiApp: React.FC = () => {
             {(props) => (
               <ExpenseList
                 expenseList={expenses}
-                totalGastoCredito={valorTotalCredito}
-                totalGastoDebito={valorTotalDebito}
+                paymentTotals={paymentTotals}
                 isDeleteMode={isDeleteMode}
                 setIsDeleteMode={setIsDeleteMode}
                 onDeleteExpenses={handleDeleteExpenses}
