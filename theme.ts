@@ -99,3 +99,57 @@ export const formatTime = (value: Date | string | number): string => {
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
+
+//------------------------------ campos de data e hora ------------------------------
+// Ex: "22/10/2026" (formato do campo "Data" do cadastro)
+export const formatDateInput = (date: Date): string => {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+};
+
+// Coloca as barras enquanto a pessoa digita: "22102026" → "22/10/2026"
+export const maskDateInput = (text: string): string => {
+  const digits = text.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+};
+
+// Coloca os dois pontos enquanto a pessoa digita: "1430" → "14:30"
+export const maskTimeInput = (text: string): string => {
+  const digits = text.replace(/\D/g, "").slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+};
+
+// Junta "dd/mm/aaaa" e "hh:mm" numa data. Se algo estiver errado, devolve a
+// mensagem para mostrar à pessoa.
+export const parseDateTimeInput = (
+  dateText: string,
+  timeText: string,
+): { date: Date } | { error: string } => {
+  const dateMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dateText.trim());
+  if (!dateMatch) return { error: "Digite a data no formato dd/mm/aaaa." };
+  const timeMatch = /^(\d{2}):(\d{2})$/.exec(timeText.trim());
+  if (!timeMatch) return { error: "Digite a hora no formato hh:mm." };
+
+  const [day, month, year] = dateMatch.slice(1).map(Number);
+  const [hours, minutes] = timeMatch.slice(1).map(Number);
+  if (hours > 23 || minutes > 59) return { error: "Digite uma hora válida." };
+
+  const date = new Date(year, month - 1, day, hours, minutes);
+  // new Date aceita 31/02 e "pula" para março; aqui isso é data inválida
+  if (
+    year < 2000 ||
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return { error: "Digite uma data válida." };
+  }
+  // tolerância de 1 minuto: o campo é preenchido com a hora de agora
+  if (date.getTime() > Date.now() + 60 * 1000) {
+    return { error: "A data e a hora não podem estar no futuro." };
+  }
+  return { date };
+};

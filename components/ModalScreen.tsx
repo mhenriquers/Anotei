@@ -9,17 +9,26 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
-import { colors } from "../theme";
+import {
+  colors,
+  radius,
+  formatDateInput,
+  formatTime,
+  maskDateInput,
+  maskTimeInput,
+  parseDateTimeInput,
+} from "../theme";
 import { formStyles as styles } from "./formStyles";
 
 interface ModalScreenProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (expenseData: Omit<Type, "id" | "createdAt">) => void;
+  onSave: (expenseData: Omit<Type, "id">) => void;
 }
 
 //---------------------- função pra tirar modal e fechar teclado ao tocar fora--------------------------
@@ -51,6 +60,23 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
   const [amount, setAmount] = useState("");
   const [obs, setObs] = useState("");
 
+  // data e hora da compra: começam com "agora" (o modal é montado ao abrir)
+  const [dateText, setDateText] = useState(() => formatDateInput(new Date()));
+  const [timeText, setTimeText] = useState(() => formatTime(new Date()));
+  const [dateError, setDateError] = useState("");
+
+  const today = formatDateInput(new Date());
+  const yesterday = formatDateInput(new Date(Date.now() - 24 * 60 * 60 * 1000));
+
+  const changeDate = (text: string) => {
+    setDateText(maskDateInput(text));
+    setDateError("");
+  };
+  const changeTime = (text: string) => {
+    setTimeText(maskTimeInput(text));
+    setDateError("");
+  };
+
   //-------------------------------- função que adiciona e salva card---------------------
   const handleAdd = () => {
     if (nameExpense.trim() === "" || amount.trim() === "") {
@@ -63,11 +89,17 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
       alert("Digite um valor válido.");
       return;
     }
+    const purchase = parseDateTimeInput(dateText, timeText);
+    if ("error" in purchase) {
+      setDateError(purchase.error);
+      return;
+    }
     onSave({
       title: nameExpense.trim(),
       amount: valorNumerico,
       category: paymentMethod,
       observacao: obs.trim(),
+      createdAt: purchase.date,
     });
     setNameExpense("");
     setAmount("");
@@ -207,6 +239,90 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
                   </View>
                 </View>
 
+                {/*-------------data e hora da compra-----------------*/}
+                <View style={styles.field}>
+                  <View style={local.labelRow}>
+                    <Text style={[styles.label, local.labelInRow]}>
+                      Data e hora da compra
+                    </Text>
+                    {[
+                      { label: "Hoje", value: today },
+                      { label: "Ontem", value: yesterday },
+                    ].map((chip) => {
+                      const active = dateText === chip.value;
+                      return (
+                        <TouchableOpacity
+                          key={chip.label}
+                          style={[local.chip, active && local.chipActive]}
+                          onPress={() => changeDate(chip.value)}
+                        >
+                          <Text
+                            style={[
+                              local.chipText,
+                              active && local.chipTextActive,
+                            ]}
+                          >
+                            {chip.label}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <View style={local.row}>
+                    <View
+                      style={[
+                        styles.inputWrapper,
+                        local.dateInput,
+                        !!dateError && local.inputError,
+                      ]}
+                    >
+                      <Ionicons
+                        name="calendar-outline"
+                        size={18}
+                        color={colors.textMuted}
+                        style={local.inputIcon}
+                      />
+                      <TextInput
+                        style={styles.input}
+                        placeholder="dd/mm/aaaa"
+                        placeholderTextColor={colors.textLight}
+                        value={dateText}
+                        onChangeText={changeDate}
+                        keyboardType="number-pad"
+                        maxLength={10}
+                        accessibilityLabel="Data da compra"
+                      />
+                    </View>
+                    <View
+                      style={[
+                        styles.inputWrapper,
+                        local.timeInput,
+                        !!dateError && local.inputError,
+                      ]}
+                    >
+                      <Ionicons
+                        name="time-outline"
+                        size={18}
+                        color={colors.textMuted}
+                        style={local.inputIcon}
+                      />
+                      <TextInput
+                        style={styles.input}
+                        placeholder="hh:mm"
+                        placeholderTextColor={colors.textLight}
+                        value={timeText}
+                        onChangeText={changeTime}
+                        keyboardType="number-pad"
+                        maxLength={5}
+                        accessibilityLabel="Hora da compra"
+                      />
+                    </View>
+                  </View>
+                  {!!dateError && (
+                    <Text style={local.errorText}>{dateError}</Text>
+                  )}
+                </View>
+
                 <View style={styles.buttonRow}>
                   <TouchableOpacity
                     onPress={onClose}
@@ -230,5 +346,60 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
     </Modal>
   );
 };
+
+//---------------------- estilos só deste modal ----------------------
+const local = StyleSheet.create({
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  labelInRow: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceMuted,
+    marginLeft: 6,
+  },
+  chipActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  chipText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.textMuted,
+  },
+  chipTextActive: {
+    color: colors.primaryDark,
+  },
+  row: {
+    flexDirection: "row",
+  },
+  dateInput: {
+    flex: 3,
+    marginRight: 10,
+  },
+  timeInput: {
+    flex: 2,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
+  inputError: {
+    borderColor: colors.danger,
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: 13,
+    marginTop: 6,
+  },
+});
 
 export default ModalScreen;

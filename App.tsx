@@ -100,11 +100,12 @@ const AnoteiApp: React.FC = () => {
   };
 
   //------------------------------------------função para salvar
-  const handleSaveExpense = (newExpenseData: any) => {
+  const handleSaveExpense = (newExpenseData: Omit<Type, "id">) => {
     const completeExpense: Type = {
       ...newExpenseData,
       id: Math.random().toString(),
-      createdAt: new Date(),
+      // data/hora escolhida no cadastro (por padrão, a de agora)
+      createdAt: newExpenseData.createdAt ?? new Date(),
     };
 
     const updateExpenses = [...expenses, completeExpense];
