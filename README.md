@@ -43,7 +43,7 @@ Você pode testar a versão estável do aplicativo diretamente no seu celular An
 
 No iPhone o Anotei funciona como app web instalável, sem passar pela App Store:
 
-👉 **Abra [mhenriquers.github.io/Anoteipwa](https://mhenriquers.github.io/Anoteipwa/) no Safari**
+👉 **Abra [mhenriquers.github.io/Anotei](https://mhenriquers.github.io/Anotei/) no Safari**
 
 1. Toque em **Compartilhar** (se não aparecer, toque em **···** primeiro).
 2. Escolha **Adicionar à Tela de Início**.
