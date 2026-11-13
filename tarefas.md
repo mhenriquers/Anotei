@@ -19,11 +19,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 - [ ] Ler a doc do Expo 58 sobre app shortcuts/quick actions antes. Se precisar de lib de terceiros
   ou config nativa complexa, **parar e perguntar** antes de instalar.
 
-## 35. Bloqueio com PIN ou biometria (APK)
-- [ ] Ler a doc de `expo-local-authentication` (SDK 58). Interruptor "Bloquear com digital" no
-  `SideDrawer` (só Android). Ao abrir/voltar ao app, pedir a digital. Sem biometria no aparelho:
-  não mostrar a opção. Web: não faz nada.
-
 ## 36. Backup criptografado com senha
 - [ ] Antes de começar, **perguntar** qual biblioteca de criptografia usar (precisa funcionar
   igual no Android e na web). Senha opcional; backup sem senha continua igual.

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -42,6 +42,8 @@ import MoneyPrompt from "../components/MoneyPrompt";
 import { faturaAtual } from "../fatura";
 import { exportExpensesCsv } from "../csv";
 import AboutDialog from "../components/AboutDialog";
+import { authenticate, canUseBiometrics } from "../biometrics";
+import { setLockSetting, useLockSetting } from "../appLock";
 import ActionSheet from "../components/ActionSheet";
 import { expenseTitle } from "../installments";
 
@@ -176,6 +178,18 @@ const HomeScreen: React.FC<HomeProps> = ({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
+  //-------------------------- bloqueio com digital (só aparece se o celular tiver) --------------------------
+  const lockEnabled = useLockSetting();
+  const [hasBiometrics, setHasBiometrics] = useState(false);
+  useEffect(() => {
+    canUseBiometrics().then(setHasBiometrics);
+  }, []);
+
+  // ligar ou desligar pede a digital antes, para confirmar que é a dona do celular
+  const toggleLock = async () => {
+    if (await authenticate()) setLockSetting(!lockEnabled);
+  };
+
   const totalReservas = reservas.reduce((soma, r) => soma + (r.valor || 0), 0);
 
   const drawerItems: DrawerItem[] = [
@@ -252,6 +266,21 @@ const HomeScreen: React.FC<HomeProps> = ({
       subtitle: "Recuperar dados de um arquivo",
       onPress: restore.startRestore,
     },
+    ...(hasBiometrics
+      ? [
+          {
+            key: "bloqueio",
+            icon: lockEnabled ? "lock-closed-outline" : "lock-open-outline",
+            label: lockEnabled
+              ? "Desligar bloqueio com digital"
+              : "Bloquear com digital",
+            subtitle: lockEnabled
+              ? "Pede a digital ao abrir o app"
+              : "Pedir a digital ao abrir o app",
+            onPress: toggleLock,
+          } as DrawerItem,
+        ]
+      : []),
     {
       key: "sobre",
       icon: "information-circle-outline",

@@ -43,6 +43,7 @@ import InstallScreen from "./components/InstallScreen";
 import { isWeb, needsInstallFirst } from "./pwa";
 import { loadStoredValues, setStored, useStoredValue } from "./storedValues";
 import WelcomeScreen from "./components/WelcomeScreen";
+import LockGate from "./components/LockGate";
 import { splitInstallments } from "./installments";
 import { applyRecorrentes } from "./recurring";
 import { rollBillsMonth } from "./billsMonth";
@@ -640,7 +641,10 @@ const App: React.FC = () =>
       <InstallScreen />
     </SafeAreaProvider>
   ) : (
-    <AnoteiApp />
+    // bloqueio com digital (Android), se a pessoa ligou no menu
+    <LockGate>
+      <AnoteiApp />
+    </LockGate>
   );
 
 const styles = StyleSheet.create({
