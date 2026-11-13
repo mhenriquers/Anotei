@@ -19,6 +19,7 @@ import { colors, radius, shadow, formatBRL } from "../theme";
 
 interface BillProps {
   onOpenModal: () => void;
+  onEditBill: (bill: InterfaceBill) => void; // abre o cadastro para editar a conta
   innerBill: InterfaceBill[];
   onDeleteBills: (updatedBills: InterfaceBill[]) => void;
   onUpdateBills?: (updatedBills: InterfaceBill[]) => void;
@@ -29,6 +30,7 @@ type DialogKind = "uncheck" | "nonePaid" | "deleteAll";
 
 const Bills: React.FC<BillProps> = ({
   onOpenModal,
+  onEditBill,
   innerBill,
   onDeleteBills,
   onUpdateBills,
@@ -281,6 +283,10 @@ const Bills: React.FC<BillProps> = ({
           onClose={() => setSelectedBillId(null)}
           onToggleReminder={(avisar) => {
             if (selectedBill) handleToggleReminder(selectedBill.id, avisar);
+          }}
+          onEdit={(bill) => {
+            setSelectedBillId(null); // fecha os detalhes antes de abrir o cadastro
+            onEditBill(bill);
           }}
         />
 

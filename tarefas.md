@@ -16,11 +16,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 2. Editar conta fixa
-- [ ] Mesmo padrão da tarefa 1: `ModalBills.tsx` recebe `bill?`, título "Editar conta".
-  Ao editar, manter `id` e `pago`; recalcular `venc` e `diaVencimento`.
-- [ ] `BillDetails.tsx`: botão "Editar". `App.tsx`: `handleSaveBill` substitui pelo `id`.
-
 ## 3. Desfazer exclusão
 - [ ] Componente `components/UndoToast.tsx`: faixa no rodapé "Gasto apagado · Desfazer", some em 5 s.
 - [ ] `App.tsx` `handleDeleteExpenses`: guarda os gastos apagados, troca o `alert` pelo toast;

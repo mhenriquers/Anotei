@@ -9,6 +9,7 @@ interface BillDetailsProps {
   bill: InterfaceBill | null; // null = modal fechado
   onClose: () => void;
   onToggleReminder?: (value: boolean) => void; // liga/desliga o aviso no vencimento
+  onEdit?: (bill: InterfaceBill) => void; // abre o cadastro para editar esta conta
 }
 
 //---------------------- modal com as informações de uma conta fixa ----------------------
@@ -16,6 +17,7 @@ const BillDetails: React.FC<BillDetailsProps> = ({
   bill,
   onClose,
   onToggleReminder,
+  onEdit,
 }) => {
   // guarda a última conta aberta para o conteúdo não sumir durante a animação de fechar
   const lastBill = useRef<InterfaceBill | null>(null);
@@ -47,6 +49,7 @@ const BillDetails: React.FC<BillDetailsProps> = ({
     <DetailsSheet
       visible={bill !== null}
       onClose={onClose}
+      onEdit={onEdit ? () => onEdit(item) : undefined}
       title="Detalhes da conta"
       icon="receipt-outline"
       iconColor={colors.primary}

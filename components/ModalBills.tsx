@@ -14,17 +14,31 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { handleBackgroundTap } from "./ModalScreen";
 import ReminderToggle from "./ReminderToggle";
-import { colors, parseBRLInput, maskMoneyInput } from "../theme";
+import {
+  colors,
+  parseBRLInput,
+  maskMoneyInput,
+  formatBRLInput,
+} from "../theme";
+import { InterfaceBill } from "../Types";
+import { getDueDay, isReminderOn } from "../dueDates";
 import { formStyles as styles } from "./formStyles";
 
 interface ModalBill {
   visible: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
+  onSave: (data: InterfaceBill) => void;
+  bill?: InterfaceBill | null; // se passada, o modal edita essa conta
 }
 
-const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
+const ModalBill: React.FC<ModalBill> = ({
+  visible,
+  onClose,
+  onSave,
+  bill,
+}) => {
   const insets = useSafeAreaInsets();
+  const isEditing = !!bill;
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const handlePress = () => handleBackgroundTap(isKeyboardVisible, onClose);
 
@@ -43,11 +57,17 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
   }, []);
 
   //----------------Variaveis de Controle dos inputs----------------------
-  const [nome, setNome] = useState("");
-  const [valor, setValor] = useState("");
-  const [dia, setDia] = useState("");
-  const [obs, setObs] = useState("");
-  const [avisar, setAvisar] = useState(true);
+  // o modal é montado ao abrir, então os campos começam com os dados da conta em edição
+  const [nome, setNome] = useState(bill?.nome ?? "");
+  const [valor, setValor] = useState(
+    bill ? formatBRLInput(bill.valor || 0) : "",
+  );
+  const [dia, setDia] = useState(() => {
+    const day = bill ? getDueDay(bill) : null;
+    return day === null ? "" : String(day);
+  });
+  const [obs, setObs] = useState(bill?.obs ?? "");
+  const [avisar, setAvisar] = useState(bill ? isReminderOn(bill) : true);
 
   // dia do vencimento válido (1 a 31) ou null
   const diaNumero = Number(dia);
@@ -74,14 +94,16 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
       return;
     }
     onSave({
-      id: Date.now().toString(),
+      // ao editar, mantém os outros campos da conta (id, pago...)
+      ...bill,
+      id: bill?.id ?? Date.now().toString(),
       nome: nome.trim(),
       valor: valorNumerico,
       venc: `Dia ${dueDay}`,
       diaVencimento: dueDay,
       avisar,
       obs: obs.trim(),
-      pago: false,
+      pago: bill?.pago ?? false,
     });
   };
 
@@ -106,7 +128,9 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
                 <View style={styles.handle} />
 
                 <View style={styles.header}>
-                  <Text style={styles.title}>Nova conta fixa</Text>
+                  <Text style={styles.title}>
+                    {isEditing ? "Editar conta" : "Nova conta fixa"}
+                  </Text>
                   <TouchableOpacity
                     onPress={onClose}
                     style={styles.closeButton}
@@ -197,7 +221,9 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
                     onPress={handleSaveBill}
                     style={[styles.button, styles.buttonPrimary]}
                   >
-                    <Text style={styles.buttonPrimaryText}>Adicionar</Text>
+                    <Text style={styles.buttonPrimaryText}>
+                      {isEditing ? "Salvar" : "Adicionar"}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>

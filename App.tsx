@@ -161,14 +161,24 @@ const AnoteiApp: React.FC = () => {
   const [bills, setBills] = useState<InterfaceBill[]>([]);
   const [billsLoaded, setBillsLoaded] = useState(false);
 
+  // conta aberta no modal para edição (null = cadastro de uma conta nova)
+  const [editingBill, setEditingBill] = useState<InterfaceBill | null>(null);
+
+  const openBillModal = (bill: InterfaceBill | null) => {
+    setEditingBill(bill);
+    setModalType("bill");
+    setIsModalVisible(true);
+  };
+
   const handleSaveBill = (billData: InterfaceBill) => {
-    console.log("Nova conta:", billData); // ← Adicione isto
-    console.log("Bills antes:", bills); // ← E isto
-    const updatedBills = [...bills, billData];
-    console.log("Bills depois:", updatedBills); // ← E isto
+    // ao editar, troca a conta com o mesmo id (continua no mesmo lugar da lista)
+    const updatedBills = editingBill
+      ? bills.map((bill) => (bill.id === billData.id ? billData : bill))
+      : [...bills, billData];
     setBills(updatedBills);
     SalvaConta(updatedBills);
     setIsModalVisible(false);
+    setEditingBill(null);
   };
 
   //--------------------------função para carregar dados
@@ -313,10 +323,8 @@ const AnoteiApp: React.FC = () => {
               <Bills
                 {...props}
                 innerBill={bills}
-                onOpenModal={() => {
-                  setModalType("bill");
-                  setIsModalVisible(true);
-                }}
+                onOpenModal={() => openBillModal(null)}
+                onEditBill={openBillModal}
                 onDeleteBills={(updatedBills) => setBills(updatedBills)}
                 onUpdateBills={handleUpdateBills}
               />
@@ -389,7 +397,11 @@ const AnoteiApp: React.FC = () => {
         {isModalVisible && modalType === "bill" && (
           <ModalBill
             visible={isModalVisible}
-            onClose={() => setIsModalVisible(false)}
+            bill={editingBill}
+            onClose={() => {
+              setIsModalVisible(false);
+              setEditingBill(null);
+            }}
             onSave={handleSaveBill}
           />
         )}
