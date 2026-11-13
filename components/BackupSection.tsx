@@ -3,7 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, formatDate } from "../theme";
 import ConfirmDialog, { ConfirmDialogContent } from "./ConfirmDialog";
-import { BackupData, parseBackup, restoreBackup } from "../backup";
+import {
+  BackupData,
+  formatSize,
+  parseBackup,
+  restoreBackup,
+} from "../backup";
 import { pickBackupText } from "../backupFile";
 
 //---------------------- lembrete de backup (topo da tela inicial) ----------------------
@@ -50,8 +55,14 @@ export const BackupReminder: React.FC<BackupReminderProps> = ({
 );
 
 //---------------------- texto do item "Fazer backup" do menu ----------------------
-export const describeLastBackup = (lastBackup: number | null) =>
-  lastBackup ? `Último: ${formatDate(lastBackup)}` : "Nenhum backup ainda";
+// "Último: 10/11/2026 às 14:30 · 24 KB"
+export const describeLastBackup = (
+  lastBackup: number | null,
+  lastSize: number | null = null,
+) =>
+  lastBackup
+    ? `Último: ${formatDate(lastBackup)}${lastSize ? ` · ${formatSize(lastSize)}` : ""}`
+    : "Nenhum backup ainda";
 
 //---------------------- restaurar backup (escolher arquivo + confirmação) ----------------------
 const describeBackup = (data: BackupData) => {

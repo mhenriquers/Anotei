@@ -15,10 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 20. Tamanho e data do backup no menu
-- [ ] `useBackup`: calcular tamanho do JSON do backup (`new Blob`/`length`) e mostrar no subtítulo
-  do item "Fazer backup": "Último: 10/11 · 24 KB".
-
 ## 21. Exportar em CSV
 - [ ] `csv.ts`: gera CSV com `;` e BOM UTF-8 (abre certo no Excel): Data; Hora; Descrição;
   Forma; Valor (vírgula decimal); Observação. Campos com `;` ou `"` entre aspas.

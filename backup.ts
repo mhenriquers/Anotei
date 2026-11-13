@@ -32,6 +32,7 @@ const DAY = 24 * 60 * 60 * 1000;
 const KEY_LAST = "backup:last";
 const KEY_FIRST_SEEN = "backup:firstSeen";
 const KEY_SNOOZE = "backup:snoozeUntil";
+const KEY_SIZE = "backup:size"; // tamanho do último arquivo de backup, em bytes
 
 export interface BackupData {
   exportedAt: string;
@@ -52,15 +53,16 @@ const todayStamp = () => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-// Retorna false se a pessoa cancelou. Precisa ser chamado direto no toque do
-// botão: o iPhone só abre o menu Compartilhar se não houver espera entre o
-// toque e a chamada (por isso nada de await antes de shareBackupFile).
+// Retorna o tamanho do arquivo em bytes, ou null se a pessoa cancelou.
+// Precisa ser chamado direto no toque do botão: o iPhone só abre o menu
+// Compartilhar se não houver espera entre o toque e a chamada (por isso nada
+// de await antes de shareBackupFile).
 export const exportBackup = (
   expenses: Type[],
   bills: InterfaceBill[],
   reservas: Reserva[],
   nome: string,
-): Promise<boolean> => {
+): Promise<number | null> => {
   const data = {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
@@ -71,10 +73,23 @@ export const exportBackup = (
     nome,
     extras: extrasSnapshot(), // lido da memória, sem await
   };
-  return shareBackupFile(
-    `anotei-backup-${todayStamp()}.json`,
-    JSON.stringify(data, null, 2),
+  const text = JSON.stringify(data, null, 2);
+  return shareBackupFile(`anotei-backup-${todayStamp()}.json`, text).then(
+    (saved) => (saved ? byteLength(text) : null),
   );
+};
+
+// tamanho do texto em bytes (UTF-8: acentos ocupam 2 bytes)
+const byteLength = (text: string) =>
+  typeof TextEncoder !== "undefined"
+    ? new TextEncoder().encode(text).length
+    : text.length;
+
+// "24 KB", "1,2 MB"
+export const formatSize = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} bytes`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",")} MB`;
 };
 
 //---------------------- ler um arquivo de backup ----------------------
@@ -135,7 +150,7 @@ export const restoreBackup = async (data: BackupData) => {
   await AsyncStorage.multiSet(items);
   if (data.nome === "") await AsyncStorage.removeItem(KEY_USER_NAME);
   if (data.extras) await restoreExtras(data.extras);
-  await AsyncStorage.removeItem(KEY_SNOOZE);
+  await AsyncStorage.multiRemove([KEY_SNOOZE, KEY_SIZE]);
 };
 
 //---------------------- lembrete de backup ----------------------
@@ -143,6 +158,7 @@ interface BackupInfo {
   lastBackup: number | null;
   firstSeen: number;
   snoozeUntil: number | null;
+  lastSize: number | null;
 }
 
 const toNumber = (value: string | null) =>
@@ -150,7 +166,12 @@ const toNumber = (value: string | null) =>
 
 const readBackupInfo = async (): Promise<BackupInfo> => {
   const values = Object.fromEntries(
-    await AsyncStorage.multiGet([KEY_LAST, KEY_FIRST_SEEN, KEY_SNOOZE]),
+    await AsyncStorage.multiGet([
+      KEY_LAST,
+      KEY_FIRST_SEEN,
+      KEY_SNOOZE,
+      KEY_SIZE,
+    ]),
   );
   let firstSeen = toNumber(values[KEY_FIRST_SEEN]);
   if (firstSeen === null) {
@@ -161,6 +182,7 @@ const readBackupInfo = async (): Promise<BackupInfo> => {
     lastBackup: toNumber(values[KEY_LAST]),
     firstSeen,
     snoozeUntil: toNumber(values[KEY_SNOOZE]),
+    lastSize: toNumber(values[KEY_SIZE]),
   };
 };
 
@@ -205,14 +227,19 @@ export const useBackup = (
   const backupNow = useCallback(async () => {
     try {
       // sem await antes desta chamada (ver exportBackup)
-      const saved = await exportBackup(expenses, bills, reservas, nome);
-      if (!saved) return;
+      const size = await exportBackup(expenses, bills, reservas, nome);
+      if (size === null) return;
       const time = Date.now();
-      await AsyncStorage.setItem(KEY_LAST, String(time));
+      await AsyncStorage.multiSet([
+        [KEY_LAST, String(time)],
+        [KEY_SIZE, String(size)],
+      ]);
       await AsyncStorage.removeItem(KEY_SNOOZE);
       setNow(time);
       setInfo((prev) =>
-        prev ? { ...prev, lastBackup: time, snoozeUntil: null } : prev,
+        prev
+          ? { ...prev, lastBackup: time, snoozeUntil: null, lastSize: size }
+          : prev,
       );
     } catch (error) {
       console.error("Erro ao fazer backup", error);
@@ -228,6 +255,7 @@ export const useBackup = (
 
   return {
     lastBackup: info?.lastBackup ?? null,
+    lastSize: info?.lastSize ?? null,
     hasData,
     shouldRemind,
     daysSinceBackup: info?.lastBackup ? daysSinceBackup : null,

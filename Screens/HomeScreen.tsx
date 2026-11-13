@@ -220,7 +220,7 @@ const HomeScreen: React.FC<HomeProps> = ({
       key: "backup",
       icon: "share-outline",
       label: "Fazer backup",
-      subtitle: describeLastBackup(backup.lastBackup),
+      subtitle: describeLastBackup(backup.lastBackup, backup.lastSize),
       onPress: backup.backupNow, // chamado direto no toque (exigência do iPhone)
       disabled: !backup.hasData,
     },
