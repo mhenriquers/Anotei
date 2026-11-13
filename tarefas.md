@@ -15,11 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 24. Feedback ao salvar
-- [ ] Instalar `expo-haptics` (`npx expo install expo-haptics`). `feedback.ts` com `vibrar()`;
-  `feedback.web.ts` vazio. Chamar ao salvar gasto, conta e reserva.
-- [ ] Toast "Gasto salvo" (reusar `UndoToast` sem botão).
-
 ## 25. Tela de boas-vindas no primeiro uso
 - [ ] Chave `boasVindas` ("1" quando visto). Se ausente e sem dados, mostrar 3 telas curtas
   (anotar gastos, contas fixas, backup) com "Começar". Não mostrar para quem já tem dados.

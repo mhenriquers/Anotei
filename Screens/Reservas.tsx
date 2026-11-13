@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Movimento, Reserva } from "../Types";
 import MoneyPrompt from "../components/MoneyPrompt";
+import { vibrar } from "../feedback";
 import DraggableFab from "../components/DraggableFab";
 import ModalReserva from "../components/ModalReserva";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -46,6 +47,7 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
       onChange([...reservas, { ...data, id: Date.now().toString() }]);
     }
     setEditing(null);
+    vibrar();
   };
 
   //-------------------------- guardar / retirar dinheiro de uma reserva
@@ -78,6 +80,7 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
       ),
     );
     setMove(null);
+    vibrar();
   };
 
   const confirmDelete = () => {

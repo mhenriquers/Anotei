@@ -27,6 +27,7 @@ import { loadStoredValues, useStoredValue } from "./storedValues";
 import { splitInstallments } from "./installments";
 import { applyRecorrentes } from "./recurring";
 import { rollBillsMonth } from "./billsMonth";
+import { vibrar } from "./feedback";
 import Recorrentes from "./Screens/Recorrentes";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -123,6 +124,8 @@ const AnoteiApp: React.FC = () => {
       setExpenses(updated);
       saveExpenses(updated);
       setIsModalVisible(false);
+      vibrar();
+      showToast({ message: `Compra lançada em ${parcelas} parcelas` });
       return;
     }
 
@@ -145,6 +148,8 @@ const AnoteiApp: React.FC = () => {
     saveExpenses(updateExpenses);
     setIsModalVisible(false);
     setEditingExpense(null);
+    vibrar();
+    showToast({ message: editingExpense ? "Gasto atualizado" : "Gasto salvo" });
   };
 
   //----------------------------------------- aviso no rodapé com "Desfazer"
@@ -255,6 +260,8 @@ const AnoteiApp: React.FC = () => {
     SalvaConta(updatedBills);
     setIsModalVisible(false);
     setEditingBill(null);
+    vibrar();
+    showToast({ message: editingBill ? "Conta atualizada" : "Conta salva" });
   };
 
   //--------------------------função para carregar dados

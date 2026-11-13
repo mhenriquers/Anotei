@@ -12,6 +12,7 @@ import DraggableFab from "../components/DraggableFab";
 import ModalRecorrente from "../components/ModalRecorrente";
 import ConfirmDialog from "../components/ConfirmDialog";
 import PaymentIcon from "../components/PaymentIcon";
+import { vibrar } from "../feedback";
 import { colors, radius, shadow, formatBRL } from "../theme";
 import { getPaymentInfo } from "../paymentMethods";
 import {
@@ -60,6 +61,7 @@ const Recorrentes: React.FC<RecorrentesProps> = ({ onApply }) => {
     }
     setEditing(null);
     onApply();
+    vibrar();
   };
 
   const confirmDelete = () => {
