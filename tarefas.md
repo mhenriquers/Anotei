@@ -15,10 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 25. Tela de boas-vindas no primeiro uso
-- [ ] Chave `boasVindas` ("1" quando visto). Se ausente e sem dados, mostrar 3 telas curtas
-  (anotar gastos, contas fixas, backup) com "Começar". Não mostrar para quem já tem dados.
-
 ## 26. Modo escuro
 - [ ] `theme.ts`: `lightColors` e `darkColors`; hook `useColors()` com `useColorScheme()`.
 - [ ] Trocar `colors` fixo por `useColors()` tela por tela (fazer e commitar uma tela por vez é

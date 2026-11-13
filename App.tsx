@@ -23,7 +23,12 @@ import UndoToast, { ToastData } from "./components/UndoToast";
 import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
 import { needsInstallFirst } from "./pwa";
-import { loadStoredValues, useStoredValue } from "./storedValues";
+import {
+  loadStoredValues,
+  setStored,
+  useStoredValue,
+} from "./storedValues";
+import WelcomeScreen from "./components/WelcomeScreen";
 import { splitInstallments } from "./installments";
 import { applyRecorrentes } from "./recurring";
 import { rollBillsMonth } from "./billsMonth";
@@ -355,6 +360,24 @@ const AnoteiApp: React.FC = () => {
       syncBillReminders(bills);
     }
   }, [bills, billsLoaded]);
+
+  //-------------------------- boas-vindas: só no primeiro uso, para quem ainda não tem dados
+  const boasVindasVista = useStoredValue("boasVindas") === "1";
+  const showWelcome =
+    dataLoaded &&
+    !boasVindasVista &&
+    expenses.length === 0 &&
+    bills.length === 0 &&
+    reservas.length === 0;
+
+  if (showWelcome) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <WelcomeScreen onDone={() => setStored("boasVindas", "1")} />
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider>
