@@ -71,7 +71,7 @@ const DIAS_DA_SEMANA = [
   "sábado",
 ];
 
-const MESES = [
+export const MESES = [
   "janeiro",
   "fevereiro",
   "março",

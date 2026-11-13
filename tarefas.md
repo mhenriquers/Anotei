@@ -16,10 +16,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 5. Agrupar a lista por dia
-- [ ] `ExpensesList.tsx`: trocar `FlatList` por `SectionList`, uma seção por dia
-  ("Hoje", "Ontem", "12 de novembro"), com o total do dia no cabeçalho.
-
 ## 6. Filtro por mês
 - [ ] `months.ts`: `monthKey(date)` → "2026-11", `monthLabel(key)` → "Novembro 2026",
   `filterByMonth(expenses, key)`, `previousMonth(key)`, `nextMonth(key)`.

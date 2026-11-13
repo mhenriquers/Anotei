@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  SectionList,
   TextInput,
   TouchableOpacity,
 } from "react-native";
@@ -17,6 +17,7 @@ import PaymentSummary from "../components/PaymentSummary";
 import { colors, formatBRL, radius } from "../theme";
 import { PaymentTotals } from "../paymentMethods";
 import { searchExpenses } from "../search";
+import { groupByDay } from "../expenseGroups";
 import { isWeb } from "../pwa";
 
 interface ExpenseProps {
@@ -40,10 +41,9 @@ const ExpenseList: React.FC<ExpenseProps> = ({
   const [query, setQuery] = useState("");
   const isSearching = query.trim() !== "";
 
-  //-------------------------- mais recentes primeiro --------------------------
-  const sortedExpenses = searchExpenses(expenseList, query).sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  //-------------------------- agrupados por dia, mais recentes primeiro --------------------------
+  const sortedExpenses = searchExpenses(expenseList, query);
+  const sections = groupByDay(sortedExpenses);
 
   //-------------------------- gasto aberto no modal de detalhes --------------------------
   const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(
@@ -55,8 +55,16 @@ const ExpenseList: React.FC<ExpenseProps> = ({
   return (
     // edges "bottom": a lista termina acima dos botões do celular
     <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
-      <FlatList
+      <SectionList
         contentContainerStyle={styles.listContent}
+        sections={sections}
+        stickySectionHeadersEnabled={false}
+        renderSectionHeader={({ section }) => (
+          <View style={styles.dayHeader}>
+            <Text style={styles.dayTitle}>{section.title}</Text>
+            <Text style={styles.dayTotal}>{formatBRL(section.total)}</Text>
+          </View>
+        )}
         ListHeaderComponent={
           //--------------------------------CARD TOTAL---------------------------------//
           <View>
@@ -97,7 +105,6 @@ const ExpenseList: React.FC<ExpenseProps> = ({
             )}
           </View>
         }
-        data={sortedExpenses}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <ExpenseItem
@@ -190,7 +197,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: colors.text,
-    marginBottom: 12,
+    marginBottom: 4,
+  },
+  dayHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  dayTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textMuted,
+  },
+  dayTotal: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.textMuted,
   },
   empty: {
     alignItems: "center",
