@@ -13,6 +13,7 @@ import ProgressBar from "../components/ProgressBar";
 import DraggableFab from "../components/DraggableFab";
 import BillDetails from "../components/BillDetails";
 import BillsHistory from "../components/BillsHistory";
+import MoneyPrompt from "../components/MoneyPrompt";
 import ConfirmDialog, {
   ConfirmDialogContent,
 } from "../components/ConfirmDialog";
@@ -140,7 +141,32 @@ const Bills: React.FC<BillProps> = ({
     return (paidBills / bills.length) * 100;
   };
 
+  //-------------------------- conta de valor variável: pergunta o valor ao pagar
+  const [variablePayId, setVariablePayId] = useState<string | null>(null);
+  const variableBill = bills.find((bill) => bill.id === variablePayId) ?? null;
+
+  const confirmVariablePay = (valor: number | null) => {
+    const id = variablePayId;
+    setVariablePayId(null);
+    if (!id) return;
+    const updatedBills = bills.map((bill) =>
+      bill.id === id
+        ? { ...bill, pago: true, valor: valor ?? bill.valor }
+        : bill,
+    );
+    setBills(updatedBills);
+    saveBills(updatedBills);
+    if (onUpdateBills) {
+      onUpdateBills(updatedBills);
+    }
+  };
+
   const handleTogglePaid = (id: string) => {
+    const target = bills.find((bill) => bill.id === id);
+    if (target?.variavel && !target.pago) {
+      setVariablePayId(id);
+      return;
+    }
     const updatedBills = bills.map((bill) =>
       bill.id === id ? { ...bill, pago: !bill.pago } : bill,
     );
@@ -265,6 +291,16 @@ const Bills: React.FC<BillProps> = ({
         <BillsHistory
           visible={isHistoryVisible}
           onClose={() => setIsHistoryVisible(false)}
+        />
+
+        <MoneyPrompt
+          visible={variableBill !== null}
+          title={variableBill ? `Valor de ${variableBill.nome}` : ""}
+          message="Quanto veio este mês? O campo começa com o último valor."
+          icon="pulse-outline"
+          value={variableBill?.valor ?? null}
+          onSave={confirmVariablePay}
+          onCancel={() => setVariablePayId(null)}
         />
 
         {isDeleteMode && (

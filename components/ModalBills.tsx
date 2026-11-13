@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { handleBackgroundTap } from "./ModalScreen";
 import ReminderToggle from "./ReminderToggle";
+import SwitchRow from "./SwitchRow";
 import {
   colors,
   parseBRLInput,
@@ -68,6 +69,7 @@ const ModalBill: React.FC<ModalBill> = ({
   });
   const [obs, setObs] = useState(bill?.obs ?? "");
   const [avisar, setAvisar] = useState(bill ? isReminderOn(bill) : true);
+  const [variavel, setVariavel] = useState(!!bill?.variavel);
 
   // dia do vencimento válido (1 a 31) ou null
   const diaNumero = Number(dia);
@@ -104,6 +106,7 @@ const ModalBill: React.FC<ModalBill> = ({
       avisar,
       obs: obs.trim(),
       pago: bill?.pago ?? false,
+      variavel,
     });
   };
 
@@ -201,6 +204,19 @@ const ModalBill: React.FC<ModalBill> = ({
                     />
                   </View>
                 </View>
+
+                {/*-------------valor variável (luz, água)-----------------*/}
+                <SwitchRow
+                  icon="pulse-outline"
+                  title="Valor muda todo mês"
+                  subtitle={
+                    variavel
+                      ? "Pergunta o valor ao marcar como paga"
+                      : "Ex: luz, água, gás"
+                  }
+                  value={variavel}
+                  onValueChange={setVariavel}
+                />
 
                 {/*-------------aviso no vencimento-----------------*/}
                 <ReminderToggle

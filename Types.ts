@@ -38,4 +38,5 @@ export interface InterfaceBill {
   pago: boolean;
   diaVencimento?: number; // dia do mês (1 a 31), usado para agendar o aviso
   avisar?: boolean; // aviso no dia do vencimento (ausente = ligado)
+  variavel?: boolean; // valor muda todo mês (luz, água): pergunta o valor ao marcar como paga
 }

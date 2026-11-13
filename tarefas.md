@@ -15,11 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 16. Valor variável (luz, água)
-- [ ] `InterfaceBill`: `variavel?: boolean`. Interruptor "Valor muda todo mês" no `ModalBills`.
-- [ ] Ao marcar uma conta variável como paga, abrir modal com o valor (começa com o último);
-  confirmar salva o valor novo e marca como paga.
-
 ## 17. Meta por reserva
 - [ ] `Reserva`: `meta?: number`. Campo "Meta (opcional)" no `ModalReserva`.
 - [ ] Card da reserva: barra com "% atingido" e "R$ X de R$ Y".
