@@ -14,9 +14,9 @@ publicada no GitHub Pages.
 
 ## Estrutura
 - `App.tsx`: navegação, estado principal (gastos e contas) e leitura/gravação no AsyncStorage
-- `Screens/`: Home, lista de gastos (`ExpensesList`) e contas (`Bills`)
+- `Screens/`: Home, lista de gastos (`ExpensesList`), contas (`Bills`) e `Reservas` (dinheiro guardado)
 - `components/`: modais, cards, menus, seção de backup e contas a vencer
-- `Types.ts`: `Type` (gasto) e `InterfaceBill` (conta)
+- `Types.ts`: `Type` (gasto), `InterfaceBill` (conta) e `Reserva`
 - `theme.ts`: cores; `components/formStyles.ts`: estilos de formulário
 - `dueDates.ts`: cálculo de vencimentos
 - `notifications.ts` (nativo) e `notifications.web.ts` (web, vazio): o Metro escolhe pelo sufixo `.web`
@@ -29,9 +29,10 @@ publicada no GitHub Pages.
 - `public/` + `workbox-config.js`: manifest, ícones e service worker da PWA
 
 ## Regras importantes
-- Chaves do AsyncStorage: `expenses`, `bills`, `backup:*`. Se mudar o formato de `Type` ou
-  `InterfaceBill`, mantenha a leitura de dados antigos e confira `BACKUP_VERSION` em `backup.ts`:
-  arquivos de backup já salvos precisam continuar restaurando.
+- Chaves do AsyncStorage: `expenses`, `bills`, `reservas`, `backup:*`. Se mudar o formato de
+  `Type`, `InterfaceBill` ou `Reserva`, mantenha a leitura de dados antigos e confira
+  `BACKUP_VERSION` em `backup.ts` (hoje 2): arquivos de backup já salvos (versão 1 e 2) precisam
+  continuar restaurando. Dado novo que a pessoa cadastra tem que entrar no backup.
 - Toda mudança deve funcionar no Android **e** na web. Código específico de plataforma vai em
   arquivo `.web.ts` ou atrás de `isWeb` (`pwa.ts`).
 - Na web não há notificações; o aviso de vencimento é a lista `UpcomingBills` na Home.

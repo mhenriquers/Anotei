@@ -10,7 +10,17 @@ export type RootStackParamList = {
   Home: undefined;
   ExpenseList: undefined;
   Bills: undefined;
+  Reservas: undefined;
 };
+
+// dinheiro guardado (reserva de emergência, objetivo, investimento...)
+export interface Reserva {
+  id: string;
+  nome: string;
+  valor: number;
+  finalidade: string; // ex: "Emergência", "Viagem"
+  local?: string; // onde o dinheiro está (banco, carteira...), opcional
+}
 
 export interface InterfaceBill {
   nome: string;

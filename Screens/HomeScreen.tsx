@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { InterfaceBill, Type } from "../Types";
+import { InterfaceBill, Reserva, Type } from "../Types";
 import ProgressBar from "../components/ProgressBar";
 import ExpenseItem from "../components/ExpenseItem";
 import DraggableFab from "../components/DraggableFab";
@@ -34,6 +34,7 @@ interface HomeProps {
   paymentTotals: PaymentTotals;
   valorTotal: number;
   innerBill: InterfaceBill[];
+  reservas: Reserva[];
   onDataRestored: () => Promise<void>; // recarrega os dados depois de restaurar um backup
 }
 
@@ -44,6 +45,7 @@ const HomeScreen: React.FC<HomeProps> = ({
   paymentTotals,
   valorTotal,
   innerBill,
+  reservas,
   onDataRestored,
 }) => {
   const paidBills = innerBill.filter((bill) => bill.pago).length;
@@ -70,7 +72,7 @@ const HomeScreen: React.FC<HomeProps> = ({
     expenses.find((expense) => expense.id === selectedExpenseId) ?? null;
 
   //-------------------------- backup (os dados ficam só no aparelho) --------------------------
-  const backup = useBackup(expenses, innerBill);
+  const backup = useBackup(expenses, innerBill, reservas);
   const restore = useBackupRestore(backup.hasData, async () => {
     await onDataRestored();
     await backup.reload();
@@ -79,7 +81,19 @@ const HomeScreen: React.FC<HomeProps> = ({
   //-------------------------- menu lateral (gaveta) --------------------------
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  const totalReservas = reservas.reduce((soma, r) => soma + (r.valor || 0), 0);
+
   const drawerItems: DrawerItem[] = [
+    {
+      key: "reservas",
+      icon: "wallet-outline",
+      label: "Reservas",
+      subtitle:
+        reservas.length > 0
+          ? `${formatBRL(totalReservas)} guardados`
+          : "Seu dinheiro guardado",
+      onPress: () => navigation.navigate("Reservas"),
+    },
     {
       key: "backup",
       icon: "share-outline",

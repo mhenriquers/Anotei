@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AppState } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { InterfaceBill, Type } from "./Types";
+import { InterfaceBill, Reserva, Type } from "./Types";
 import { shareBackupFile } from "./backupFile";
 
 //---------------------- backup (Android e web) ----------------------
@@ -13,7 +13,8 @@ import { shareBackupFile } from "./backupFile";
 // backupFile.ts (Android) e backupFile.web.ts (web).
 
 const BACKUP_APP = "anotei";
-const BACKUP_VERSION = 1;
+// 1 = gastos e contas; 2 = + reservas. Backups da versão 1 continuam restaurando.
+const BACKUP_VERSION = 2;
 export const BACKUP_REMIND_DAYS = 30; // lembra de fazer backup depois de 30 dias
 const SNOOZE_DAYS = 7; // "Agora não" adia o lembrete por 7 dias
 const DAY = 24 * 60 * 60 * 1000;
@@ -26,6 +27,8 @@ export interface BackupData {
   exportedAt: string;
   expenses: Type[];
   bills: InterfaceBill[];
+  // undefined = backup da versão 1 (antes das reservas): as reservas do app ficam como estão
+  reservas?: Reserva[];
 }
 
 //---------------------- gerar e compartilhar o arquivo ----------------------
@@ -41,6 +44,7 @@ const todayStamp = () => {
 export const exportBackup = (
   expenses: Type[],
   bills: InterfaceBill[],
+  reservas: Reserva[],
 ): Promise<boolean> => {
   const data = {
     app: BACKUP_APP,
@@ -48,6 +52,7 @@ export const exportBackup = (
     exportedAt: new Date().toISOString(),
     expenses,
     bills,
+    reservas,
   };
   return shareBackupFile(
     `anotei-backup-${todayStamp()}.json`,
@@ -84,20 +89,30 @@ export const parseBackup = (text: string): BackupData => {
   ) {
     throw new Error("O arquivo de backup está incompleto ou danificado.");
   }
+  // a versão 2 em diante tem as reservas
+  if (
+    data.version >= 2 &&
+    (!Array.isArray(data.reservas) || !data.reservas.every(isObjectWithId))
+  ) {
+    throw new Error("O arquivo de backup está incompleto ou danificado.");
+  }
   return {
     exportedAt: String(data.exportedAt ?? ""),
     expenses: data.expenses,
     bills: data.bills,
+    reservas: data.version >= 2 ? data.reservas : undefined,
   };
 };
 
 // Substitui os dados atuais pelos do backup (mesmo formato salvo pelo App.tsx)
 export const restoreBackup = async (data: BackupData) => {
-  await AsyncStorage.multiSet([
+  const items: [string, string][] = [
     ["expenses", JSON.stringify(data.expenses)],
     ["bills", JSON.stringify(data.bills)],
     [KEY_LAST, String(Date.now())],
-  ]);
+  ];
+  if (data.reservas) items.push(["reservas", JSON.stringify(data.reservas)]);
+  await AsyncStorage.multiSet(items);
   await AsyncStorage.removeItem(KEY_SNOOZE);
 };
 
@@ -127,7 +142,11 @@ const readBackupInfo = async (): Promise<BackupInfo> => {
   };
 };
 
-export const useBackup = (expenses: Type[], bills: InterfaceBill[]) => {
+export const useBackup = (
+  expenses: Type[],
+  bills: InterfaceBill[],
+  reservas: Reserva[],
+) => {
   const [info, setInfo] = useState<BackupInfo | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -150,7 +169,8 @@ export const useBackup = (expenses: Type[], bills: InterfaceBill[]) => {
     return () => subscription.remove();
   }, [reload]);
 
-  const hasData = expenses.length > 0 || bills.length > 0;
+  const hasData =
+    expenses.length > 0 || bills.length > 0 || reservas.length > 0;
   const reference = info ? (info.lastBackup ?? info.firstSeen) : now;
   const daysSinceBackup = Math.floor((now - reference) / DAY);
   const shouldRemind =
@@ -162,7 +182,7 @@ export const useBackup = (expenses: Type[], bills: InterfaceBill[]) => {
   const backupNow = useCallback(async () => {
     try {
       // sem await antes desta chamada (ver exportBackup)
-      const saved = await exportBackup(expenses, bills);
+      const saved = await exportBackup(expenses, bills, reservas);
       if (!saved) return;
       const time = Date.now();
       await AsyncStorage.setItem(KEY_LAST, String(time));
@@ -175,7 +195,7 @@ export const useBackup = (expenses: Type[], bills: InterfaceBill[]) => {
       console.error("Erro ao fazer backup", error);
       alert("Não foi possível fazer o backup. Tente de novo.");
     }
-  }, [expenses, bills]);
+  }, [expenses, bills, reservas]);
 
   const snooze = useCallback(async () => {
     const until = Date.now() + SNOOZE_DAYS * DAY;

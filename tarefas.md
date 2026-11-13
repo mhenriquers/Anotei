@@ -43,13 +43,13 @@ Hoje o backup só existe na web; o APK não tem nenhum.
 
 Nome provisório: "Reservas". Alternativas: "Cofrinhos", "Caixinhas", "Meu dinheiro guardado".
 
-- [ ] 5.1 Em `Types.ts`, criar o tipo `Reserva`: `id`, `nome`, `valor`, `finalidade` (ex: emergência, viagem), `local` (opcional, ex: banco)
-- [ ] 5.2 Em `App.tsx`, carregar e salvar as reservas no AsyncStorage (chave `reservas`), igual aos gastos
-- [ ] 5.3 Criar a tela `Screens/Reservas.tsx` com a lista de reservas e o total guardado no topo; registrar no stack (`RootStackParamList`)
-- [ ] 5.4 Adicionar o item "Reservas" na gaveta, que navega para a tela
-- [ ] 5.5 Criar o modal de nova reserva (nome, valor, finalidade, local opcional)
-- [ ] 5.6 Permitir editar e excluir uma reserva (ex: ao tocar no card)
-- [ ] 5.7 Incluir as reservas no backup (`backup.ts`): subir `BACKUP_VERSION` para 2 e continuar aceitando backups da versão 1 (sem reservas)
+- [x] 5.1 Em `Types.ts`, criar o tipo `Reserva`: `id`, `nome`, `valor`, `finalidade` (ex: emergência, viagem), `local` (opcional, ex: banco)
+- [x] 5.2 Em `App.tsx`, carregar e salvar as reservas no AsyncStorage (chave `reservas`), igual aos gastos
+- [x] 5.3 Criar a tela `Screens/Reservas.tsx` com a lista de reservas e o total guardado no topo; registrar no stack (`RootStackParamList`)
+- [x] 5.4 Adicionar o item "Reservas" na gaveta, que navega para a tela
+- [x] 5.5 Criar o modal de nova reserva (nome, valor, finalidade, local opcional)
+- [x] 5.6 Permitir editar e excluir uma reserva (ex: ao tocar no card)
+- [x] 5.7 Incluir as reservas no backup (`backup.ts`): subir `BACKUP_VERSION` para 2 e continuar aceitando backups da versão 1 (sem reservas)
 
 ## 6. Aviso de nova versão (APK)
 

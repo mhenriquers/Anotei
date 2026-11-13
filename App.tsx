@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Type, RootStackParamList, InterfaceBill } from "./Types";
+import { Type, RootStackParamList, InterfaceBill, Reserva } from "./Types";
+import Reservas from "./Screens/Reservas";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
@@ -171,9 +172,32 @@ const AnoteiApp: React.FC = () => {
     setBills(updatedBills);
     SalvaConta(updatedBills);
   };
+  //-------------------------- reservas (dinheiro guardado)
+  const [reservas, setReservas] = useState<Reserva[]>([]);
+
+  const loadReservas = async () => {
+    try {
+      const saved = await AsyncStorage.getItem("reservas");
+      setReservas(saved ? JSON.parse(saved) : []);
+    } catch (error) {
+      console.error("Erro ao carregar reservas", error);
+    }
+  };
+
+  const handleChangeReservas = async (updated: Reserva[]) => {
+    setReservas(updated);
+    try {
+      await AsyncStorage.setItem("reservas", JSON.stringify(updated));
+    } catch (error) {
+      console.error("Erro ao salvar reservas", error);
+      alert("Erro ao salvar reservas");
+    }
+  };
+
   useEffect(() => {
     loadExpenses();
     carregaConta();
+    loadReservas();
   }, []);
 
   //-------------------------- reagenda os avisos de vencimento sempre que as contas mudam
@@ -212,9 +236,14 @@ const AnoteiApp: React.FC = () => {
                 paymentTotals={paymentTotals}
                 valorTotal={valorTotal}
                 innerBill={bills}
+                reservas={reservas}
                 onDataRestored={async () => {
                   // relê tudo do armazenamento depois de restaurar um backup
-                  await Promise.all([loadExpenses(), carregaConta()]);
+                  await Promise.all([
+                    loadExpenses(),
+                    carregaConta(),
+                    loadReservas(),
+                  ]);
                 }}
               />
             )}
@@ -274,6 +303,20 @@ const AnoteiApp: React.FC = () => {
                 }}
                 onDeleteBills={(updatedBills) => setBills(updatedBills)}
                 onUpdateBills={handleUpdateBills}
+              />
+            )}
+          </Stack.Screen>
+
+          {/*--------------------------Tela Reservas------------------------ */}
+
+          <Stack.Screen
+            name={"Reservas"}
+            options={{ headerShown: true, headerTitle: "Reservas" }}
+          >
+            {() => (
+              <Reservas
+                reservas={reservas}
+                onChange={handleChangeReservas}
               />
             )}
           </Stack.Screen>

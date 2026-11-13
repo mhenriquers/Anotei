@@ -102,6 +102,22 @@ export const formatTime = (value: Date | string | number): string => {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
+// Lê o valor digitado: "1.234,56", "1234,56" e "1234.56" viram 1234.56.
+// Devolve NaN se não for um número.
+export const parseBRLInput = (text: string): number => {
+  let clean = text.replace(/[R$\s]/g, "");
+  // com vírgula, os pontos são separadores de milhar
+  if (clean.includes(",")) clean = clean.replace(/\./g, "").replace(",", ".");
+  // sem vírgula, "2.000" e "1.500.000" também são milhar ("12.50" continua decimal)
+  else if (/^\d{1,3}(\.\d{3})+$/.test(clean)) clean = clean.replace(/\./g, "");
+  if (!/^\d+(\.\d+)?$/.test(clean)) return NaN;
+  return Number(clean);
+};
+
+// Mostra um número no campo de valor: 1234.5 → "1234,50"
+export const formatBRLInput = (value: number): string =>
+  value.toFixed(2).replace(".", ",");
+
 //------------------------------ campos de data e hora ------------------------------
 // Ex: "22/10/2026" (formato do campo "Data" do cadastro)
 export const formatDateInput = (date: Date): string => {

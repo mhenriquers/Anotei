@@ -10,7 +10,8 @@
 
 ## ✨ Principais Funcionalidades
 
-- **Registro de Gastos Diários:** Cadastre suas despesas de forma rápida, separando os registros entre transações no Débito e Crédito.
+- **Registro de Gastos Diários:** Cadastre suas despesas de forma rápida, separando os registros entre Crédito, Débito e Pix, com a data e a hora da compra.
+- **Reservas:** Dê um nome para cada parte do seu dinheiro guardado (reserva de emergência, viagem...), com valor, finalidade e onde ele está.
 
 - **Resumo Financeiro Automático:** Acompanhe em tempo real na tela principal o total geral acumulado, além dos valores específicos gastos em cada modalidade de cartão.
 - **Gestão de Contas Fixas (Recorrentes):** Controle seus boletos e contas do mês informando o nome, valor, data de vencimento e observações personalizadas.

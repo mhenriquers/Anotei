@@ -59,9 +59,17 @@ const describeBackup = (data: BackupData) => {
     data.expenses.length === 1 ? "1 gasto" : `${data.expenses.length} gastos`;
   const contas =
     data.bills.length === 1 ? "1 conta fixa" : `${data.bills.length} contas fixas`;
+  const reservas = data.reservas
+    ? data.reservas.length === 1
+      ? "1 reserva"
+      : `${data.reservas.length} reservas`
+    : null;
+  const partes = reservas
+    ? `${gastos}, ${contas} e ${reservas}`
+    : `${gastos} e ${contas}`;
   const date = new Date(data.exportedAt);
   const when = isNaN(date.getTime()) ? "" : ` (feito em ${formatDate(date)})`;
-  return `O backup tem ${gastos} e ${contas}${when}.`;
+  return `O backup tem ${partes}${when}.`;
 };
 
 // `startRestore` precisa ser chamado direto no toque do botão: o iPhone só abre
@@ -107,7 +115,11 @@ export const useBackupRestore = (
     setDialog({
       title: "Restaurar backup?",
       message: hasData
-        ? `${describeBackup(data)} Os gastos e contas que estão no app agora serão substituídos.`
+        ? `${describeBackup(data)} ${
+            data.reservas
+              ? "Os gastos, contas e reservas"
+              : "Os gastos e contas"
+          } que estão no app agora serão substituídos.`
         : describeBackup(data),
       icon: "cloud-download-outline",
       tone: hasData ? "danger" : "brand",
@@ -120,7 +132,7 @@ export const useBackupRestore = (
           await onRestored();
           setDialog({
             title: "Backup restaurado",
-            message: "Seus gastos e contas foram recuperados.",
+            message: "Seus dados foram recuperados.",
             icon: "checkmark-circle-outline",
             tone: "brand",
             confirmLabel: "OK",
