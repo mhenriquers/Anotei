@@ -9,6 +9,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../theme";
+import { isWeb } from "../pwa";
 
 interface DraggableFabProps {
   onPress: () => void;
@@ -182,6 +183,12 @@ const DraggableFab: React.FC<DraggableFabProps> = ({
       {ready && (
         <Animated.View
           {...panResponder.panHandlers}
+          // No navegador do celular, depois do toque vem um "clique" no mesmo ponto.
+          // Como o modal abre embaixo do dedo, esse clique caía no botão "Adicionar"
+          // (e mostrava o alerta de campos vazios). Cancelar o toque evita o clique.
+          onTouchEnd={(event) => {
+            if (isWeb && event.cancelable) event.preventDefault();
+          }}
           style={[styles.container, { transform: pan.getTranslateTransform() }]}
           accessible
           accessibilityRole="button"
