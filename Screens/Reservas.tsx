@@ -8,7 +8,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Reserva } from "../Types";
+import { Movimento, Reserva } from "../Types";
+import MoneyPrompt from "../components/MoneyPrompt";
 import DraggableFab from "../components/DraggableFab";
 import ModalReserva from "../components/ModalReserva";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -45,6 +46,38 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
       onChange([...reservas, { ...data, id: Date.now().toString() }]);
     }
     setEditing(null);
+  };
+
+  //-------------------------- guardar / retirar dinheiro de uma reserva
+  const [move, setMove] = useState<{
+    id: string;
+    tipo: Movimento["tipo"];
+  } | null>(null);
+  const moveReserva = reservas.find((r) => r.id === move?.id) ?? null;
+
+  const confirmMove = (valor: number | null) => {
+    if (!move || !valor) return setMove(null);
+    const movimento: Movimento = {
+      id: Date.now().toString(),
+      valor,
+      data: new Date().toISOString(),
+      tipo: move.tipo,
+    };
+    onChange(
+      reservas.map((r) =>
+        r.id === move.id
+          ? {
+              ...r,
+              valor:
+                Math.round(
+                  (r.valor + (move.tipo === "deposito" ? valor : -valor)) * 100,
+                ) / 100,
+              movimentos: [movimento, ...(r.movimentos ?? [])].slice(0, 200),
+            }
+          : r,
+      ),
+    );
+    setMove(null);
   };
 
   const confirmDelete = () => {
@@ -112,6 +145,40 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
                 />
                 </View>
 
+                {/* guardar e retirar dinheiro */}
+                <View style={styles.moveRow}>
+                  <TouchableOpacity
+                    style={styles.moveButton}
+                    onPress={() => setMove({ id: item.id, tipo: "deposito" })}
+                    accessibilityLabel={`Guardar dinheiro em ${item.nome}`}
+                  >
+                    <Ionicons name="add" size={16} color={colors.primaryDark} />
+                    <Text style={styles.moveText}>Guardar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.moveButton, styles.moveButtonLast]}
+                    onPress={() => setMove({ id: item.id, tipo: "retirada" })}
+                    disabled={item.valor <= 0}
+                    accessibilityLabel={`Retirar dinheiro de ${item.nome}`}
+                  >
+                    <Ionicons
+                      name="remove"
+                      size={16}
+                      color={item.valor > 0 ? colors.debit : colors.textLight}
+                    />
+                    <Text
+                      style={[
+                        styles.moveText,
+                        {
+                          color: item.valor > 0 ? colors.debit : colors.textLight,
+                        },
+                      ]}
+                    >
+                      Retirar
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
                 {/* meta: barra com quanto já foi juntado */}
                 {!!item.meta && (
                   <View style={styles.meta}>
@@ -171,6 +238,28 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
             }
           />
         )}
+
+        <MoneyPrompt
+          visible={move !== null}
+          title={
+            move?.tipo === "retirada" ? "Retirar dinheiro" : "Guardar dinheiro"
+          }
+          message={
+            moveReserva
+              ? `${moveReserva.nome}: ${formatBRL(moveReserva.valor)} guardados agora.`
+              : ""
+          }
+          icon={move?.tipo === "retirada" ? "remove-circle-outline" : "add-circle-outline"}
+          value={null}
+          allowEmpty={false}
+          validate={(valor) =>
+            move?.tipo === "retirada" && moveReserva && valor > moveReserva.valor
+              ? `Só tem ${formatBRL(moveReserva.valor)} nessa reserva.`
+              : null
+          }
+          onSave={confirmMove}
+          onCancel={() => setMove(null)}
+        />
 
         <ConfirmDialog
           visible={confirmDeleteId !== null}
@@ -235,6 +324,31 @@ const styles = StyleSheet.create({
   },
   meta: {
     marginTop: 12,
+  },
+  moveRow: {
+    flexDirection: "row",
+    marginTop: 12,
+  },
+  moveButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 36,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginRight: 8,
+  },
+  moveButtonLast: {
+    marginRight: 0,
+  },
+  moveText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.primaryDark,
+    marginLeft: 4,
   },
   metaBar: {
     height: 8,

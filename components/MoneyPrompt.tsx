@@ -28,6 +28,8 @@ interface MoneyPromptProps {
   icon: IconName;
   value: number | null; // valor atual (null = sem valor)
   kind?: "money" | "day"; // "day" = dia do mês (1 a 31) no lugar de R$
+  validate?: (value: number) => string | null; // mensagem de erro ou null se estiver ok
+  allowEmpty?: boolean; // false = obriga a digitar um valor (padrão: true)
   onSave: (value: number | null) => void; // null = a pessoa apagou o valor
   onCancel: () => void;
 }
@@ -40,6 +42,8 @@ const MoneyPrompt: React.FC<MoneyPromptProps> = ({
   icon,
   value,
   kind = "money",
+  validate,
+  allowEmpty = true,
   onSave,
   onCancel,
 }) => {
@@ -61,10 +65,19 @@ const MoneyPrompt: React.FC<MoneyPromptProps> = ({
   };
 
   const save = () => {
-    if (text.trim() === "") return onSave(null);
+    if (text.trim() === "") {
+      if (allowEmpty) onSave(null);
+      else setError("Digite um valor.");
+      return;
+    }
     const number = isDay ? Number(text) : parseBRLInput(text);
     if (isDay && !(Number.isInteger(number) && number >= 1 && number <= 31)) {
       setError("Digite um dia entre 1 e 31.");
+      return;
+    }
+    const message = number > 0 && validate ? validate(number) : null;
+    if (message) {
+      setError(message);
       return;
     }
     onSave(number > 0 ? number : null);

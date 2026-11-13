@@ -20,6 +20,8 @@ import {
   parseBRLInput,
   formatBRLInput,
   maskMoneyInput,
+  formatBRL,
+  formatDate,
 } from "../theme";
 import { formStyles as styles } from "./formStyles";
 
@@ -223,6 +225,43 @@ const ModalReserva: React.FC<ModalReservaProps> = ({
                 </View>
               </View>
 
+              {/*---------------movimentações (só leitura)--------------*/}
+              {!!reserva?.movimentos?.length && (
+                <View style={styles.field}>
+                  <Text style={styles.label}>Movimentações</Text>
+                  <View style={local_.moves}>
+                    {reserva.movimentos.slice(0, 20).map((mov, index) => {
+                      const entrada = mov.tipo === "deposito";
+                      return (
+                        <View
+                          key={mov.id}
+                          style={[local_.moveRow, index > 0 && local_.moveDivider]}
+                        >
+                          <Ionicons
+                            name={entrada ? "arrow-down-circle" : "arrow-up-circle"}
+                            size={18}
+                            color={entrada ? colors.primary : colors.debit}
+                          />
+                          <Text style={local_.moveLabel}>
+                            {entrada ? "Guardou" : "Retirou"} ·{" "}
+                            {formatDate(mov.data)}
+                          </Text>
+                          <Text
+                            style={[
+                              local_.moveValue,
+                              { color: entrada ? colors.primaryDark : colors.debit },
+                            ]}
+                          >
+                            {entrada ? "+" : "−"}
+                            {formatBRL(mov.valor)}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
+
               {!!error && <Text style={local_.errorText}>{error}</Text>}
 
               <View style={styles.buttonRow}>
@@ -298,6 +337,32 @@ const local_ = StyleSheet.create({
   },
   chipTextActive: {
     color: colors.primaryDark,
+  },
+  moves: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 12,
+  },
+  moveRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  moveDivider: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  moveLabel: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.textMuted,
+    marginLeft: 8,
+  },
+  moveValue: {
+    fontSize: 14,
+    fontWeight: "700",
   },
   errorText: {
     color: colors.danger,

@@ -15,11 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 18. Histórico de depósitos e retiradas
-- [ ] `Reserva`: `movimentos?: { id, valor, data, tipo: "deposito" | "retirada" }[]`.
-- [ ] Botões "Guardar" e "Retirar" na reserva: modal com valor; atualiza `valor` e adiciona o
-  movimento. Lista dos movimentos ao abrir a reserva. Não deixar retirar mais que o saldo.
-
 ## 19. Ocultar valores
 - [ ] Chave `ocultarValores`. Ícone de olho no cabeçalho da Home.
 - [ ] `formatBRL` passa a aceitar um modo oculto ("R$ ••••") via contexto simples

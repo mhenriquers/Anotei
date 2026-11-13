@@ -26,6 +26,14 @@ export interface Reserva {
   finalidade: string; // ex: "Emergência", "Viagem"
   local?: string; // onde o dinheiro está (banco, carteira...), opcional
   meta?: number; // quanto a pessoa quer juntar nessa reserva, opcional
+  movimentos?: Movimento[]; // depósitos e retiradas, mais recentes primeiro
+}
+
+export interface Movimento {
+  id: string;
+  valor: number;
+  data: string; // data e hora em ISO ("2026-11-13T14:30:00.000Z")
+  tipo: "deposito" | "retirada";
 }
 
 export interface InterfaceBill {
