@@ -27,30 +27,47 @@ interface MoneyPromptProps {
   message: string; // explicação curta abaixo do título
   icon: IconName;
   value: number | null; // valor atual (null = sem valor)
+  kind?: "money" | "day"; // "day" = dia do mês (1 a 31) no lugar de R$
   onSave: (value: number | null) => void; // null = a pessoa apagou o valor
   onCancel: () => void;
 }
 
-//---------------------- caixa para digitar um valor em R$ (limite, receita...) ----------------------
+//---------------------- caixa para digitar um valor em R$ (limite, receita...) ou um dia do mês ----------------------
 const MoneyPrompt: React.FC<MoneyPromptProps> = ({
   visible,
   title,
   message,
   icon,
   value,
+  kind = "money",
   onSave,
   onCancel,
 }) => {
+  const isDay = kind === "day";
   const [text, setText] = useState("");
+  const [error, setError] = useState("");
 
   // ao abrir, o campo começa com o valor atual
   useEffect(() => {
-    if (visible) setText(value ? formatBRLInput(value) : "");
+    if (!visible) return;
+    setError("");
+    if (!value) setText("");
+    else setText(isDay ? String(value) : formatBRLInput(value));
   }, [visible]);
 
+  const changeText = (t: string) => {
+    setError("");
+    setText(isDay ? t.replace(/\D/g, "").slice(0, 2) : maskMoneyInput(t));
+  };
+
   const save = () => {
-    const number = parseBRLInput(text);
-    onSave(text.trim() === "" || !(number > 0) ? null : number);
+    if (text.trim() === "") return onSave(null);
+    const number = isDay ? Number(text) : parseBRLInput(text);
+    if (isDay && !(Number.isInteger(number) && number >= 1 && number <= 31)) {
+      setError("Digite um dia entre 1 e 31.");
+      return;
+    }
+    onSave(number > 0 ? number : null);
   };
 
   return (
@@ -77,13 +94,14 @@ const MoneyPrompt: React.FC<MoneyPromptProps> = ({
           <Text style={styles.message}>{message}</Text>
 
           <View style={[formStyles.inputWrapper, styles.input]}>
-            <Text style={formStyles.prefix}>R$</Text>
+            <Text style={formStyles.prefix}>{isDay ? "Dia" : "R$"}</Text>
             <TextInput
               style={formStyles.input}
-              placeholder="0,00"
+              placeholder={isDay ? "10" : "0,00"}
               placeholderTextColor={colors.textLight}
               value={text}
-              onChangeText={(t) => setText(maskMoneyInput(t))}
+              onChangeText={changeText}
+              maxLength={isDay ? 2 : undefined}
               keyboardType="number-pad"
               autoFocus
               onSubmitEditing={save}
@@ -103,6 +121,7 @@ const MoneyPrompt: React.FC<MoneyPromptProps> = ({
               </TouchableOpacity>
             )}
           </View>
+          {!!error && <Text style={styles.error}>{error}</Text>}
 
           <View style={styles.buttonRow}>
             <TouchableOpacity
@@ -177,6 +196,12 @@ const styles = StyleSheet.create({
   input: {
     alignSelf: "stretch",
     marginTop: 20,
+  },
+  error: {
+    alignSelf: "stretch",
+    color: colors.danger,
+    fontSize: 13,
+    marginTop: 6,
   },
   buttonRow: {
     flexDirection: "row",

@@ -38,6 +38,11 @@ import { useBackup } from "../backup";
 import { USER_NAME_MAX, useUserName } from "../userName";
 import { setStored, useStoredNumber } from "../storedValues";
 import MoneyPrompt from "../components/MoneyPrompt";
+import { faturaAtual } from "../fatura";
+
+// "12/11"
+const formatShortDate = (date: Date) =>
+  `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}`;
 
 interface HomeProps {
   navigation: any;
@@ -113,8 +118,14 @@ const HomeScreen: React.FC<HomeProps> = ({
   // o que entra menos o que já foi gasto no mês e as contas fixas do mês
   const sobra = receita !== null ? receita - valorTotal - totalContas : 0;
 
-  // caixa aberta pelo menu: limite do mês ou receita
-  const [prompt, setPrompt] = useState<"orcamento" | "receita" | null>(null);
+  //-------------------------- fatura do cartão --------------------------
+  const diaFechamento = useStoredNumber("diaFechamento");
+  const fatura = diaFechamento ? faturaAtual(expenses, diaFechamento) : null;
+
+  // caixa aberta pelo menu: limite do mês, receita ou dia da fatura
+  const [prompt, setPrompt] = useState<
+    "orcamento" | "receita" | "diaFechamento" | null
+  >(null);
 
   //-------------------------- 3 gastos mais recentes --------------------------
   const recentExpenses = [...expenses]
@@ -182,6 +193,15 @@ const HomeScreen: React.FC<HomeProps> = ({
         ? `${formatBRL(receita)} por mês`
         : "Salário e outras entradas",
       onPress: () => setPrompt("receita"),
+    },
+    {
+      key: "fatura",
+      icon: "card-outline",
+      label: "Fatura do cartão",
+      subtitle: diaFechamento
+        ? `Fecha todo dia ${diaFechamento}`
+        : "Dia em que a fatura fecha",
+      onPress: () => setPrompt("diaFechamento"),
     },
     {
       key: "backup",
@@ -422,6 +442,11 @@ const HomeScreen: React.FC<HomeProps> = ({
           <PaymentSummary
             totals={paymentTotals}
             onPress={() => navigation.navigate("ExpenseList")}
+            creditNote={
+              fatura
+                ? `Fatura fecha ${formatShortDate(fatura.fecha)} · ${formatBRL(fatura.total)}`
+                : undefined
+            }
           />
 
           {/*-------------------------- Últimos gastos -------------------------- */}
@@ -495,6 +520,20 @@ const HomeScreen: React.FC<HomeProps> = ({
           value={receita}
           onSave={(value) => {
             setStored("receita", value === null ? null : String(value));
+            setPrompt(null);
+          }}
+          onCancel={() => setPrompt(null)}
+        />
+
+        <MoneyPrompt
+          visible={prompt === "diaFechamento"}
+          kind="day"
+          title="Fatura do cartão"
+          message="Em que dia do mês a fatura do cartão fecha? Compras a partir desse dia entram na fatura seguinte. Deixe vazio para não mostrar."
+          icon="card-outline"
+          value={diaFechamento}
+          onSave={(value) => {
+            setStored("diaFechamento", value === null ? null : String(value));
             setPrompt(null);
           }}
           onCancel={() => setPrompt(null)}

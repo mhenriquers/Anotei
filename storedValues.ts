@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 //
 // Toda chave desta lista entra no backup (campo "extras"). Chave nova: é só
 // acrescentar aqui e anotar no CLAUDE.md.
-export const EXTRA_KEYS = ["orcamento", "receita"] as const;
+export const EXTRA_KEYS = ["orcamento", "receita", "diaFechamento"] as const;
 
 export type ExtraKey = (typeof EXTRA_KEYS)[number];
 export type Extras = Partial<Record<ExtraKey, string | null>>;

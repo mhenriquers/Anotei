@@ -11,11 +11,16 @@ import PaymentIcon from "./PaymentIcon";
 interface PaymentSummaryProps {
   totals: PaymentTotals;
   onPress?: () => void; // se passado, o card inteiro é tocável
+  creditNote?: string; // texto pequeno abaixo do "Crédito" (ex: fechamento da fatura)
 }
 
 //---------------------- total por forma de pagamento (Home e lista de gastos) ----------------------
 // Uma linha por forma: cabe em qualquer largura de tela, mesmo com valores grandes.
-const PaymentSummary: React.FC<PaymentSummaryProps> = ({ totals, onPress }) => (
+const PaymentSummary: React.FC<PaymentSummaryProps> = ({
+  totals,
+  onPress,
+  creditNote,
+}) => (
   <TouchableOpacity
     style={styles.card}
     onPress={onPress}
@@ -32,7 +37,12 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ totals, onPress }) => (
           <View style={[styles.iconBadge, { backgroundColor: info.softColor }]}>
             <PaymentIcon method={method} size={18} />
           </View>
-          <Text style={styles.label}>{info.label}</Text>
+          <View style={styles.labelBox}>
+            <Text style={styles.label}>{info.label}</Text>
+            {method === "credit card" && !!creditNote && (
+              <Text style={styles.note}>{creditNote}</Text>
+            )}
+          </View>
           <Text style={styles.value} numberOfLines={1}>
             {formatBRL(totals[method])}
           </Text>
@@ -68,8 +78,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 12,
   },
-  label: {
+  labelBox: {
     flex: 1,
+    marginRight: 8,
+  },
+  note: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  label: {
     fontSize: 15,
     fontWeight: "600",
     color: colors.text,

@@ -15,11 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 12. Fechamento da fatura do cartão
-- [ ] Chave `diaFechamento` (1 a 31). Item "Fatura do cartão" no `SideDrawer` para escolher o dia.
-- [ ] `fatura.ts`: `faturaAtual(expenses, dia)` → gastos no crédito desde o último fechamento.
-- [ ] `PaymentSummary`: no Crédito, texto "Fatura fecha dia X · R$ Y". Sem dia = como hoje.
-
 ## 13. Gastos recorrentes (assinaturas)
 - [ ] Chave `recorrentes`: lista `{ id, title, amount, category, dia }`. Tela/modal simples para
   cadastrar, editar e apagar, aberta pelo `SideDrawer`.
