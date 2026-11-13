@@ -2,7 +2,7 @@
   "expo": {
     "name": "Anotei",
     "slug": "trackingwaste",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/IconLogo.png",
     "userInterfaceStyle": "light",
