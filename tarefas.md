@@ -15,10 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 9. Receita do mês e quanto sobra
-- [ ] Chave `receita` (número). Item "Receita do mês" no `SideDrawer`, modal igual ao da tarefa 8.
-- [ ] Home: card "Sobra do mês" = receita − gastos do mês − contas fixas. Só aparece com receita.
-
 ## 10. Gráfico simples
 - [ ] `components/MonthChart.tsx`: barras com `View` (sem biblioteca), gastos dos últimos 6 meses,
   mês atual destacado, valor em cima da barra.

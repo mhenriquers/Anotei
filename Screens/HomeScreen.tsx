@@ -108,8 +108,13 @@ const HomeScreen: React.FC<HomeProps> = ({
         ? colors.warning
         : HERO_DOWN;
 
+  //-------------------------- receita e quanto sobra --------------------------
+  const receita = useStoredNumber("receita");
+  // o que entra menos o que já foi gasto no mês e as contas fixas do mês
+  const sobra = receita !== null ? receita - valorTotal - totalContas : 0;
+
   // caixa aberta pelo menu: limite do mês ou receita
-  const [prompt, setPrompt] = useState<"orcamento" | null>(null);
+  const [prompt, setPrompt] = useState<"orcamento" | "receita" | null>(null);
 
   //-------------------------- 3 gastos mais recentes --------------------------
   const recentExpenses = [...expenses]
@@ -168,6 +173,15 @@ const HomeScreen: React.FC<HomeProps> = ({
         ? `${formatBRL(orcamento)} por mês`
         : "Defina quanto quer gastar",
       onPress: () => setPrompt("orcamento"),
+    },
+    {
+      key: "receita",
+      icon: "trending-up-outline",
+      label: "Receita do mês",
+      subtitle: receita
+        ? `${formatBRL(receita)} por mês`
+        : "Salário e outras entradas",
+      onPress: () => setPrompt("receita"),
     },
     {
       key: "backup",
@@ -323,6 +337,50 @@ const HomeScreen: React.FC<HomeProps> = ({
             )}
           </View>
 
+          {/*-------------------------- Sobra do mês -------------------------- */}
+          {receita !== null && (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => setPrompt("receita")}
+              activeOpacity={0.8}
+              accessibilityHint="Altera a receita do mês"
+            >
+              <View style={styles.sobraHeader}>
+                <View
+                  style={[
+                    styles.iconBadge,
+                    {
+                      backgroundColor:
+                        sobra >= 0 ? colors.primarySoft : colors.dangerSoft,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name="wallet-outline"
+                    size={20}
+                    color={sobra >= 0 ? colors.primary : colors.danger}
+                  />
+                </View>
+                <View style={styles.cardInfo}>
+                  <Text style={styles.cardTitle}>
+                    {sobra >= 0 ? "Sobra do mês" : "Falta no mês"}
+                  </Text>
+                  <Text style={styles.cardSubtitle}>
+                    Receita {formatBRL(receita)} − gastos − contas
+                  </Text>
+                </View>
+                <Text
+                  style={[
+                    styles.cardValue,
+                    { color: sobra >= 0 ? colors.primaryDark : colors.danger },
+                  ]}
+                >
+                  {formatBRL(Math.abs(sobra))}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+
           {/*-------------------------- Contas Fixas -------------------------- */}
           <TouchableOpacity
             style={styles.card}
@@ -424,6 +482,19 @@ const HomeScreen: React.FC<HomeProps> = ({
           value={orcamento}
           onSave={(value) => {
             setStored("orcamento", value === null ? null : String(value));
+            setPrompt(null);
+          }}
+          onCancel={() => setPrompt(null)}
+        />
+
+        <MoneyPrompt
+          visible={prompt === "receita"}
+          title="Receita do mês"
+          message="Quanto entra por mês (salário e outras entradas)? Deixe vazio para não mostrar a sobra."
+          icon="trending-up-outline"
+          value={receita}
+          onSave={(value) => {
+            setStored("receita", value === null ? null : String(value));
             setPrompt(null);
           }}
           onCancel={() => setPrompt(null)}
@@ -617,6 +688,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 14,
+  },
+
+  sobraHeader: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   cardInfo: {
