@@ -19,10 +19,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 - [ ] Ler a doc do Expo 58 sobre app shortcuts/quick actions antes. Se precisar de lib de terceiros
   ou config nativa complexa, **parar e perguntar** antes de instalar.
 
-## 33. Lint e formatador
-- [ ] Instalar ESLint (`npx expo lint` cria a config) e Prettier; scripts `lint` e `format`.
-- [ ] Rodar o format num commit separado, só formatação.
-
 ## 34. Testes automáticos
 - [ ] Instalar `jest-expo` + `jest`, script `test`.
 - [ ] Testes de `dueDates.ts`, `months.ts`, `parseBackup` (backup v1, v2, com e sem `nome`) e
