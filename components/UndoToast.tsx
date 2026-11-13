@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, radius } from "../theme";
+import { radius } from "../theme";
 
 export interface ToastData {
   id: number; // muda a cada aviso novo (reinicia o tempo)

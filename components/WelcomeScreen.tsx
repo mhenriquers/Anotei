@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, radius } from "../theme";
+import { colors } from "../theme";
 import { formStyles } from "./formStyles";
 import { IconName } from "./DetailsSheet";
 
