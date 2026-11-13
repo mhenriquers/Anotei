@@ -1,0 +1,64 @@
+# Gera o APK no EAS e publica numa release do GitHub ao criar uma tag de versão.
+#
+# Configuração única no GitHub (Settings → Secrets and variables → Actions):
+#   EXPO_TOKEN = token criado em https://expo.dev/settings/access-tokens
+#
+# Para publicar (depois de subir a "version" no app.json e dar push na main):
+#   git tag v1.1.0
+#   git push origin v1.1.0
+# A tag precisa ser igual à "version" do app.json, com "v" na frente.
+name: Release APK
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # criar a release e anexar o APK
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Conferir se a tag bate com a versão do app.json
+        run: |
+          VERSION=$(node -p "require('./app.json').expo.version")
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "A tag $GITHUB_REF_NAME não bate com a versão v$VERSION do app.json."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      # o perfil production gera .apk (eas.json); espera o build terminar
+      - name: Build do APK no EAS
+        run: eas build --platform android --profile production --non-interactive --wait --json > build.json
+
+      - name: Baixar o APK
+        run: |
+          URL=$(jq -r '.[0].artifacts.buildUrl' build.json)
+          curl -fsSL -o Anotei.apk "$URL"
+
+      # cria a release (ou só anexa o APK, se ela já existir)
+      - name: Publicar a release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" Anotei.apk --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" Anotei.apk \
+              --title "Anotei $GITHUB_REF_NAME" --generate-notes
+          fi

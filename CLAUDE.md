@@ -53,10 +53,13 @@ publicada no GitHub Pages.
 ### Como publicar uma versão nova
 1. Subir a `version` no `app.json` (ex: 1.0.0 → 1.1.0): correção = último número, feature = do meio.
 2. Commit e push na `main` → a PWA é publicada sozinha.
-3. Gerar o APK: `eas build -p android --profile production` (o perfil gera `.apk`; o
-   `versionCode` sobe sozinho).
-4. Criar a release no GitHub com a tag `v` + versão (ex: `v1.1.0`) e anexar o APK com o nome
-   exato `Anotei.apk`. O README aponta para `releases/latest/download/Anotei.apk`.
+3. Criar e enviar a tag: `git tag v1.1.0` e `git push origin v1.1.0`. O workflow
+   `.github/workflows/release-apk.yml` confere se a tag bate com o `app.json`, gera o APK no EAS
+   (perfil `production`, que gera `.apk`; o `versionCode` sobe sozinho) e cria a release com o
+   arquivo `Anotei.apk`. Precisa do secret `EXPO_TOKEN` no GitHub.
+   Sem o workflow (manual): `eas build -p android --profile production`, depois criar a release
+   com a tag e anexar o APK com o nome exato `Anotei.apk`.
+4. O README aponta para `releases/latest/download/Anotei.apk`, então sempre baixa a mais nova.
 5. Quem usa o APK antigo vê o aviso "Nova versão disponível" ao abrir o app.
 
 ## Comandos

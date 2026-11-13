@@ -63,4 +63,4 @@ Nome provisório: "Reservas". Alternativas: "Cofrinhos", "Caixinhas", "Meu dinhe
 
 ## 7. Publicação automática (opcional, precisa de ação sua)
 
-- [ ] 7.1 Workflow do GitHub que, ao criar uma tag `vX.Y.Z`, gera o APK no EAS e anexa como `Anotei.apk` numa release (precisa do secret `EXPO_TOKEN` configurado por você no GitHub)
+- [x] 7.1 Workflow do GitHub que, ao criar uma tag `vX.Y.Z`, gera o APK no EAS e anexa como `Anotei.apk` numa release (precisa do secret `EXPO_TOKEN` configurado por você no GitHub)
