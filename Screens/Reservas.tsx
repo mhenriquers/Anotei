@@ -75,6 +75,9 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
             const details = [item.finalidade, item.local]
               .filter((text) => text && text.trim())
               .join(" · ");
+            const metaPercent = item.meta
+              ? Math.min((item.valor / item.meta) * 100, 100)
+              : 0;
             return (
               <TouchableOpacity
                 style={styles.card}
@@ -82,6 +85,7 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
                 activeOpacity={0.7}
                 accessibilityHint="Abre a reserva para editar"
               >
+                <View style={styles.cardRow}>
                 <View style={styles.iconBadge}>
                   <Ionicons
                     name="wallet-outline"
@@ -106,6 +110,25 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
                   color={colors.textLight}
                   style={styles.chevron}
                 />
+                </View>
+
+                {/* meta: barra com quanto já foi juntado */}
+                {!!item.meta && (
+                  <View style={styles.meta}>
+                    <View style={styles.metaBar}>
+                      <View
+                        style={[
+                          styles.metaFill,
+                          { width: `${metaPercent}%` },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.metaText}>
+                      {Math.floor((item.valor / item.meta) * 100)}% da meta ·{" "}
+                      {formatBRL(item.valor)} de {formatBRL(item.meta)}
+                    </Text>
+                  </View>
+                )}
               </TouchableOpacity>
             );
           }}
@@ -200,13 +223,34 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   card: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     padding: 14,
     marginBottom: 10,
     ...shadow,
+  },
+  cardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  meta: {
+    marginTop: 12,
+  },
+  metaBar: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.border,
+    overflow: "hidden",
+  },
+  metaFill: {
+    height: "100%",
+    borderRadius: 4,
+    backgroundColor: colors.primary,
+  },
+  metaText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 6,
   },
   iconBadge: {
     width: 44,

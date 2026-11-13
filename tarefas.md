@@ -15,10 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 17. Meta por reserva
-- [ ] `Reserva`: `meta?: number`. Campo "Meta (opcional)" no `ModalReserva`.
-- [ ] Card da reserva: barra com "% atingido" e "R$ X de R$ Y".
-
 ## 18. Histórico de depósitos e retiradas
 - [ ] `Reserva`: `movimentos?: { id, valor, data, tipo: "deposito" | "retirada" }[]`.
 - [ ] Botões "Guardar" e "Retirar" na reserva: modal com valor; atualiza `valor` e adiciona o

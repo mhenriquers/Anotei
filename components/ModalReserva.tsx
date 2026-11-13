@@ -52,6 +52,9 @@ const ModalReserva: React.FC<ModalReservaProps> = ({
   );
   const [finalidade, setFinalidade] = useState(reserva?.finalidade ?? "");
   const [local, setLocal] = useState(reserva?.local ?? "");
+  const [meta, setMeta] = useState(
+    reserva?.meta ? formatBRLInput(reserva.meta) : "",
+  );
   const [error, setError] = useState("");
 
   const handleSave = () => {
@@ -64,11 +67,14 @@ const ModalReserva: React.FC<ModalReservaProps> = ({
       setError("Digite um valor válido.");
       return;
     }
+    const metaNumerica = parseBRLInput(meta);
     onSave({
+      ...reserva, // mantém os outros campos (ex: movimentos)
       nome: nome.trim(),
       valor: valorNumerico,
       finalidade: finalidade.trim(),
       local: local.trim() || undefined,
+      meta: metaNumerica > 0 ? metaNumerica : undefined,
     });
   };
 
@@ -147,6 +153,22 @@ const ModalReserva: React.FC<ModalReservaProps> = ({
                       setValor(maskMoneyInput(text));
                       setError("");
                     }}
+                    keyboardType="number-pad"
+                  />
+                </View>
+              </View>
+
+              {/*---------------meta--------------*/}
+              <View style={styles.field}>
+                <Text style={styles.label}>Meta (opcional)</Text>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.prefix}>R$</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Quanto quer juntar"
+                    placeholderTextColor={colors.textLight}
+                    value={meta}
+                    onChangeText={(text) => setMeta(maskMoneyInput(text))}
                     keyboardType="number-pad"
                   />
                 </View>

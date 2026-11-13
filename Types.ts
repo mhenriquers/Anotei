@@ -25,6 +25,7 @@ export interface Reserva {
   valor: number;
   finalidade: string; // ex: "Emergência", "Viagem"
   local?: string; // onde o dinheiro está (banco, carteira...), opcional
+  meta?: number; // quanto a pessoa quer juntar nessa reserva, opcional
 }
 
 export interface InterfaceBill {
