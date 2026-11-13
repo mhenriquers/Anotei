@@ -27,6 +27,7 @@ import {
 } from "../months";
 import { searchExpenses } from "../search";
 import { groupByDay } from "../expenseGroups";
+import MonthChart from "../components/MonthChart";
 import { isWeb } from "../pwa";
 
 interface ExpenseProps {
@@ -114,6 +115,14 @@ const ExpenseList: React.FC<ExpenseProps> = ({
                 />
               </TouchableOpacity>
             </View>
+
+            {expenseList.length > 0 && (
+              <MonthChart
+                expenses={expenseList}
+                month={month}
+                onSelectMonth={setMonth}
+              />
+            )}
 
             <PaymentSummary totals={paymentTotals} />
             {expenseList.length > 0 && (

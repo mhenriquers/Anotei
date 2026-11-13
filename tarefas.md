@@ -15,11 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 10. Gráfico simples
-- [ ] `components/MonthChart.tsx`: barras com `View` (sem biblioteca), gastos dos últimos 6 meses,
-  mês atual destacado, valor em cima da barra.
-- [ ] Mostrar no topo de `ExpensesList.tsx`.
-
 ## 11. Gasto parcelado no crédito
 - [ ] `Type`: `parcelas?: number`, `parcela?: number`, `grupoParcela?: string`.
 - [ ] `ModalScreen.tsx`: com "Crédito" escolhido, campo "Parcelas" (1 a 24, padrão 1).
