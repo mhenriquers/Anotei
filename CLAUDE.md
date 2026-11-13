@@ -13,11 +13,20 @@ publicada no GitHub Pages.
 - Dados: AsyncStorage (no navegador vira localStorage)
 
 ## Estrutura
-- `App.tsx`: navegação, estado principal (gastos e contas) e leitura/gravação no AsyncStorage
-- `Screens/`: Home, lista de gastos (`ExpensesList`), contas (`Bills`) e `Reservas` (dinheiro guardado)
+- `App.tsx`: navegação, estado principal (gastos e contas) e leitura/gravação no AsyncStorage;
+  ao abrir (e ao voltar ao app) lança os recorrentes e faz a virada de mês das contas
+- `Screens/`: Home, lista de gastos (`ExpensesList`, por mês, com busca e gráfico), contas (`Bills`),
+  `Reservas` (dinheiro guardado, com meta e movimentações) e `Recorrentes` (assinaturas)
 - `components/`: modais, cards, menus, seção de backup e contas a vencer
 - `Types.ts`: `Type` (gasto), `InterfaceBill` (conta) e `Reserva`
-- `theme.ts`: cores; `components/formStyles.ts`: estilos de formulário
+- `theme.ts`: cores (clara/escura, escolhida ao abrir pelo tema do celular), formatação e
+  "ocultar valores" (`formatBRL` mostra `R$ ••••`); `components/formStyles.ts`: estilos de formulário
+- `storedValues.ts`: valores avulsos (`EXTRA_KEYS`) com cópia em memória; entram no backup em `extras`
+- `months.ts` (meses "AAAA-MM"), `expenseGroups.ts` (lista por dia), `search.ts` (busca),
+  `installments.ts` (parcelas no crédito), `fatura.ts` (fatura do cartão), `recurring.ts`
+  (gastos recorrentes), `billsMonth.ts` (virada de mês e histórico das contas), `csv.ts` (planilha)
+- `biometrics.ts`/`.web.ts` + `appLock.ts` + `components/LockGate.tsx`: bloqueio com digital (Android)
+- `feedback.ts`/`.web.ts`: vibração ao salvar (Android)
 - `dueDates.ts`: cálculo de vencimentos
 - `notifications.ts` (nativo) e `notifications.web.ts` (web, vazio): o Metro escolhe pelo sufixo `.web`
 - `pwa.ts`: detecção de web/iPhone/PWA instalada
@@ -32,7 +41,9 @@ publicada no GitHub Pages.
 
 ## Regras importantes
 - Chaves do AsyncStorage: `expenses`, `bills`, `reservas`, `nome`, `backup:*` e as de
-  `EXTRA_KEYS` em `storedValues.ts` (`orcamento`...), que entram no backup no campo `extras`. Se mudar o formato de
+  `EXTRA_KEYS` em `storedValues.ts` (`orcamento`, `receita`, `recorrentes`...), que entram no backup
+  no campo `extras`. Só do aparelho (fora do backup): `bloqueio`, `versaoVista`, `update:*`,
+  `fab-position-*`. Se mudar o formato de
   `Type`, `InterfaceBill` ou `Reserva`, mantenha a leitura de dados antigos e confira
   `BACKUP_VERSION` em `backup.ts` (hoje 2): arquivos de backup já salvos (versão 1 e 2) precisam
   continuar restaurando. Dado novo que a pessoa cadastra tem que entrar no backup.
@@ -67,7 +78,9 @@ publicada no GitHub Pages.
 
 ## Comandos
 - `npm start` / `npm run web`: rodar em desenvolvimento
-- `npx tsc --noEmit`: checar tipos (não há testes nem lint configurados)
+- `npx tsc --noEmit`: checar tipos
+- `npm test`: testes (Jest, pasta `__tests__/`); `npm run lint`: ESLint; `npm run format`: Prettier
+- O GitHub Actions roda tipos e testes antes de publicar a PWA e o APK
 - `npm run build:web`: gerar a PWA em `dist/`
 - Push na `main` publica a PWA automaticamente (`.github/workflows/deploy-web.yml`)
 
