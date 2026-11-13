@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Type, RootStackParamList, InterfaceBill, Reserva } from "./Types";
 import Reservas from "./Screens/Reservas";
 import { NavigationContainer } from "@react-navigation/native";
@@ -19,6 +19,7 @@ import Bills from "./Screens/Bills";
 import ModalBill from "./components/ModalBills";
 import MenuOverlay from "./components/MenuOverlay";
 import ConfirmDialog from "./components/ConfirmDialog";
+import UndoToast, { ToastData } from "./components/UndoToast";
 import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
 import { needsInstallFirst } from "./pwa";
@@ -128,17 +129,50 @@ const AnoteiApp: React.FC = () => {
     setEditingExpense(null);
   };
 
+  //----------------------------------------- aviso no rodapé com "Desfazer"
+  const [toast, setToast] = useState<ToastData | null>(null);
+  const showToast = (data: Omit<ToastData, "id">) =>
+    setToast({ ...data, id: Date.now() });
+
+  // lista atual de gastos, para o "Desfazer" (que roda depois) não usar uma lista antiga
+  const expensesRef = useRef(expenses);
+  expensesRef.current = expenses;
+
+  // devolve os gastos apagados para a lista
+  const restoreExpenses = (deleted: Type[]) => {
+    const current = expensesRef.current;
+    const missing = deleted.filter(
+      (item) => !current.some((expense) => expense.id === item.id),
+    );
+    const restored = [...current, ...missing];
+    setExpenses(restored);
+    saveExpenses(restored);
+  };
+
+  const showDeletedToast = (deleted: Type[]) =>
+    showToast({
+      message:
+        deleted.length === 1
+          ? "Gasto apagado"
+          : `${deleted.length} gastos apagados`,
+      actionLabel: "Desfazer",
+      onAction: () => restoreExpenses(deleted),
+    });
+
   //----------------------------------------- função para deletar gasto
   const handleDeleteExpenses = (idsParaDeletar: string[]) => {
     // Usamos diretamente o parâmetro que o Modal Genérico nos enviou!
     if (idsParaDeletar && idsParaDeletar.length > 0) {
+      const deleted = expenses.filter((expense) =>
+        idsParaDeletar.includes(expense.id),
+      );
       const updatedExpenses = expenses.filter(
         (expense) => !idsParaDeletar.includes(expense.id),
       );
 
       setExpenses(updatedExpenses);
       saveExpenses(updatedExpenses);
-      alert("Gasto(s) deletado(s) com sucesso!");
+      showDeletedToast(deleted);
     } else {
       alert("Selecione ao menos um gasto para excluir.");
     }
@@ -148,9 +182,11 @@ const AnoteiApp: React.FC = () => {
   const handleDeleteAllExpenses = () => setIsDeleteAllVisible(true);
 
   const confirmDeleteAllExpenses = () => {
+    const deleted = expenses;
     setExpenses([]);
     saveExpenses([]);
     setIsDeleteAllVisible(false);
+    if (deleted.length > 0) showDeletedToast(deleted);
   };
 
   useEffect(() => {
@@ -371,7 +407,7 @@ const AnoteiApp: React.FC = () => {
             expenses.length === 1
               ? "1 gasto será apagado."
               : `${expenses.length} gastos serão apagados.`
-          } Essa ação não pode ser desfeita.`}
+          } Dá para desfazer logo depois.`}
           icon="trash-outline"
           tone="danger"
           confirmLabel="Apagar tudo"
@@ -379,6 +415,9 @@ const AnoteiApp: React.FC = () => {
           onConfirm={confirmDeleteAllExpenses}
           onCancel={() => setIsDeleteAllVisible(false)}
         />
+
+        {/*---------------------- Aviso no rodapé ("Gasto apagado · Desfazer") ------------------ */}
+        <UndoToast toast={toast} onHide={() => setToast(null)} />
 
         {/*----------------------Variavel de controle Modal------------------ */}
 

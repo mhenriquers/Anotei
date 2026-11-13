@@ -16,11 +16,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 3. Desfazer exclusão
-- [ ] Componente `components/UndoToast.tsx`: faixa no rodapé "Gasto apagado · Desfazer", some em 5 s.
-- [ ] `App.tsx` `handleDeleteExpenses`: guarda os gastos apagados, troca o `alert` pelo toast;
-  "Desfazer" devolve os itens e salva. Mesmo para "apagar todos".
-
 ## 4. Busca na lista de gastos
 - [ ] `ExpensesList.tsx`: campo de busca no topo da lista; filtra por `title` e `observacao`, sem
   diferenciar maiúscula nem acento (`normalize("NFD")`). Mensagem "Nenhum gasto encontrado".
