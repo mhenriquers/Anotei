@@ -30,6 +30,10 @@ jobs:
 
       - run: npm ci
 
+      # erro de tipo no TypeScript para a publicação antes de gerar o app
+      - name: Checar tipos
+        run: npx tsc --noEmit
+
       # o site fica em https://<usuario>.github.io/<repositorio>/
       - name: Build web + service worker
         run: npm run build:web

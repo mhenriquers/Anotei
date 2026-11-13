@@ -42,6 +42,10 @@ jobs:
 
       - run: npm ci
 
+      # erro de tipo no TypeScript para a publicação antes de gerar o app
+      - name: Checar tipos
+        run: npx tsc --noEmit
+
       # o perfil production gera .apk (eas.json); espera o build terminar
       - name: Build do APK no EAS
         run: eas build --platform android --profile production --non-interactive --wait --json > build.json
