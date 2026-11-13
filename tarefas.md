@@ -15,10 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 29. PWA: aviso "Atualizado para a versão X"
-- [ ] Chave `versaoVista`. Ao abrir, se diferente de `app.json` `version` e já existir, mostrar
-  faixa "Atualizado para a versão X" (fecha no X) e gravar a versão. Android também pode usar.
-
 ## 30. APK: atalho no ícone ("Novo gasto")
 - [ ] Ler a doc do Expo 58 sobre app shortcuts/quick actions antes. Se precisar de lib de terceiros
   ou config nativa complexa, **parar e perguntar** antes de instalar.

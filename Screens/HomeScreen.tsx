@@ -23,6 +23,7 @@ import {
 } from "../components/BackupSection";
 import SideDrawer, { DrawerItem } from "../components/SideDrawer";
 import UpdateBanner from "../components/UpdateBanner";
+import UpdatedNotice from "../components/UpdatedNotice";
 import PaymentSummary from "../components/PaymentSummary";
 import { colors, radius, shadow, formatBRL } from "../theme";
 import { totalsByPaymentMethod } from "../paymentMethods";
@@ -349,6 +350,9 @@ const HomeScreen: React.FC<HomeProps> = ({
 
           {/*---------- Nova versão do APK (só aparece no Android) ---------- */}
           <UpdateBanner />
+
+          {/*---------- "Atualizado para a versão X" (uma vez, depois de atualizar) ---------- */}
+          <UpdatedNotice />
 
           {/*---------- Contas a vencer (só na web, no lugar das notificações) ---------- */}
           {isWeb && (
