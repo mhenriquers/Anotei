@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     maxWidth: 480,
-    backgroundColor: colors.text,
+    backgroundColor: "#1E293B", // escuro nos dois temas, com texto branco
     borderRadius: radius.md,
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 15,
     fontWeight: "700",
-    color: colors.primarySoft,
+    color: "#86EFAC", // verde claro, legível sobre o fundo escuro do aviso
   },
 });
 

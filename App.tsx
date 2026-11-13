@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Type, RootStackParamList, InterfaceBill, Reserva } from "./Types";
 import Reservas from "./Screens/Reservas";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  DarkTheme,
+  DefaultTheme,
+  NavigationContainer,
+} from "@react-navigation/native";
 import {
   createNativeStackNavigator,
   NativeStackScreenProps,
@@ -14,7 +18,21 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import HeaderMenu from "./components/HeaderMenu";
-import { colors, setValuesHidden } from "./theme";
+import { colors, isDarkMode, setValuesHidden } from "./theme";
+
+// cores da navegação (fundo entre as telas, cabeçalho) iguais às do app
+const baseTheme = isDarkMode ? DarkTheme : DefaultTheme;
+const navigationTheme = {
+  ...baseTheme,
+  colors: {
+    ...baseTheme.colors,
+    primary: colors.hero,
+    background: colors.background,
+    card: colors.surface,
+    text: colors.text,
+    border: colors.border,
+  },
+};
 import Bills from "./Screens/Bills";
 import ModalBill from "./components/ModalBills";
 import MenuOverlay from "./components/MenuOverlay";
@@ -373,7 +391,7 @@ const AnoteiApp: React.FC = () => {
   if (showWelcome) {
     return (
       <SafeAreaProvider>
-        <StatusBar style="dark" />
+        <StatusBar style="auto" />
         <WelcomeScreen onDone={() => setStored("boasVindas", "1")} />
       </SafeAreaProvider>
     );
@@ -381,15 +399,15 @@ const AnoteiApp: React.FC = () => {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
-      <NavigationContainer>
+      <StatusBar style="auto" />
+      <NavigationContainer theme={navigationTheme}>
         <Stack.Navigator
           id="RootStack"
           screenOptions={{
             // cabeçalho branco com sombra leve, separado do fundo cinza das telas
             headerStyle: { backgroundColor: colors.surface },
             headerShadowVisible: true,
-            headerTintColor: colors.hero,
+            headerTintColor: isDarkMode ? colors.text : colors.hero,
             headerTitleStyle: { fontWeight: "800", fontSize: 20 },
             contentStyle: { backgroundColor: colors.background },
           }}
@@ -600,7 +618,7 @@ const showInstallScreen = needsInstallFirst();
 const App: React.FC = () =>
   showInstallScreen ? (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
       <InstallScreen />
     </SafeAreaProvider>
   ) : (

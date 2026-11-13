@@ -1,5 +1,7 @@
+import { Appearance, Platform } from "react-native";
+
 //------------------------------ cores do app ------------------------------
-export const colors = {
+const lightColors = {
   primary: "#3FA34D",
   primaryDark: "#2E7D3A",
   primarySoft: "#E3F4E5",
@@ -30,6 +32,51 @@ export const colors = {
 
   overlay: "rgba(15, 23, 42, 0.45)",
 };
+
+// modo escuro: mesmas chaves, tons para fundo escuro
+const darkColors: typeof lightColors = {
+  primary: "#4CB85B",
+  primaryDark: "#86D392", // usado como texto sobre primarySoft
+  primarySoft: "#1C3A23",
+
+  background: "#0E1318",
+  surface: "#182028",
+  surfaceMuted: "#1F2932",
+  border: "#2C3845",
+
+  text: "#E6EDF3",
+  textMuted: "#9AA8B8",
+  textLight: "#6B7A8C",
+
+  hero: "#2A6B82",
+  heroMuted: "#B5D3DD",
+
+  credit: "#5DB2D2",
+  creditSoft: "#173341",
+  debit: "#F0954A",
+  debitSoft: "#3A2817",
+  pix: "#3CC2B1",
+  pixSoft: "#12342F",
+
+  danger: "#F87171",
+  dangerSoft: "#3B1D1F",
+  warning: "#FBBF24",
+  warningSoft: "#3A2E12",
+
+  overlay: "rgba(0, 0, 0, 0.6)",
+};
+
+// O tema segue o do celular e é escolhido quando o app abre: os estilos das
+// telas (StyleSheet.create) leem estas cores uma vez só. Se a pessoa trocar o
+// tema com o app aberto, vale na próxima vez que abrir (na web, recarrega já).
+export const isDarkMode = Appearance.getColorScheme() === "dark";
+export const colors = isDarkMode ? darkColors : lightColors;
+
+if (Platform.OS === "web") {
+  Appearance.addChangeListener(({ colorScheme }) => {
+    if ((colorScheme === "dark") !== isDarkMode) window.location.reload();
+  });
+}
 
 export const radius = {
   sm: 8,

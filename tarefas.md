@@ -15,11 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 26. Modo escuro
-- [ ] `theme.ts`: `lightColors` e `darkColors`; hook `useColors()` com `useColorScheme()`.
-- [ ] Trocar `colors` fixo por `useColors()` tela por tela (fazer e commitar uma tela por vez é
-  aceitável dentro deste bloco). `app.json`: `userInterfaceStyle: "automatic"`.
-
 ## 27. Layout largo (tablet e computador)
 - [ ] Nas telas, conteúdo com `maxWidth: 640` e `alignSelf: "center"`; modais com `maxWidth`.
 
