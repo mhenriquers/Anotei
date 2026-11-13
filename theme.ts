@@ -153,9 +153,11 @@ export const maskTimeInput = (text: string): string => {
 
 // Junta "dd/mm/aaaa" e "hh:mm" numa data. Se algo estiver errado, devolve a
 // mensagem para mostrar à pessoa.
+// allowFuture: aceita data futura (ex: editar uma parcela que cai nos próximos meses)
 export const parseDateTimeInput = (
   dateText: string,
   timeText: string,
+  allowFuture = false,
 ): { date: Date } | { error: string } => {
   const dateMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dateText.trim());
   if (!dateMatch) return { error: "Digite a data no formato dd/mm/aaaa." };
@@ -177,7 +179,7 @@ export const parseDateTimeInput = (
     return { error: "Digite uma data válida." };
   }
   // tolerância de 1 minuto: o campo é preenchido com a hora de agora
-  if (date.getTime() > Date.now() + 60 * 1000) {
+  if (!allowFuture && date.getTime() > Date.now() + 60 * 1000) {
     return { error: "A data e a hora não podem estar no futuro." };
   }
   return { date };

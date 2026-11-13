@@ -28,6 +28,7 @@ import {
 import { searchExpenses } from "../search";
 import { groupByDay } from "../expenseGroups";
 import MonthChart from "../components/MonthChart";
+import { expenseTitle } from "../installments";
 import { isWeb } from "../pwa";
 
 interface ExpenseProps {
@@ -207,7 +208,7 @@ const ExpenseList: React.FC<ExpenseProps> = ({
           storageKey="expenses"
           title="Excluir gastos"
           subtitle="Selecione os gastos que deseja remover da lista."
-          renderTitle={(item) => item.title}
+          renderTitle={(item) => expenseTitle(item)}
           renderSubtitle={(item) => formatBRL(item.amount)}
           onDelete={onDeleteExpenses}
           onCancel={() => setIsDeleteMode(false)}

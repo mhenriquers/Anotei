@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
 import { colors, radius, shadow, formatBRL, formatDate } from "../theme";
 import { getPaymentInfo } from "../paymentMethods";
+import { expenseTitle } from "../installments";
 import PaymentIcon from "./PaymentIcon";
 
 interface ExpenseItemProps {
@@ -35,7 +36,7 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({ item, onPress }) => {
 
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={1}>
-          {item.title}
+          {expenseTitle(item)}
         </Text>
         <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
         {item.observacao ? (

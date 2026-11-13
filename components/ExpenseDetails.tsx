@@ -3,6 +3,7 @@ import { Type } from "../Types";
 import DetailsSheet from "./DetailsSheet";
 import { formatBRL, formatLongDate, formatTime } from "../theme";
 import { getPaymentInfo } from "../paymentMethods";
+import { expenseTitle } from "../installments";
 
 interface ExpenseDetailsProps {
   expense: Type | null; // null = modal fechado
@@ -35,7 +36,7 @@ const ExpenseDetails: React.FC<ExpenseDetailsProps> = ({
       iconColor={payment.color}
       iconBackground={payment.softColor}
       amount={formatBRL(item.amount)}
-      name={item.title}
+      name={expenseTitle(item)}
       badge={{
         label: payment.longLabel,
         color: payment.color,

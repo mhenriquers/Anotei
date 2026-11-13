@@ -24,6 +24,7 @@ import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
 import { needsInstallFirst } from "./pwa";
 import { loadStoredValues } from "./storedValues";
+import { splitInstallments } from "./installments";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -102,7 +103,22 @@ const AnoteiApp: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const handleSaveExpense = (newExpenseData: Omit<Type, "id">) => {
+  const handleSaveExpense = (
+    newExpenseData: Omit<Type, "id">,
+    parcelas: number = 1,
+  ) => {
+    // compra parcelada: vira um gasto por mês
+    if (!editingExpense && parcelas > 1) {
+      const installments = splitInstallments(newExpenseData, parcelas, () =>
+        Math.random().toString(),
+      );
+      const updated = [...expenses, ...installments];
+      setExpenses(updated);
+      saveExpenses(updated);
+      setIsModalVisible(false);
+      return;
+    }
+
     const completeExpense: Type = {
       ...newExpenseData,
       // ao editar, o gasto mantém o id (e continua no mesmo lugar da lista)
@@ -155,19 +171,45 @@ const AnoteiApp: React.FC = () => {
     });
 
   //----------------------------------------- função para deletar gasto
+  const deleteExpenseIds = (ids: string[]) => {
+    const current = expensesRef.current;
+    const deleted = current.filter((expense) => ids.includes(expense.id));
+    const updatedExpenses = current.filter(
+      (expense) => !ids.includes(expense.id),
+    );
+    setExpenses(updatedExpenses);
+    saveExpenses(updatedExpenses);
+    if (deleted.length > 0) showDeletedToast(deleted);
+  };
+
+  // parcela apagada com outras parcelas da mesma compra ainda na lista:
+  // pergunta se apaga só as escolhidas ou a compra inteira
+  const [installmentDelete, setInstallmentDelete] = useState<{
+    ids: string[]; // as escolhidas
+    allIds: string[]; // as escolhidas + as outras parcelas das mesmas compras
+  } | null>(null);
+
   const handleDeleteExpenses = (idsParaDeletar: string[]) => {
     // Usamos diretamente o parâmetro que o Modal Genérico nos enviou!
     if (idsParaDeletar && idsParaDeletar.length > 0) {
-      const deleted = expenses.filter((expense) =>
-        idsParaDeletar.includes(expense.id),
+      const grupos = new Set(
+        expenses
+          .filter((e) => idsParaDeletar.includes(e.id) && e.grupoParcela)
+          .map((e) => e.grupoParcela),
       );
-      const updatedExpenses = expenses.filter(
-        (expense) => !idsParaDeletar.includes(expense.id),
-      );
+      const allIds = expenses
+        .filter(
+          (e) =>
+            idsParaDeletar.includes(e.id) ||
+            (e.grupoParcela && grupos.has(e.grupoParcela)),
+        )
+        .map((e) => e.id);
 
-      setExpenses(updatedExpenses);
-      saveExpenses(updatedExpenses);
-      showDeletedToast(deleted);
+      if (allIds.length > idsParaDeletar.length) {
+        setInstallmentDelete({ ids: idsParaDeletar, allIds });
+      } else {
+        deleteExpenseIds(idsParaDeletar);
+      }
     } else {
       alert("Selecione ao menos um gasto para excluir.");
     }
@@ -408,6 +450,33 @@ const AnoteiApp: React.FC = () => {
           cancelLabel="Cancelar"
           onConfirm={confirmDeleteAllExpenses}
           onCancel={() => setIsDeleteAllVisible(false)}
+        />
+
+        {/*---------------------- Apagar parcela: só esta ou a compra toda ------------------ */}
+        <ConfirmDialog
+          visible={installmentDelete !== null}
+          title="Apagar as outras parcelas?"
+          message={
+            installmentDelete
+              ? `Essa compra tem mais ${
+                  installmentDelete.allIds.length - installmentDelete.ids.length
+                } parcela(s) na lista. Quer apagar todas?`
+              : ""
+          }
+          icon="card-outline"
+          tone="danger"
+          confirmLabel="Todas"
+          cancelLabel={
+            installmentDelete?.ids.length === 1 ? "Só esta" : "Só as escolhidas"
+          }
+          onConfirm={() => {
+            if (installmentDelete) deleteExpenseIds(installmentDelete.allIds);
+            setInstallmentDelete(null);
+          }}
+          onCancel={() => {
+            if (installmentDelete) deleteExpenseIds(installmentDelete.ids);
+            setInstallmentDelete(null);
+          }}
         />
 
         {/*---------------------- Aviso no rodapé ("Gasto apagado · Desfazer") ------------------ */}

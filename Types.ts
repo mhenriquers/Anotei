@@ -5,6 +5,10 @@ export interface Type {
   createdAt: Date;
   category: "credit card" | "debit" | "pix"; // forma de pagamento
   observacao?: string;
+  // compra parcelada no crédito: cada parcela é um gasto, no mês em que cai
+  parcela?: number; // número desta parcela (1, 2, 3...)
+  parcelas?: number; // total de parcelas
+  grupoParcela?: string; // igual em todas as parcelas da mesma compra
 }
 export type RootStackParamList = {
   Home: undefined;

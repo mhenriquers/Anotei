@@ -25,7 +25,9 @@ import {
   parseBRLInput,
   maskMoneyInput,
   formatBRLInput,
+  formatBRL,
 } from "../theme";
+import { MAX_PARCELAS } from "../installments";
 import {
   PAYMENT_METHODS,
   PaymentMethod,
@@ -37,7 +39,8 @@ import PaymentIcon from "./PaymentIcon";
 interface ModalScreenProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (expenseData: Omit<Type, "id">) => void;
+  // parcelas > 1: compra parcelada no crédito (o App divide em vários gastos)
+  onSave: (expenseData: Omit<Type, "id">, parcelas: number) => void;
   expense?: Type | null; // se passado, o modal edita esse gasto
 }
 
@@ -75,6 +78,14 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
   );
   const [obs, setObs] = useState(expense?.observacao ?? "");
 
+  // parcelas: só no cadastro de um gasto novo no crédito
+  const [parcelasText, setParcelasText] = useState("1");
+  const canSplit = !isEditing && paymentMethod === "credit card";
+  const parcelas = canSplit
+    ? Math.min(Math.max(Number(parcelasText) || 1, 1), MAX_PARCELAS)
+    : 1;
+  const amountNumber = parseBRLInput(amount);
+
   // data e hora da compra: começam com "agora" (ou com as do gasto em edição)
   const startDate = expense ? new Date(expense.createdAt) : new Date();
   const [dateText, setDateText] = useState(() => formatDateInput(startDate));
@@ -105,7 +116,12 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
       alert("Digite um valor válido.");
       return;
     }
-    const purchase = parseDateTimeInput(dateText, timeText);
+    // parcela já lançada pode cair num mês futuro
+    const purchase = parseDateTimeInput(
+      dateText,
+      timeText,
+      !!expense?.grupoParcela,
+    );
     if ("error" in purchase) {
       setDateError(purchase.error);
       return;
@@ -116,7 +132,7 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
       category: paymentMethod,
       observacao: obs.trim(),
       createdAt: purchase.date,
-    });
+    }, parcelas);
     setNameExpense("");
     setAmount("");
     setObs("");
@@ -243,6 +259,35 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
                     {PAYMENT_METHODS.map(renderOption)}
                   </View>
                 </View>
+
+                {/*-------------parcelas (só no crédito)-----------------*/}
+                {canSplit && (
+                  <View style={styles.field}>
+                    <Text style={styles.label}>Parcelas</Text>
+                    <View style={local.row}>
+                      <View style={[styles.inputWrapper, local.parcelasInput]}>
+                        <TextInput
+                          style={styles.input}
+                          placeholder="1"
+                          placeholderTextColor={colors.textLight}
+                          value={parcelasText}
+                          onChangeText={(text) =>
+                            setParcelasText(text.replace(/\D/g, "").slice(0, 2))
+                          }
+                          keyboardType="number-pad"
+                          maxLength={2}
+                          accessibilityLabel="Número de parcelas"
+                        />
+                        <Text style={styles.prefix}>x</Text>
+                      </View>
+                      <Text style={local.parcelasHint}>
+                        {parcelas > 1 && amountNumber > 0
+                          ? `${parcelas}x de ${formatBRL(amountNumber / parcelas)}, uma por mês`
+                          : `À vista ou até ${MAX_PARCELAS}x`}
+                      </Text>
+                    </View>
+                  </View>
+                )}
 
                 {/*-------------data e hora da compra-----------------*/}
                 <View style={styles.field}>
@@ -388,6 +433,16 @@ const local = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+  },
+  parcelasInput: {
+    width: 90,
+    marginRight: 12,
+  },
+  parcelasHint: {
+    flex: 1,
+    alignSelf: "center",
+    fontSize: 13,
+    color: colors.textMuted,
   },
   dateInput: {
     flex: 3,

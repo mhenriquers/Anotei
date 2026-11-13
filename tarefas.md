@@ -15,13 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 11. Gasto parcelado no crédito
-- [ ] `Type`: `parcelas?: number`, `parcela?: number`, `grupoParcela?: string`.
-- [ ] `ModalScreen.tsx`: com "Crédito" escolhido, campo "Parcelas" (1 a 24, padrão 1).
-- [ ] Salvar N gastos: valor ÷ N (centavos que sobram vão na 1ª), um por mês a partir da data,
-  título "Geladeira (2/10)", mesmo `grupoParcela`.
-- [ ] Ao apagar uma parcela, `ConfirmDialog` pergunta "Só esta" ou "Todas as parcelas".
-
 ## 12. Fechamento da fatura do cartão
 - [ ] Chave `diaFechamento` (1 a 31). Item "Fatura do cartão" no `SideDrawer` para escolher o dia.
 - [ ] `fatura.ts`: `faturaAtual(expenses, dia)` → gastos no crédito desde o último fechamento.
