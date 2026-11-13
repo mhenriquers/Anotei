@@ -37,11 +37,7 @@ import {
 import { isWeb } from "../pwa";
 import { useBackup } from "../backup";
 import { USER_NAME_MAX, useUserName } from "../userName";
-import {
-  setStored,
-  useStoredNumber,
-  useStoredValue,
-} from "../storedValues";
+import { setStored, useStoredNumber, useStoredValue } from "../storedValues";
 import MoneyPrompt from "../components/MoneyPrompt";
 import { faturaAtual } from "../fatura";
 import { exportExpensesCsv } from "../csv";

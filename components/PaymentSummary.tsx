@@ -30,10 +30,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
     {PAYMENT_METHODS.map((method, index) => {
       const info = getPaymentInfo(method);
       return (
-        <View
-          key={method}
-          style={[styles.row, index > 0 && styles.rowDivider]}
-        >
+        <View key={method} style={[styles.row, index > 0 && styles.rowDivider]}>
           <View style={[styles.iconBadge, { backgroundColor: info.softColor }]}>
             <PaymentIcon method={method} size={18} />
           </View>

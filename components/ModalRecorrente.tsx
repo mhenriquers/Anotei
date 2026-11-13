@@ -196,9 +196,7 @@ const ModalRecorrente: React.FC<ModalRecorrenteProps> = ({
                           muted={!active}
                           mutedColor={colors.textMuted}
                         />
-                        <Text
-                          style={[styles.segmentText, active && { color }]}
-                        >
+                        <Text style={[styles.segmentText, active && { color }]}>
                           {label}
                         </Text>
                       </TouchableOpacity>

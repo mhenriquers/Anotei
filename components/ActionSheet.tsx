@@ -26,7 +26,11 @@ interface ActionSheetProps {
 }
 
 //---------------------- menu de ações rápidas (toque longo num gasto ou conta) ----------------------
-const ActionSheet: React.FC<ActionSheetProps> = ({ title, actions, onClose }) => {
+const ActionSheet: React.FC<ActionSheetProps> = ({
+  title,
+  actions,
+  onClose,
+}) => {
   const insets = useSafeAreaInsets();
   return (
     <Modal
@@ -59,9 +63,7 @@ const ActionSheet: React.FC<ActionSheetProps> = ({ title, actions, onClose }) =>
                 size={20}
                 color={action.danger ? colors.danger : colors.text}
               />
-              <Text
-                style={[styles.actionText, action.danger && styles.danger]}
-              >
+              <Text style={[styles.actionText, action.danger && styles.danger]}>
                 {action.label}
               </Text>
             </TouchableOpacity>

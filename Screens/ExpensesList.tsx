@@ -185,23 +185,23 @@ const ExpenseList: React.FC<ExpenseProps> = ({
               </Text>
             </View>
           ) : (
-          <View style={styles.empty}>
-            <Ionicons
-              name="receipt-outline"
-              size={40}
-              color={colors.textLight}
-            />
-            <Text style={styles.emptyTitle}>
-              {expenseList.length === 0
-                ? "Nenhum gasto registrado"
-                : `Nenhum gasto em ${monthLabel(month).toLowerCase()}`}
-            </Text>
-            <Text style={styles.emptyText}>
-              {expenseList.length === 0
-                ? "Volte para o início e toque no botão + para adicionar."
-                : "Use as setas acima para ver outros meses."}
-            </Text>
-          </View>
+            <View style={styles.empty}>
+              <Ionicons
+                name="receipt-outline"
+                size={40}
+                color={colors.textLight}
+              />
+              <Text style={styles.emptyTitle}>
+                {expenseList.length === 0
+                  ? "Nenhum gasto registrado"
+                  : `Nenhum gasto em ${monthLabel(month).toLowerCase()}`}
+              </Text>
+              <Text style={styles.emptyText}>
+                {expenseList.length === 0
+                  ? "Volte para o início e toque no botão + para adicionar."
+                  : "Use as setas acima para ver outros meses."}
+              </Text>
+            </View>
           )
         }
       />

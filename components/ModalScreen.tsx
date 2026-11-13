@@ -126,13 +126,16 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
       setDateError(purchase.error);
       return;
     }
-    onSave({
-      title: nameExpense.trim(),
-      amount: valorNumerico,
-      category: paymentMethod,
-      observacao: obs.trim(),
-      createdAt: purchase.date,
-    }, parcelas);
+    onSave(
+      {
+        title: nameExpense.trim(),
+        amount: valorNumerico,
+        category: paymentMethod,
+        observacao: obs.trim(),
+        createdAt: purchase.date,
+      },
+      parcelas,
+    );
     setNameExpense("");
     setAmount("");
     setObs("");

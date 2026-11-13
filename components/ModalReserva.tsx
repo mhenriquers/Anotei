@@ -235,10 +235,15 @@ const ModalReserva: React.FC<ModalReservaProps> = ({
                       return (
                         <View
                           key={mov.id}
-                          style={[local_.moveRow, index > 0 && local_.moveDivider]}
+                          style={[
+                            local_.moveRow,
+                            index > 0 && local_.moveDivider,
+                          ]}
                         >
                           <Ionicons
-                            name={entrada ? "arrow-down-circle" : "arrow-up-circle"}
+                            name={
+                              entrada ? "arrow-down-circle" : "arrow-up-circle"
+                            }
                             size={18}
                             color={entrada ? colors.primary : colors.debit}
                           />
@@ -249,7 +254,11 @@ const ModalReserva: React.FC<ModalReservaProps> = ({
                           <Text
                             style={[
                               local_.moveValue,
-                              { color: entrada ? colors.primaryDark : colors.debit },
+                              {
+                                color: entrada
+                                  ? colors.primaryDark
+                                  : colors.debit,
+                              },
                             ]}
                           >
                             {entrada ? "+" : "−"}

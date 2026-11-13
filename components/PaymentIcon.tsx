@@ -29,7 +29,11 @@ const PaymentIcon: React.FC<PaymentIconProps> = ({
       <Image
         source={info.image}
         style={[
-          { width: imageSize, height: imageSize, margin: (size - imageSize) / 2 },
+          {
+            width: imageSize,
+            height: imageSize,
+            margin: (size - imageSize) / 2,
+          },
           muted && { tintColor: mutedColor },
         ]}
         resizeMode="contain"

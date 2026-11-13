@@ -30,9 +30,7 @@ const UpdatedNotice: React.FC = () => {
   return (
     <View style={styles.banner}>
       <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
-      <Text style={styles.text}>
-        Atualizado para a versão {CURRENT}
-      </Text>
+      <Text style={styles.text}>Atualizado para a versão {CURRENT}</Text>
       <TouchableOpacity
         onPress={() => setVisible(false)}
         hitSlop={10}

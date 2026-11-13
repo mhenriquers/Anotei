@@ -49,7 +49,9 @@ export const checkForUpdate = async (): Promise<UpdateInfo | null> => {
 
     const apk = Array.isArray(release.assets)
       ? release.assets.find((asset: any) =>
-          String(asset?.name ?? "").toLowerCase().endsWith(".apk"),
+          String(asset?.name ?? "")
+            .toLowerCase()
+            .endsWith(".apk"),
         )
       : undefined;
     const downloadUrl = apk?.browser_download_url ?? release.html_url;

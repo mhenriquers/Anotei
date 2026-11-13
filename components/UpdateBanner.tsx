@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Linking,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius } from "../theme";
@@ -42,7 +48,11 @@ const UpdateBanner: React.FC = () => {
   return (
     <View style={styles.banner}>
       <View style={styles.header}>
-        <Ionicons name="sparkles-outline" size={22} color={colors.primaryDark} />
+        <Ionicons
+          name="sparkles-outline"
+          size={22}
+          color={colors.primaryDark}
+        />
         <Text style={styles.title}>Nova versão disponível</Text>
       </View>
       <Text style={styles.text}>

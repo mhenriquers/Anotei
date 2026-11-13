@@ -44,7 +44,10 @@ const InstallScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top", "bottom", "left", "right"]}>
+    <SafeAreaView
+      style={styles.safe}
+      edges={["top", "bottom", "left", "right"]}
+    >
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}

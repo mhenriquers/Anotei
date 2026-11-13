@@ -58,7 +58,9 @@ const UpcomingBills: React.FC<UpcomingBillsProps> = ({ bills, onPress }) => {
             <View
               style={[
                 styles.dot,
-                { backgroundColor: itemUrgent ? colors.danger : colors.warning },
+                {
+                  backgroundColor: itemUrgent ? colors.danger : colors.warning,
+                },
               ]}
             />
             <View style={styles.rowInfo}>

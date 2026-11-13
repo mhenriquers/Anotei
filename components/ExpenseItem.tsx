@@ -32,12 +32,7 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({
       accessibilityRole={onPress ? "button" : undefined}
       accessibilityHint={onPress ? "Abre os detalhes do gasto" : undefined}
     >
-      <View
-        style={[
-          styles.iconBadge,
-          { backgroundColor: payment.softColor },
-        ]}
-      >
+      <View style={[styles.iconBadge, { backgroundColor: payment.softColor }]}>
         <PaymentIcon method={item.category} size={22} />
       </View>
 

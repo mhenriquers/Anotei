@@ -39,7 +39,8 @@ const MonthChart: React.FC<MonthChartProps> = ({
       <View style={styles.chart}>
         {bars.map((bar) => {
           const active = bar.key === month;
-          const height = bar.total > 0 ? Math.max(4, (bar.total / max) * BAR_AREA) : 0;
+          const height =
+            bar.total > 0 ? Math.max(4, (bar.total / max) * BAR_AREA) : 0;
           return (
             <TouchableOpacity
               key={bar.key}
@@ -53,7 +54,9 @@ const MonthChart: React.FC<MonthChartProps> = ({
                 style={[styles.value, active && styles.valueActive]}
                 numberOfLines={1}
               >
-                {bar.total > 0 && !areValuesHidden() ? shortValue(bar.total) : ""}
+                {bar.total > 0 && !areValuesHidden()
+                  ? shortValue(bar.total)
+                  : ""}
               </Text>
               <View
                 style={[

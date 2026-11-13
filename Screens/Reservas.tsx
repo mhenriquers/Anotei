@@ -122,30 +122,30 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
                 accessibilityHint="Abre a reserva para editar"
               >
                 <View style={styles.cardRow}>
-                <View style={styles.iconBadge}>
-                  <Ionicons
-                    name="wallet-outline"
-                    size={22}
-                    color={colors.primary}
-                  />
-                </View>
-                <View style={styles.info}>
-                  <Text style={styles.title} numberOfLines={1}>
-                    {item.nome}
-                  </Text>
-                  {details ? (
-                    <Text style={styles.details} numberOfLines={2}>
-                      {details}
+                  <View style={styles.iconBadge}>
+                    <Ionicons
+                      name="wallet-outline"
+                      size={22}
+                      color={colors.primary}
+                    />
+                  </View>
+                  <View style={styles.info}>
+                    <Text style={styles.title} numberOfLines={1}>
+                      {item.nome}
                     </Text>
-                  ) : null}
-                </View>
-                <Text style={styles.amount}>{formatBRL(item.valor)}</Text>
-                <Ionicons
-                  name="chevron-forward"
-                  size={18}
-                  color={colors.textLight}
-                  style={styles.chevron}
-                />
+                    {details ? (
+                      <Text style={styles.details} numberOfLines={2}>
+                        {details}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <Text style={styles.amount}>{formatBRL(item.valor)}</Text>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color={colors.textLight}
+                    style={styles.chevron}
+                  />
                 </View>
 
                 {/* guardar e retirar dinheiro */}
@@ -173,7 +173,8 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
                       style={[
                         styles.moveText,
                         {
-                          color: item.valor > 0 ? colors.debit : colors.textLight,
+                          color:
+                            item.valor > 0 ? colors.debit : colors.textLight,
                         },
                       ]}
                     >
@@ -187,10 +188,7 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
                   <View style={styles.meta}>
                     <View style={styles.metaBar}>
                       <View
-                        style={[
-                          styles.metaFill,
-                          { width: `${metaPercent}%` },
-                        ]}
+                        style={[styles.metaFill, { width: `${metaPercent}%` }]}
                       />
                     </View>
                     <Text style={styles.metaText}>
@@ -252,11 +250,17 @@ const Reservas: React.FC<ReservasProps> = ({ reservas, onChange }) => {
               ? `${moveReserva.nome}: ${formatBRL(moveReserva.valor)} guardados agora.`
               : ""
           }
-          icon={move?.tipo === "retirada" ? "remove-circle-outline" : "add-circle-outline"}
+          icon={
+            move?.tipo === "retirada"
+              ? "remove-circle-outline"
+              : "add-circle-outline"
+          }
           value={null}
           allowEmpty={false}
           validate={(valor) =>
-            move?.tipo === "retirada" && moveReserva && valor > moveReserva.valor
+            move?.tipo === "retirada" &&
+            moveReserva &&
+            valor > moveReserva.valor
               ? `Só tem ${formatBRL(moveReserva.valor)} nessa reserva.`
               : null
           }

@@ -32,12 +32,7 @@ interface ModalBill {
   bill?: InterfaceBill | null; // se passada, o modal edita essa conta
 }
 
-const ModalBill: React.FC<ModalBill> = ({
-  visible,
-  onClose,
-  onSave,
-  bill,
-}) => {
+const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave, bill }) => {
   const insets = useSafeAreaInsets();
   const isEditing = !!bill;
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);

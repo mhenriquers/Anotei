@@ -15,7 +15,11 @@ const dayKey = (date: Date) =>
 
 // "Hoje", "Ontem", "12 de novembro" ou, em outro ano, "12 de novembro de 2025"
 export const dayTitle = (date: Date, now: Date = new Date()): string => {
-  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const yesterday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() - 1,
+  );
   if (dayKey(date) === dayKey(now)) return "Hoje";
   if (dayKey(date) === dayKey(yesterday)) return "Ontem";
   const text = `${date.getDate()} de ${MESES[date.getMonth()]}`;

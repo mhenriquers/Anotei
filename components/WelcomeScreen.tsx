@@ -35,7 +35,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onDone }) => {
   const isLast = index === SLIDES.length - 1;
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top", "bottom", "left", "right"]}>
+    <SafeAreaView
+      style={styles.safe}
+      edges={["top", "bottom", "left", "right"]}
+    >
       <View style={styles.top}>
         <Image
           source={require("../assets/logo.png")}

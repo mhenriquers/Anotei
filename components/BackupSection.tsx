@@ -3,12 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, formatDate } from "../theme";
 import ConfirmDialog, { ConfirmDialogContent } from "./ConfirmDialog";
-import {
-  BackupData,
-  formatSize,
-  parseBackup,
-  restoreBackup,
-} from "../backup";
+import { BackupData, formatSize, parseBackup, restoreBackup } from "../backup";
 import { pickBackupText } from "../backupFile";
 
 //---------------------- lembrete de backup (topo da tela inicial) ----------------------
@@ -69,7 +64,9 @@ const describeBackup = (data: BackupData) => {
   const gastos =
     data.expenses.length === 1 ? "1 gasto" : `${data.expenses.length} gastos`;
   const contas =
-    data.bills.length === 1 ? "1 conta fixa" : `${data.bills.length} contas fixas`;
+    data.bills.length === 1
+      ? "1 conta fixa"
+      : `${data.bills.length} contas fixas`;
   const reservas = data.reservas
     ? data.reservas.length === 1
       ? "1 reserva"

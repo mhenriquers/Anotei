@@ -41,11 +41,7 @@ import UndoToast, { ToastData } from "./components/UndoToast";
 import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
 import { isWeb, needsInstallFirst } from "./pwa";
-import {
-  loadStoredValues,
-  setStored,
-  useStoredValue,
-} from "./storedValues";
+import { loadStoredValues, setStored, useStoredValue } from "./storedValues";
 import WelcomeScreen from "./components/WelcomeScreen";
 import { splitInstallments } from "./installments";
 import { applyRecorrentes } from "./recurring";
@@ -371,7 +367,9 @@ const AnoteiApp: React.FC = () => {
     window.history.replaceState(
       null,
       "",
-      window.location.pathname + (query ? `?${query}` : "") + window.location.hash,
+      window.location.pathname +
+        (query ? `?${query}` : "") +
+        window.location.hash,
     );
   }, [dataLoaded]);
 
@@ -523,10 +521,7 @@ const AnoteiApp: React.FC = () => {
             options={{ headerShown: true, headerTitle: "Reservas" }}
           >
             {() => (
-              <Reservas
-                reservas={reservas}
-                onChange={handleChangeReservas}
-              />
+              <Reservas reservas={reservas} onChange={handleChangeReservas} />
             )}
           </Stack.Screen>
 

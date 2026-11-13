@@ -36,8 +36,7 @@ export const expensesToCsv = (expenses: Type[]): string => {
       ];
     });
   return (
-    BOM +
-    [header, ...rows].map((row) => row.map(cell).join(";")).join("\r\n")
+    BOM + [header, ...rows].map((row) => row.map(cell).join(";")).join("\r\n")
   );
 };
 
