@@ -3,6 +3,7 @@ import { AppState } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { InterfaceBill, Reserva, Type } from "./Types";
 import { shareBackupFile } from "./backupFile";
+import { syncBackupReminder } from "./notifications";
 import { cleanUserName, KEY_USER_NAME } from "./userName";
 import {
   Extras,
@@ -217,6 +218,11 @@ export const useBackup = (
   const hasData =
     expenses.length > 0 || bills.length > 0 || reservas.length > 0;
   const reference = info ? (info.lastBackup ?? info.firstSeen) : now;
+
+  // Android: notificação quando o backup ficar pendente (na web não faz nada)
+  useEffect(() => {
+    if (info) syncBackupReminder(reference, BACKUP_REMIND_DAYS, hasData);
+  }, [info?.lastBackup, info?.firstSeen, hasData]);
   const daysSinceBackup = Math.floor((now - reference) / DAY);
   const shouldRemind =
     info !== null &&

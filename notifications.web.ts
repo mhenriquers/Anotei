@@ -7,3 +7,10 @@ import { InterfaceBill } from "./Types";
 export const syncBillReminders = async (
   _bills: InterfaceBill[],
 ): Promise<void> => {};
+
+// Lembrete de backup: na web não há notificação; o lembrete aparece na tela inicial.
+export const syncBackupReminder = async (
+  _reference: number,
+  _remindDays: number,
+  _hasData: boolean,
+): Promise<void> => {};

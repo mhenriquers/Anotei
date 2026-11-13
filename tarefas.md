@@ -19,10 +19,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 - [ ] Ler a doc do Expo 58 sobre app shortcuts/quick actions antes. Se precisar de lib de terceiros
   ou config nativa complexa, **parar e perguntar** antes de instalar.
 
-## 31. APK: notificação de backup pendente
-- [ ] `notifications.ts`: agendar notificação local para 30 dias após o último backup
-  ("Faça um backup dos seus dados"); reagendar ao fazer backup. Web não faz nada.
-
 ## 32. Checagem de tipos no GitHub Actions
 - [ ] `deploy-web.yml` e `release-apk.yml`: passo `npx tsc --noEmit` depois do `npm ci`.
 

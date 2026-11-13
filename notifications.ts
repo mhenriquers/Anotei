@@ -11,6 +11,10 @@ import {
 
 // Só Android/iOS. Na web o Metro usa notifications.web.ts no lugar deste arquivo.
 const CHANNEL_ID = "vencimentos";
+const BACKUP_CHANNEL_ID = "backup";
+const BILL_PREFIX = "conta:"; // identificador dos avisos de vencimento
+const BACKUP_ID = "backup"; // identificador do lembrete de backup
+const BACKUP_HOUR = 10; // horário do lembrete de backup
 
 // No Expo Go do Android, o expo-notifications avisa que notificações remotas (push de servidor)
 // não funcionam. O app só usa notificações locais, que funcionam, então esses avisos são escondidos.
@@ -50,6 +54,10 @@ const ensurePermission = async (): Promise<boolean> => {
       name: "Vencimento das contas",
       importance: Notifications.AndroidImportance.HIGH,
     });
+    await Notifications.setNotificationChannelAsync(BACKUP_CHANNEL_ID, {
+      name: "Lembrete de backup",
+      importance: Notifications.AndroidImportance.DEFAULT,
+    });
   }
 
   const current = await Notifications.getPermissionsAsync();
@@ -63,8 +71,13 @@ const ensurePermission = async (): Promise<boolean> => {
 //---------------------- reagenda os avisos de todas as contas ----------------------
 const scheduleReminders = async (bills: InterfaceBill[]) => {
   try {
-    // o app só agenda avisos de vencimento, então dá para recomeçar do zero
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    // recomeça do zero só os avisos de vencimento (o lembrete de backup fica)
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    // (inclui avisos de versões antigas do app, que não tinham o prefixo "conta:")
+    for (const item of scheduled) {
+      if (item.identifier === BACKUP_ID) continue;
+      await Notifications.cancelScheduledNotificationAsync(item.identifier);
+    }
 
     const billsWithReminder = bills.filter(
       (bill) => isReminderOn(bill) && getDueDay(bill) !== null,
@@ -74,6 +87,7 @@ const scheduleReminders = async (bills: InterfaceBill[]) => {
 
     for (const bill of billsWithReminder) {
       await Notifications.scheduleNotificationAsync({
+        identifier: `${BILL_PREFIX}${bill.id}`,
         content: {
           title: `${bill.nome} vence hoje`,
           body: `Não esqueça de pagar: ${formatBRL(bill.valor)}`,
@@ -94,5 +108,51 @@ const scheduleReminders = async (bills: InterfaceBill[]) => {
 let queue: Promise<void> = Promise.resolve();
 export const syncBillReminders = (bills: InterfaceBill[]): Promise<void> => {
   queue = queue.then(() => scheduleReminders(bills));
+  return queue;
+};
+
+//---------------------- lembrete de backup pendente ----------------------
+// Avisa 30 dias depois do último backup (ou do primeiro uso). Se já passou,
+// avisa daqui a 3 dias (o lembrete na tela inicial já aparece antes disso).
+const scheduleBackupReminder = async (
+  reference: number,
+  remindDays: number,
+  hasData: boolean,
+) => {
+  try {
+    await Notifications.cancelScheduledNotificationAsync(BACKUP_ID);
+    if (!hasData) return;
+
+    const day = 24 * 60 * 60 * 1000;
+    let date = new Date(reference + remindDays * day);
+    if (date.getTime() <= Date.now()) date = new Date(Date.now() + 3 * day);
+    date.setHours(BACKUP_HOUR, 0, 0, 0);
+
+    if (!(await ensurePermission())) return;
+    await Notifications.scheduleNotificationAsync({
+      identifier: BACKUP_ID,
+      content: {
+        title: "Hora de fazer backup",
+        body: "Seus dados ficam só no aparelho. Abra o Anotei e salve um backup.",
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date,
+        channelId: BACKUP_CHANNEL_ID,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao agendar o lembrete de backup", error);
+  }
+};
+
+export const syncBackupReminder = (
+  reference: number,
+  remindDays: number,
+  hasData: boolean,
+): Promise<void> => {
+  queue = queue.then(() =>
+    scheduleBackupReminder(reference, remindDays, hasData),
+  );
   return queue;
 };
