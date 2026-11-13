@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,6 +28,7 @@ import { colors, radius, shadow, formatBRL } from "../theme";
 import { PaymentTotals } from "../paymentMethods";
 import { isWeb } from "../pwa";
 import { useBackup } from "../backup";
+import { USER_NAME_MAX, useUserName } from "../userName";
 
 interface HomeProps {
   navigation: any;
@@ -73,11 +75,22 @@ const HomeScreen: React.FC<HomeProps> = ({
     expenses.find((expense) => expense.id === selectedExpenseId) ?? null;
 
   //-------------------------- backup (os dados ficam só no aparelho) --------------------------
-  const backup = useBackup(expenses, innerBill, reservas);
+  const userName = useUserName();
+  const backup = useBackup(expenses, innerBill, reservas, userName.name);
   const restore = useBackupRestore(backup.hasData, async () => {
     await onDataRestored();
     await backup.reload();
+    await userName.reload();
   });
+
+  //-------------------------- nome no título (toque para editar) --------------------------
+  const [nameDraft, setNameDraft] = useState<string | null>(null); // null = não está editando
+  const startEditingName = () => setNameDraft(userName.name);
+  const finishEditingName = () => {
+    if (nameDraft === null) return;
+    userName.saveName(nameDraft);
+    setNameDraft(null);
+  };
 
   //-------------------------- menu lateral (gaveta) --------------------------
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -135,7 +148,40 @@ const HomeScreen: React.FC<HomeProps> = ({
             </TouchableOpacity>
             <View style={styles.headerText}>
               <Text style={styles.greeting}>Olá!</Text>
-              <Text style={styles.headerTitle}>Suas finanças</Text>
+              {nameDraft !== null ? (
+                <TextInput
+                  value={nameDraft}
+                  onChangeText={setNameDraft}
+                  onBlur={finishEditingName}
+                  onSubmitEditing={finishEditingName}
+                  placeholder="Seu nome"
+                  placeholderTextColor={colors.textLight}
+                  maxLength={USER_NAME_MAX}
+                  autoFocus
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  returnKeyType="done"
+                  style={[styles.headerTitle, styles.nameInput]}
+                  accessibilityLabel="Seu nome"
+                />
+              ) : (
+                <TouchableOpacity
+                  onPress={startEditingName}
+                  style={styles.titleRow}
+                  activeOpacity={0.6}
+                  accessibilityLabel="Editar nome"
+                >
+                  <Text style={styles.headerTitle} numberOfLines={1}>
+                    {userName.name || "Suas finanças"}
+                  </Text>
+                  <Ionicons
+                    name="pencil"
+                    size={13}
+                    color={colors.textLight}
+                    style={styles.pencil}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
             <View style={styles.logoBox}>
               <Image
@@ -332,6 +378,26 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "700",
     color: colors.text,
+    flexShrink: 1,
+  },
+
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    maxWidth: "100%",
+  },
+
+  pencil: {
+    marginLeft: 6,
+  },
+
+  nameInput: {
+    padding: 0,
+    margin: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.primary,
+    ...(isWeb ? ({ outlineStyle: "none" } as object) : null),
   },
 
   logoBox: {

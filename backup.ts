@@ -3,6 +3,7 @@ import { AppState } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { InterfaceBill, Reserva, Type } from "./Types";
 import { shareBackupFile } from "./backupFile";
+import { cleanUserName, KEY_USER_NAME } from "./userName";
 
 //---------------------- backup (Android e web) ----------------------
 // Os dados ficam só no aparelho. O backup é um arquivo .json que a pessoa guarda
@@ -14,6 +15,8 @@ import { shareBackupFile } from "./backupFile";
 
 const BACKUP_APP = "anotei";
 // 1 = gastos e contas; 2 = + reservas. Backups da versão 1 continuam restaurando.
+// O nome da pessoa (campo opcional "nome") entrou depois, ainda na versão 2:
+// backup sem ele mantém o nome que já está no app.
 const BACKUP_VERSION = 2;
 export const BACKUP_REMIND_DAYS = 30; // lembra de fazer backup depois de 30 dias
 const SNOOZE_DAYS = 7; // "Agora não" adia o lembrete por 7 dias
@@ -29,6 +32,8 @@ export interface BackupData {
   bills: InterfaceBill[];
   // undefined = backup da versão 1 (antes das reservas): as reservas do app ficam como estão
   reservas?: Reserva[];
+  // undefined = backup feito antes do nome: o nome do app fica como está
+  nome?: string;
 }
 
 //---------------------- gerar e compartilhar o arquivo ----------------------
@@ -45,6 +50,7 @@ export const exportBackup = (
   expenses: Type[],
   bills: InterfaceBill[],
   reservas: Reserva[],
+  nome: string,
 ): Promise<boolean> => {
   const data = {
     app: BACKUP_APP,
@@ -53,6 +59,7 @@ export const exportBackup = (
     expenses,
     bills,
     reservas,
+    nome,
   };
   return shareBackupFile(
     `anotei-backup-${todayStamp()}.json`,
@@ -101,6 +108,7 @@ export const parseBackup = (text: string): BackupData => {
     expenses: data.expenses,
     bills: data.bills,
     reservas: data.version >= 2 ? data.reservas : undefined,
+    nome: typeof data.nome === "string" ? cleanUserName(data.nome) : undefined,
   };
 };
 
@@ -112,7 +120,9 @@ export const restoreBackup = async (data: BackupData) => {
     [KEY_LAST, String(Date.now())],
   ];
   if (data.reservas) items.push(["reservas", JSON.stringify(data.reservas)]);
+  if (data.nome) items.push([KEY_USER_NAME, data.nome]);
   await AsyncStorage.multiSet(items);
+  if (data.nome === "") await AsyncStorage.removeItem(KEY_USER_NAME);
   await AsyncStorage.removeItem(KEY_SNOOZE);
 };
 
@@ -146,6 +156,7 @@ export const useBackup = (
   expenses: Type[],
   bills: InterfaceBill[],
   reservas: Reserva[],
+  nome: string,
 ) => {
   const [info, setInfo] = useState<BackupInfo | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -182,7 +193,7 @@ export const useBackup = (
   const backupNow = useCallback(async () => {
     try {
       // sem await antes desta chamada (ver exportBackup)
-      const saved = await exportBackup(expenses, bills, reservas);
+      const saved = await exportBackup(expenses, bills, reservas, nome);
       if (!saved) return;
       const time = Date.now();
       await AsyncStorage.setItem(KEY_LAST, String(time));
@@ -195,7 +206,7 @@ export const useBackup = (
       console.error("Erro ao fazer backup", error);
       alert("Não foi possível fazer o backup. Tente de novo.");
     }
-  }, [expenses, bills, reservas]);
+  }, [expenses, bills, reservas, nome]);
 
   const snooze = useCallback(async () => {
     const until = Date.now() + SNOOZE_DAYS * DAY;
