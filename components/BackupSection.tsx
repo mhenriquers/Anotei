@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, radius, shadow, formatDate } from "../theme";
+import { colors, radius, formatDate } from "../theme";
 import ConfirmDialog, { ConfirmDialogContent } from "./ConfirmDialog";
 import {
   BackupData,
@@ -10,7 +10,7 @@ import {
   restoreBackup,
 } from "../backup";
 
-//---------------------- versão web: lembrete de backup (topo da tela inicial) ----------------------
+//---------------------- lembrete de backup (topo da tela inicial) ----------------------
 interface BackupReminderProps {
   daysSinceBackup: number | null; // null = nunca fez backup
   onBackup: () => void;
@@ -53,15 +53,11 @@ export const BackupReminder: React.FC<BackupReminderProps> = ({
   </View>
 );
 
-//---------------------- versão web: backup e restauração (fim da tela inicial) ----------------------
-interface BackupCardProps {
-  lastBackup: number | null;
-  hasData: boolean;
-  onBackup: () => void;
-}
+//---------------------- texto do item "Fazer backup" do menu ----------------------
+export const describeLastBackup = (lastBackup: number | null) =>
+  lastBackup ? `Último: ${formatDate(lastBackup)}` : "Nenhum backup ainda";
 
-type Dialog = ConfirmDialogContent | null;
-
+//---------------------- restaurar backup (escolher arquivo + confirmação) ----------------------
 const describeBackup = (data: BackupData) => {
   const gastos =
     data.expenses.length === 1 ? "1 gasto" : `${data.expenses.length} gastos`;
@@ -72,12 +68,11 @@ const describeBackup = (data: BackupData) => {
   return `O backup tem ${gastos} e ${contas}${when}.`;
 };
 
-export const BackupCard: React.FC<BackupCardProps> = ({
-  lastBackup,
-  hasData,
-  onBackup,
-}) => {
-  const [dialog, setDialog] = useState<Dialog>(null);
+// `startRestore` precisa ser chamado direto no toque do botão: o iPhone só abre
+// o seletor de arquivos se não houver espera entre o toque e a chamada.
+// `dialog` é a caixa de confirmação: renderize fora da gaveta, que fecha no toque.
+export const useBackupRestore = (hasData: boolean) => {
+  const [dialog, setDialog] = useState<ConfirmDialogContent | null>(null);
   const closeDialog = () => setDialog(null);
 
   const showError = (message: string) =>
@@ -90,7 +85,7 @@ export const BackupCard: React.FC<BackupCardProps> = ({
       onConfirm: closeDialog,
     });
 
-  const handleRestore = async () => {
+  const startRestore = async () => {
     const file = await pickBackupFile();
     if (!file) return;
 
@@ -124,55 +119,21 @@ export const BackupCard: React.FC<BackupCardProps> = ({
     });
   };
 
-  return (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={styles.iconBadge}>
-          <Ionicons name="shield-checkmark-outline" size={20} color={colors.hero} />
-        </View>
-        <View style={styles.cardInfo}>
-          <Text style={styles.cardTitle}>Backup dos dados</Text>
-          <Text style={styles.cardSubtitle}>
-            {lastBackup
-              ? `Último backup: ${formatDate(lastBackup)}`
-              : "Nenhum backup ainda"}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.cardButtons}>
-        <TouchableOpacity
-          style={[styles.cardButton, !hasData && styles.cardButtonDisabled]}
-          onPress={onBackup}
-          disabled={!hasData}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="share-outline" size={18} color={colors.hero} />
-          <Text style={styles.cardButtonText}>Fazer backup</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.cardButton, { marginLeft: 10 }]}
-          onPress={handleRestore}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="download-outline" size={18} color={colors.hero} />
-          <Text style={styles.cardButtonText}>Restaurar</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ConfirmDialog
-        visible={dialog !== null}
-        title={dialog?.title ?? ""}
-        message={dialog?.message ?? ""}
-        icon={dialog?.icon ?? "alert-circle-outline"}
-        tone={dialog?.tone ?? "brand"}
-        confirmLabel={dialog?.confirmLabel ?? ""}
-        cancelLabel={dialog?.cancelLabel}
-        onConfirm={() => dialog?.onConfirm()}
-        onCancel={closeDialog}
-      />
-    </View>
+  const dialogElement = (
+    <ConfirmDialog
+      visible={dialog !== null}
+      title={dialog?.title ?? ""}
+      message={dialog?.message ?? ""}
+      icon={dialog?.icon ?? "alert-circle-outline"}
+      tone={dialog?.tone ?? "brand"}
+      confirmLabel={dialog?.confirmLabel ?? ""}
+      cancelLabel={dialog?.cancelLabel}
+      onConfirm={() => dialog?.onConfirm()}
+      onCancel={closeDialog}
+    />
   );
+
+  return { startRestore, dialog: dialogElement };
 };
 
 const styles = StyleSheet.create({
@@ -229,63 +190,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     color: "#FFFFFF",
-  },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: 16,
-    marginTop: 14,
-    marginBottom: 86, // espaço para o botão + não cobrir os botões do backup
-    ...shadow,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    backgroundColor: colors.creditSoft,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cardInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  cardSubtitle: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  cardButtons: {
-    flexDirection: "row",
-    marginTop: 14,
-  },
-  cardButton: {
-    flex: 1,
-    flexDirection: "row",
-    height: 44,
-    borderRadius: radius.md,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.surfaceMuted,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardButtonDisabled: {
-    opacity: 0.45,
-  },
-  cardButtonText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.hero,
-    marginLeft: 6,
   },
 });

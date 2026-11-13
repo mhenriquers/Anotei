@@ -22,13 +22,13 @@
 
 ## 3. Menu sanduíche (gaveta lateral) na Home
 
-- [ ] 3.1 Criar `components/SideDrawer.tsx`: gaveta que abre da esquerda para a direita (Modal + Animated), fundo escurecido, fecha ao tocar fora ou no botão voltar do Android
-- [ ] 3.2 A gaveta recebe uma lista de itens (ícone + texto + ação), para facilitar adicionar features depois
-- [ ] 3.3 Adicionar o botão ☰ no canto esquerdo do topo da Home que abre a gaveta
-- [ ] 3.4 Colocar na gaveta o nome do app e a versão (lida do `app.json`) no rodapé
-- [ ] 3.5 Adicionar na gaveta os itens "Fazer backup" e "Restaurar backup", reaproveitando a lógica de `backup.ts` e a confirmação de `BackupSection.tsx`. Mostrar a data do último backup abaixo do item. Atenção: no iPhone, `exportBackup` precisa ser chamado direto no toque (não esperar a animação da gaveta fechar)
-- [ ] 3.6 Tirar o card de backup do fim da Home (`BackupCard`); o lembrete de backup no topo continua
-- [ ] 3.7 Por enquanto os itens de backup aparecem só na web (até a feature 4)
+- [x] 3.1 Criar `components/SideDrawer.tsx`: gaveta que abre da esquerda para a direita (Modal + Animated), fundo escurecido, fecha ao tocar fora ou no botão voltar do Android
+- [x] 3.2 A gaveta recebe uma lista de itens (ícone + texto + ação), para facilitar adicionar features depois
+- [x] 3.3 Adicionar o botão ☰ no canto esquerdo do topo da Home que abre a gaveta
+- [x] 3.4 Colocar na gaveta o nome do app e a versão (lida do `app.json`) no rodapé
+- [x] 3.5 Adicionar na gaveta os itens "Fazer backup" e "Restaurar backup", reaproveitando a lógica de `backup.ts` e a confirmação de `BackupSection.tsx`. Mostrar a data do último backup abaixo do item. Atenção: no iPhone, `exportBackup` precisa ser chamado direto no toque (não esperar a animação da gaveta fechar)
+- [x] 3.6 Tirar o card de backup do fim da Home (`BackupCard`); o lembrete de backup no topo continua
+- [x] 3.7 Por enquanto os itens de backup aparecem só na web (até a feature 4)
 
 ## 4. Backup no Android
 

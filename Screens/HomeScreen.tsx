@@ -15,7 +15,12 @@ import ExpenseItem from "../components/ExpenseItem";
 import DraggableFab from "../components/DraggableFab";
 import ExpenseDetails from "../components/ExpenseDetails";
 import UpcomingBills from "../components/UpcomingBills";
-import { BackupCard, BackupReminder } from "../components/BackupSection";
+import {
+  BackupReminder,
+  describeLastBackup,
+  useBackupRestore,
+} from "../components/BackupSection";
+import SideDrawer, { DrawerItem } from "../components/SideDrawer";
 import PaymentSummary from "../components/PaymentSummary";
 import { colors, radius, shadow, formatBRL } from "../theme";
 import { PaymentTotals } from "../paymentMethods";
@@ -64,6 +69,32 @@ const HomeScreen: React.FC<HomeProps> = ({
 
   //-------------------------- backup (só na web: lá os dados ficam só no aparelho) --------------------------
   const backup = useBackup(expenses, innerBill, isWeb);
+  const restore = useBackupRestore(backup.hasData);
+
+  //-------------------------- menu lateral (gaveta) --------------------------
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const drawerItems: DrawerItem[] = [];
+  // por enquanto o backup só existe na web
+  if (isWeb) {
+    drawerItems.push(
+      {
+        key: "backup",
+        icon: "share-outline",
+        label: "Fazer backup",
+        subtitle: describeLastBackup(backup.lastBackup),
+        onPress: backup.backupNow, // chamado direto no toque (exigência do iPhone)
+        disabled: !backup.hasData,
+      },
+      {
+        key: "restore",
+        icon: "download-outline",
+        label: "Restaurar backup",
+        subtitle: "Recuperar dados de um arquivo",
+        onPress: restore.startRestore,
+      },
+    );
+  }
 
   return (
     <SafeAreaView
@@ -78,7 +109,15 @@ const HomeScreen: React.FC<HomeProps> = ({
         >
           {/*-------------------------- Cabeçalho -------------------------- */}
           <View style={styles.header}>
-            <View>
+            <TouchableOpacity
+              onPress={() => setIsDrawerOpen(true)}
+              style={styles.menuButton}
+              hitSlop={10}
+              accessibilityLabel="Abrir menu"
+            >
+              <Ionicons name="menu" size={26} color={colors.hero} />
+            </TouchableOpacity>
+            <View style={styles.headerText}>
               <Text style={styles.greeting}>Olá!</Text>
               <Text style={styles.headerTitle}>Suas finanças</Text>
             </View>
@@ -195,14 +234,8 @@ const HomeScreen: React.FC<HomeProps> = ({
             ))
           )}
 
-          {/*-------------------------- Backup (só na web) -------------------------- */}
-          {isWeb && (
-            <BackupCard
-              lastBackup={backup.lastBackup}
-              hasData={backup.hasData}
-              onBackup={backup.backupNow}
-            />
-          )}
+          {/* espaço para o botão + não cobrir o último gasto */}
+          <View style={styles.fabSpacer} />
         </ScrollView>
 
         <DraggableFab
@@ -210,6 +243,15 @@ const HomeScreen: React.FC<HomeProps> = ({
           storageKey="fab-position-home"
           accessibilityLabel="Adicionar gasto"
         />
+
+        <SideDrawer
+          visible={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          items={drawerItems}
+        />
+
+        {/* confirmação do restaurar: fica fora da gaveta, que fecha no toque */}
+        {restore.dialog}
 
         <ExpenseDetails
           expense={selectedExpense}
@@ -241,6 +283,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingTop: 12,
     paddingBottom: 20,
+  },
+
+  menuButton: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+    ...shadow,
+  },
+
+  headerText: {
+    flex: 1,
+  },
+
+  fabSpacer: {
+    height: 76,
   },
 
   greeting: {
