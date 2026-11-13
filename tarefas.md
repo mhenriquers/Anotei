@@ -15,10 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 28. PWA: atalhos no manifest
-- [ ] `public/manifest.json`: `shortcuts` "Novo gasto" → `./?acao=novo-gasto`.
-- [ ] `App.tsx` (só web): se a URL tiver `acao=novo-gasto`, abrir o modal de gasto e limpar a URL.
-
 ## 29. PWA: aviso "Atualizado para a versão X"
 - [ ] Chave `versaoVista`. Ao abrir, se diferente de `app.json` `version` e já existir, mostrar
   faixa "Atualizado para a versão X" (fecha no X) e gravar a versão. Android também pode usar.

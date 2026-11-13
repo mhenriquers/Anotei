@@ -40,7 +40,7 @@ import ConfirmDialog from "./components/ConfirmDialog";
 import UndoToast, { ToastData } from "./components/UndoToast";
 import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
-import { needsInstallFirst } from "./pwa";
+import { isWeb, needsInstallFirst } from "./pwa";
 import {
   loadStoredValues,
   setStored,
@@ -358,6 +358,22 @@ const AnoteiApp: React.FC = () => {
     setBills(updated);
     SalvaConta(updated);
   };
+
+  //-------------------------- atalho "Novo gasto" do ícone da PWA (?acao=novo-gasto)
+  useEffect(() => {
+    if (!dataLoaded || !isWeb || typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("acao") !== "novo-gasto") return;
+    openExpenseModal(null);
+    // tira o parâmetro da barra de endereço (recarregar não abre de novo)
+    params.delete("acao");
+    const query = params.toString();
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + (query ? `?${query}` : "") + window.location.hash,
+    );
+  }, [dataLoaded]);
 
   useEffect(() => {
     if (!dataLoaded) return;
