@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
@@ -7,8 +14,10 @@ import MenuExclusaoGenerico from "../components/ExcluseMenu";
 import ExpenseItem from "../components/ExpenseItem";
 import ExpenseDetails from "../components/ExpenseDetails";
 import PaymentSummary from "../components/PaymentSummary";
-import { colors, formatBRL } from "../theme";
+import { colors, formatBRL, radius } from "../theme";
 import { PaymentTotals } from "../paymentMethods";
+import { searchExpenses } from "../search";
+import { isWeb } from "../pwa";
 
 interface ExpenseProps {
   expenseList: Type[];
@@ -27,8 +36,12 @@ const ExpenseList: React.FC<ExpenseProps> = ({
   onDeleteExpenses,
   onEditExpense,
 }) => {
+  //-------------------------- busca --------------------------
+  const [query, setQuery] = useState("");
+  const isSearching = query.trim() !== "";
+
   //-------------------------- mais recentes primeiro --------------------------
-  const sortedExpenses = [...expenseList].sort(
+  const sortedExpenses = searchExpenses(expenseList, query).sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
@@ -49,8 +62,37 @@ const ExpenseList: React.FC<ExpenseProps> = ({
           <View>
             <PaymentSummary totals={paymentTotals} />
             {expenseList.length > 0 && (
+              <View style={styles.searchBox}>
+                <Ionicons name="search" size={18} color={colors.textMuted} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Buscar gasto"
+                  placeholderTextColor={colors.textLight}
+                  value={query}
+                  onChangeText={setQuery}
+                  autoCorrect={false}
+                  returnKeyType="search"
+                  accessibilityLabel="Buscar gasto"
+                />
+                {isSearching && (
+                  <TouchableOpacity
+                    onPress={() => setQuery("")}
+                    hitSlop={10}
+                    accessibilityLabel="Limpar busca"
+                  >
+                    <Ionicons
+                      name="close-circle"
+                      size={18}
+                      color={colors.textLight}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+            {sortedExpenses.length > 0 && (
               <Text style={styles.sectionTitle}>
-                Histórico ({expenseList.length})
+                {isSearching ? "Resultados" : "Histórico"} (
+                {sortedExpenses.length})
               </Text>
             )}
           </View>
@@ -63,7 +105,17 @@ const ExpenseList: React.FC<ExpenseProps> = ({
             onPress={() => setSelectedExpenseId(item.id)}
           />
         )}
+        keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
+          isSearching ? (
+            <View style={styles.empty}>
+              <Ionicons name="search" size={40} color={colors.textLight} />
+              <Text style={styles.emptyTitle}>Nenhum gasto encontrado</Text>
+              <Text style={styles.emptyText}>
+                Tente buscar por outra palavra.
+              </Text>
+            </View>
+          ) : (
           <View style={styles.empty}>
             <Ionicons
               name="receipt-outline"
@@ -75,6 +127,7 @@ const ExpenseList: React.FC<ExpenseProps> = ({
               Volte para o início e toque no botão + para adicionar.
             </Text>
           </View>
+          )
         }
       />
 
@@ -113,6 +166,25 @@ const styles = StyleSheet.create({
   listContent: {
     padding: 20,
     paddingBottom: 10, // + 10 de margem do último card = 20, igual às laterais
+  },
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: 12,
+    height: 46,
+    marginBottom: 16,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16, // 16 ou mais: o iPhone não dá zoom ao tocar no campo
+    color: colors.text,
+    marginLeft: 8,
+    paddingVertical: 0,
+    ...(isWeb ? ({ outlineStyle: "none" } as object) : null),
   },
   sectionTitle: {
     fontSize: 16,

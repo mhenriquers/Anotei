@@ -16,10 +16,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 4. Busca na lista de gastos
-- [ ] `ExpensesList.tsx`: campo de busca no topo da lista; filtra por `title` e `observacao`, sem
-  diferenciar maiúscula nem acento (`normalize("NFD")`). Mensagem "Nenhum gasto encontrado".
-
 ## 5. Agrupar a lista por dia
 - [ ] `ExpensesList.tsx`: trocar `FlatList` por `SectionList`, uma seção por dia
   ("Hoje", "Ontem", "12 de novembro"), com o total do dia no cabeçalho.
