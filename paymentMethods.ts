@@ -1,3 +1,4 @@
+import { ImageSourcePropType } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Type } from "./Types";
 import { colors } from "./theme";
@@ -12,6 +13,7 @@ interface PaymentInfo {
   label: string; // "Crédito"
   longLabel: string; // "Cartão de crédito" (detalhes do gasto)
   icon: keyof typeof Ionicons.glyphMap;
+  image?: ImageSourcePropType; // quando existe, aparece no lugar do ícone (ver PaymentIcon)
   color: string;
   softColor: string;
 }
@@ -35,6 +37,7 @@ const PAYMENT_INFO: Record<PaymentMethod, PaymentInfo> = {
     label: "Pix",
     longLabel: "Pix",
     icon: "qr-code-outline",
+    image: require("./assets/pixLogo.png"),
     color: colors.pix,
     softColor: colors.pixSoft,
   },

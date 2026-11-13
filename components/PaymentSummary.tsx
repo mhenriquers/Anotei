@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, shadow, formatBRL } from "../theme";
 import {
   PAYMENT_METHODS,
   PaymentTotals,
   getPaymentInfo,
 } from "../paymentMethods";
+import PaymentIcon from "./PaymentIcon";
 
 interface PaymentSummaryProps {
   totals: PaymentTotals;
@@ -30,7 +30,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ totals, onPress }) => (
           style={[styles.row, index > 0 && styles.rowDivider]}
         >
           <View style={[styles.iconBadge, { backgroundColor: info.softColor }]}>
-            <Ionicons name={info.icon} size={18} color={info.color} />
+            <PaymentIcon method={method} size={18} />
           </View>
           <Text style={styles.label}>{info.label}</Text>
           <Text style={styles.value} numberOfLines={1}>

@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Type } from "../Types";
 import { colors, radius, shadow, formatBRL, formatDate } from "../theme";
 import { getPaymentInfo } from "../paymentMethods";
+import PaymentIcon from "./PaymentIcon";
 
 interface ExpenseItemProps {
   item: Type;
@@ -29,7 +30,7 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({ item, onPress }) => {
           { backgroundColor: payment.softColor },
         ]}
       >
-        <Ionicons name={payment.icon} size={22} color={payment.color} />
+        <PaymentIcon method={item.category} size={22} />
       </View>
 
       <View style={styles.info}>

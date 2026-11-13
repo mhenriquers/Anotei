@@ -20,8 +20,8 @@ export const colors = {
   creditSoft: "#E1F0F6",
   debit: "#E07B24",
   debitSoft: "#FDEBDC",
-  pix: "#7C3AED",
-  pixSoft: "#EDE9FE",
+  pix: "#178277",
+  pixSoft: "#DDF4F1",
 
   danger: "#DC2626",
   dangerSoft: "#FEE2E2",

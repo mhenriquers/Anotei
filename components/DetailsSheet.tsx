@@ -8,6 +8,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Image,
+  ImageSourcePropType,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -29,6 +31,7 @@ interface DetailsSheetProps {
   icon: IconName;
   iconColor: string;
   iconBackground: string;
+  iconImage?: ImageSourcePropType; // imagem no lugar do ícone (ex: logo do Pix)
   amount: string; // valor já formatado em R$
   name: string;
   badge: { label: string; color: string; backgroundColor: string };
@@ -48,6 +51,7 @@ const DetailsSheet: React.FC<DetailsSheetProps> = ({
   icon,
   iconColor,
   iconBackground,
+  iconImage,
   amount,
   name,
   badge,
@@ -156,7 +160,15 @@ const DetailsSheet: React.FC<DetailsSheetProps> = ({
             <View
               style={[styles.iconBadge, { backgroundColor: iconBackground }]}
             >
-              <Ionicons name={icon} size={26} color={iconColor} />
+              {iconImage ? (
+                <Image
+                  source={iconImage}
+                  style={{ width: 34, height: 34 }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Ionicons name={icon} size={26} color={iconColor} />
+              )}
             </View>
             <Text style={styles.amount}>{amount}</Text>
             <Text style={styles.name}>{name}</Text>

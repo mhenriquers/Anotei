@@ -31,6 +31,7 @@ import {
   getPaymentInfo,
 } from "../paymentMethods";
 import { formStyles as styles } from "./formStyles";
+import PaymentIcon from "./PaymentIcon";
 
 interface ModalScreenProps {
   visible: boolean;
@@ -130,7 +131,7 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
 
   //-------------------------- botão do tipo de pagamento --------------------------
   const renderOption = (value: PaymentMethod) => {
-    const { label, icon, color } = getPaymentInfo(value);
+    const { label, color } = getPaymentInfo(value);
     const active = paymentMethod === value;
     return (
       <TouchableOpacity
@@ -138,10 +139,11 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
         style={[styles.segmentButton, active && styles.segmentButtonActive]}
         onPress={() => setPaymentMethod(value)}
       >
-        <Ionicons
-          name={icon}
+        <PaymentIcon
+          method={value}
           size={18}
-          color={active ? color : colors.textMuted}
+          muted={!active}
+          mutedColor={colors.textMuted}
         />
         <Text style={[styles.segmentText, active && { color }]}>{label}</Text>
       </TouchableOpacity>

@@ -28,6 +28,7 @@ const ExpenseDetails: React.FC<ExpenseDetailsProps> = ({
       onClose={onClose}
       title="Detalhes do gasto"
       icon={payment.icon}
+      iconImage={payment.image}
       iconColor={payment.color}
       iconBackground={payment.softColor}
       amount={formatBRL(item.amount)}
