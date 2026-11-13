@@ -16,10 +16,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 7. Comparação com o mês anterior
-- [ ] Home, card do total: linha "12% a mais que outubro" (vermelho) ou "a menos" (verde), usando
-  `months.ts`. Não mostra se o mês anterior não tiver gastos.
-
 ## 8. Limite/orçamento mensal
 - [ ] Chave `orcamento` (número). Item "Limite do mês" no `SideDrawer` abre modal com o valor
   (`maskMoneyInput`); vazio = sem limite.

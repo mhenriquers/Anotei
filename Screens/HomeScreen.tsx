@@ -26,7 +26,13 @@ import UpdateBanner from "../components/UpdateBanner";
 import PaymentSummary from "../components/PaymentSummary";
 import { colors, radius, shadow, formatBRL } from "../theme";
 import { totalsByPaymentMethod } from "../paymentMethods";
-import { filterByMonth, monthKey, monthName, sumAmounts } from "../months";
+import {
+  filterByMonth,
+  monthKey,
+  monthName,
+  previousMonth,
+  sumAmounts,
+} from "../months";
 import { isWeb } from "../pwa";
 import { useBackup } from "../backup";
 import { USER_NAME_MAX, useUserName } from "../userName";
@@ -63,6 +69,32 @@ const HomeScreen: React.FC<HomeProps> = ({
   const monthExpenses = filterByMonth(expenses, currentMonth);
   const paymentTotals = totalsByPaymentMethod(monthExpenses);
   const valorTotal = sumAmounts(monthExpenses);
+
+  //-------------------------- comparação com o mês anterior --------------------------
+  // compara o mesmo período: do dia 1 até hoje, nos dois meses (o mês atual
+  // ainda não acabou, então comparar com o mês anterior inteiro seria injusto)
+  const lastMonth = previousMonth(currentMonth);
+  const today = new Date().getDate();
+  const thisMonthSoFar = sumAmounts(
+    monthExpenses.filter((e) => new Date(e.createdAt).getDate() <= today),
+  );
+  const lastMonthSamePeriod = sumAmounts(
+    filterByMonth(expenses, lastMonth).filter(
+      (e) => new Date(e.createdAt).getDate() <= today,
+    ),
+  );
+  const comparison = (() => {
+    if (lastMonthSamePeriod <= 0) return null; // nada para comparar
+    const percent = Math.round(
+      ((thisMonthSoFar - lastMonthSamePeriod) / lastMonthSamePeriod) * 100,
+    );
+    const period = `${monthName(lastMonth)} até o dia ${today}`;
+    if (percent === 0) return { text: `Igual a ${period}`, up: false };
+    return {
+      text: `${Math.abs(percent)}% a ${percent > 0 ? "mais" : "menos"} que ${period}`,
+      up: percent > 0,
+    };
+  })();
 
   //-------------------------- 3 gastos mais recentes --------------------------
   const recentExpenses = [...expenses]
@@ -227,6 +259,23 @@ const HomeScreen: React.FC<HomeProps> = ({
                 ? "1 gasto neste mês"
                 : `${monthExpenses.length} gastos neste mês`}
             </Text>
+            {comparison && (
+              <View style={styles.compareRow}>
+                <Ionicons
+                  name={comparison.up ? "trending-up" : "trending-down"}
+                  size={16}
+                  color={comparison.up ? HERO_UP : HERO_DOWN}
+                />
+                <Text
+                  style={[
+                    styles.compareText,
+                    { color: comparison.up ? HERO_UP : HERO_DOWN },
+                  ]}
+                >
+                  {comparison.text}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/*-------------------------- Contas Fixas -------------------------- */}
@@ -337,6 +386,10 @@ const HomeScreen: React.FC<HomeProps> = ({
     </SafeAreaView>
   );
 };
+
+// cores claras de alta/baixa, legíveis sobre o fundo escuro do card do total
+const HERO_UP = "#FCA5A5"; // gastou mais
+const HERO_DOWN = "#86EFAC"; // gastou menos
 
 const styles = StyleSheet.create({
   safe: {
@@ -450,6 +503,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.heroMuted,
     marginTop: 8,
+  },
+
+  compareRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 6,
+  },
+
+  compareText: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginLeft: 6,
   },
 
   iconBadge: {
