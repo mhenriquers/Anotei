@@ -9,6 +9,10 @@ export const formStyles = StyleSheet.create({
     backgroundColor: colors.overlay,
   },
   sheet: {
+    // em tablet e computador o painel não estica a tela toda
+    width: "100%",
+    maxWidth: 640,
+    alignSelf: "center",
     backgroundColor: colors.surface,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,

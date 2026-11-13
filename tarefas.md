@@ -15,9 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 27. Layout largo (tablet e computador)
-- [ ] Nas telas, conteúdo com `maxWidth: 640` e `alignSelf: "center"`; modais com `maxWidth`.
-
 ## 28. PWA: atalhos no manifest
 - [ ] `public/manifest.json`: `shortcuts` "Novo gasto" → `./?acao=novo-gasto`.
 - [ ] `App.tsx` (só web): se a URL tiver `acao=novo-gasto`, abrir o modal de gasto e limpar a URL.

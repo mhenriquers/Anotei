@@ -54,6 +54,7 @@ import { vibrar } from "./feedback";
 import Recorrentes from "./Screens/Recorrentes";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const MAX_CONTENT_WIDTH = 640; // largura máxima das telas (tablet e computador)
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
 //--------------------------função para salvar dados
@@ -409,7 +410,13 @@ const AnoteiApp: React.FC = () => {
             headerShadowVisible: true,
             headerTintColor: isDarkMode ? colors.text : colors.hero,
             headerTitleStyle: { fontWeight: "800", fontSize: 20 },
-            contentStyle: { backgroundColor: colors.background },
+            // em tablet e computador o conteúdo fica numa coluna central
+            contentStyle: {
+              backgroundColor: colors.background,
+              width: "100%",
+              maxWidth: MAX_CONTENT_WIDTH,
+              alignSelf: "center",
+            },
           }}
         >
           {/*--------------------------Tela Home------------------------------ */}
