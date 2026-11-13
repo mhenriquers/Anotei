@@ -177,6 +177,13 @@ const HomeScreen: React.FC<HomeProps> = ({
       onPress: () => navigation.navigate("Reservas"),
     },
     {
+      key: "recorrentes",
+      icon: "repeat-outline",
+      label: "Gastos recorrentes",
+      subtitle: "Assinaturas lançadas todo mês",
+      onPress: () => navigation.navigate("Recorrentes"),
+    },
+    {
       key: "orcamento",
       icon: "speedometer-outline",
       label: "Limite do mês",

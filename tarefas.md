@@ -15,12 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 13. Gastos recorrentes (assinaturas)
-- [ ] Chave `recorrentes`: lista `{ id, title, amount, category, dia }`. Tela/modal simples para
-  cadastrar, editar e apagar, aberta pelo `SideDrawer`.
-- [ ] Ao abrir o app: para cada recorrente cujo `dia` já chegou neste mês e que ainda não gerou o
-  gasto do mês (guardar `ultimoMes: "2026-11"`), criar o gasto automaticamente.
-
 ## 14. Virada de mês das contas fixas
 - [ ] Chave `contasMes` = "2026-11". Ao carregar as contas, se o mês atual for diferente, desmarcar
   todas as `pago` e gravar o mês novo. Primeira vez (chave ausente): só grava, não desmarca.

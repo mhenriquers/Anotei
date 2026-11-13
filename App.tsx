@@ -9,7 +9,7 @@ import {
 import ExpenseList from "./Screens/ExpensesList";
 import HomeScreen from "./Screens/HomeScreen";
 import ModalScreen from "./components/ModalScreen";
-import { StyleSheet } from "react-native";
+import { AppState, StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -25,6 +25,8 @@ import InstallScreen from "./components/InstallScreen";
 import { needsInstallFirst } from "./pwa";
 import { loadStoredValues } from "./storedValues";
 import { splitInstallments } from "./installments";
+import { applyRecorrentes } from "./recurring";
+import Recorrentes from "./Screens/Recorrentes";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -226,10 +228,6 @@ const AnoteiApp: React.FC = () => {
     if (deleted.length > 0) showDeletedToast(deleted);
   };
 
-  useEffect(() => {
-    loadExpenses();
-  }, []);
-
   //-------------------------------função pra salvar conta fixa
   const [bills, setBills] = useState<InterfaceBill[]>([]);
   const [billsLoaded, setBillsLoaded] = useState(false);
@@ -294,12 +292,35 @@ const AnoteiApp: React.FC = () => {
     }
   };
 
+  const [dataLoaded, setDataLoaded] = useState(false);
+
   useEffect(() => {
-    loadExpenses();
-    carregaConta();
-    loadReservas();
-    loadStoredValues();
+    Promise.all([
+      loadExpenses(),
+      carregaConta(),
+      loadReservas(),
+      loadStoredValues(),
+    ]).then(() => setDataLoaded(true));
   }, []);
+
+  //-------------------------- gastos recorrentes: lança os que chegaram no mês
+  const runRecorrentes = () => {
+    const created = applyRecorrentes(() => Math.random().toString());
+    if (created.length === 0) return;
+    const updated = [...expensesRef.current, ...created];
+    setExpenses(updated);
+    saveExpenses(updated);
+  };
+
+  useEffect(() => {
+    if (!dataLoaded) return;
+    runRecorrentes();
+    // o app fica aberto em segundo plano por dias: confere de novo ao voltar
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") runRecorrentes();
+    });
+    return () => subscription.remove();
+  }, [dataLoaded]);
 
   //-------------------------- reagenda os avisos de vencimento sempre que as contas mudam
   useEffect(() => {
@@ -415,6 +436,15 @@ const AnoteiApp: React.FC = () => {
                 onChange={handleChangeReservas}
               />
             )}
+          </Stack.Screen>
+
+          {/*--------------------------Tela Gastos recorrentes------------------------ */}
+
+          <Stack.Screen
+            name={"Recorrentes"}
+            options={{ headerShown: true, headerTitle: "Recorrentes" }}
+          >
+            {() => <Recorrentes onApply={runRecorrentes} />}
           </Stack.Screen>
         </Stack.Navigator>
 

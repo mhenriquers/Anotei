@@ -15,6 +15,7 @@ export type RootStackParamList = {
   ExpenseList: undefined;
   Bills: undefined;
   Reservas: undefined;
+  Recorrentes: undefined;
 };
 
 // dinheiro guardado (reserva de emergência, objetivo, investimento...)
