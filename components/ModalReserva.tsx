@@ -14,7 +14,13 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Reserva } from "../Types";
-import { colors, radius, parseBRLInput, formatBRLInput } from "../theme";
+import {
+  colors,
+  radius,
+  parseBRLInput,
+  formatBRLInput,
+  maskMoneyInput,
+} from "../theme";
 import { formStyles as styles } from "./formStyles";
 
 interface ModalReservaProps {
@@ -55,7 +61,7 @@ const ModalReserva: React.FC<ModalReservaProps> = ({
     }
     const valorNumerico = parseBRLInput(valor);
     if (isNaN(valorNumerico)) {
-      setError("Digite um valor válido. Ex: 1.500,00");
+      setError("Digite um valor válido.");
       return;
     }
     onSave({
@@ -138,10 +144,10 @@ const ModalReserva: React.FC<ModalReservaProps> = ({
                     placeholderTextColor={colors.textLight}
                     value={valor}
                     onChangeText={(text) => {
-                      setValor(text);
+                      setValor(maskMoneyInput(text));
                       setError("");
                     }}
-                    keyboardType="decimal-pad"
+                    keyboardType="number-pad"
                   />
                 </View>
               </View>

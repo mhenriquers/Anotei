@@ -22,6 +22,8 @@ import {
   maskDateInput,
   maskTimeInput,
   parseDateTimeInput,
+  parseBRLInput,
+  maskMoneyInput,
 } from "../theme";
 import {
   PAYMENT_METHODS,
@@ -87,7 +89,7 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
       alert("Preencha os campos de Nome e Valor!");
       return;
     }
-    const valorNumerico = parseFloat(amount.replace(",", "."));
+    const valorNumerico = parseBRLInput(amount);
 
     if (isNaN(valorNumerico)) {
       alert("Digite um valor válido.");
@@ -201,8 +203,8 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
                       placeholder="0,00"
                       placeholderTextColor={colors.textLight}
                       value={amount}
-                      onChangeText={setAmount}
-                      keyboardType="decimal-pad"
+                      onChangeText={(text) => setAmount(maskMoneyInput(text))}
+                      keyboardType="number-pad"
                     />
                   </View>
                 </View>

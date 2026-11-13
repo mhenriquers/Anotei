@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { handleBackgroundTap } from "./ModalScreen";
 import ReminderToggle from "./ReminderToggle";
-import { colors } from "../theme";
+import { colors, parseBRLInput, maskMoneyInput } from "../theme";
 import { formStyles as styles } from "./formStyles";
 
 interface ModalBill {
@@ -63,7 +63,7 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
       alert("Preencha os campos obrigatórios");
       return;
     }
-    const valorNumerico = parseFloat(valor.replace(",", "."));
+    const valorNumerico = parseBRLInput(valor);
 
     if (isNaN(valorNumerico)) {
       alert("Digite um valor válido.");
@@ -140,9 +140,9 @@ const ModalBill: React.FC<ModalBill> = ({ visible, onClose, onSave }) => {
                         style={styles.input}
                         placeholder="0,00"
                         placeholderTextColor={colors.textLight}
-                        keyboardType="decimal-pad"
+                        keyboardType="number-pad"
                         value={valor}
-                        onChangeText={setValor}
+                        onChangeText={(text) => setValor(maskMoneyInput(text))}
                       />
                     </View>
                   </View>

@@ -114,9 +114,20 @@ export const parseBRLInput = (text: string): number => {
   return Number(clean);
 };
 
-// Mostra um número no campo de valor: 1234.5 → "1234,50"
-export const formatBRLInput = (value: number): string =>
-  value.toFixed(2).replace(".", ",");
+// Mostra um número no campo de valor: 1234.5 → "1.234,50"
+export const formatBRLInput = (value: number): string => {
+  const [inteiro, centavos] = value.toFixed(2).split(".");
+  return `${inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".")},${centavos}`;
+};
+
+// Máscara do campo de valor, igual aos apps de banco: os números entram pelos
+// centavos. "1" → "0,01", "12" → "0,12", "123" → "1,23", "123456" → "1.234,56".
+// Sem número (ou só zeros) devolve "", para o campo voltar a mostrar o "0,00" de exemplo.
+export const maskMoneyInput = (text: string): string => {
+  const digits = text.replace(/\D/g, "").replace(/^0+/, "").slice(0, 11);
+  if (digits === "") return "";
+  return formatBRLInput(Number(digits) / 100);
+};
 
 //------------------------------ campos de data e hora ------------------------------
 // Ex: "22/10/2026" (formato do campo "Data" do cadastro)
