@@ -4,6 +4,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { InterfaceBill, Reserva, Type } from "./Types";
 import { shareBackupFile } from "./backupFile";
 import { cleanUserName, KEY_USER_NAME } from "./userName";
+import {
+  Extras,
+  extrasSnapshot,
+  parseExtras,
+  restoreExtras,
+} from "./storedValues";
 
 //---------------------- backup (Android e web) ----------------------
 // Os dados ficam só no aparelho. O backup é um arquivo .json que a pessoa guarda
@@ -17,6 +23,7 @@ const BACKUP_APP = "anotei";
 // 1 = gastos e contas; 2 = + reservas. Backups da versão 1 continuam restaurando.
 // O nome da pessoa (campo opcional "nome") entrou depois, ainda na versão 2:
 // backup sem ele mantém o nome que já está no app.
+// O campo opcional "extras" (configurações de storedValues.ts) também é da versão 2.
 const BACKUP_VERSION = 2;
 export const BACKUP_REMIND_DAYS = 30; // lembra de fazer backup depois de 30 dias
 const SNOOZE_DAYS = 7; // "Agora não" adia o lembrete por 7 dias
@@ -34,6 +41,8 @@ export interface BackupData {
   reservas?: Reserva[];
   // undefined = backup feito antes do nome: o nome do app fica como está
   nome?: string;
+  // configurações (limite do mês, receita...); undefined = backup antigo, ficam como estão
+  extras?: Extras;
 }
 
 //---------------------- gerar e compartilhar o arquivo ----------------------
@@ -60,6 +69,7 @@ export const exportBackup = (
     bills,
     reservas,
     nome,
+    extras: extrasSnapshot(), // lido da memória, sem await
   };
   return shareBackupFile(
     `anotei-backup-${todayStamp()}.json`,
@@ -109,6 +119,7 @@ export const parseBackup = (text: string): BackupData => {
     bills: data.bills,
     reservas: data.version >= 2 ? data.reservas : undefined,
     nome: typeof data.nome === "string" ? cleanUserName(data.nome) : undefined,
+    extras: parseExtras(data.extras),
   };
 };
 
@@ -123,6 +134,7 @@ export const restoreBackup = async (data: BackupData) => {
   if (data.nome) items.push([KEY_USER_NAME, data.nome]);
   await AsyncStorage.multiSet(items);
   if (data.nome === "") await AsyncStorage.removeItem(KEY_USER_NAME);
+  if (data.extras) await restoreExtras(data.extras);
   await AsyncStorage.removeItem(KEY_SNOOZE);
 };
 

@@ -23,6 +23,7 @@ import UndoToast, { ToastData } from "./components/UndoToast";
 import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
 import { needsInstallFirst } from "./pwa";
+import { loadStoredValues } from "./storedValues";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -255,6 +256,7 @@ const AnoteiApp: React.FC = () => {
     loadExpenses();
     carregaConta();
     loadReservas();
+    loadStoredValues();
   }, []);
 
   //-------------------------- reagenda os avisos de vencimento sempre que as contas mudam
@@ -296,6 +298,7 @@ const AnoteiApp: React.FC = () => {
                     loadExpenses(),
                     carregaConta(),
                     loadReservas(),
+                    loadStoredValues(),
                   ]);
                 }}
               />

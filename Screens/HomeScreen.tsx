@@ -36,6 +36,8 @@ import {
 import { isWeb } from "../pwa";
 import { useBackup } from "../backup";
 import { USER_NAME_MAX, useUserName } from "../userName";
+import { setStored, useStoredNumber } from "../storedValues";
+import MoneyPrompt from "../components/MoneyPrompt";
 
 interface HomeProps {
   navigation: any;
@@ -96,6 +98,19 @@ const HomeScreen: React.FC<HomeProps> = ({
     };
   })();
 
+  //-------------------------- limite do mês --------------------------
+  const orcamento = useStoredNumber("orcamento");
+  const budgetPercent = orcamento ? (valorTotal / orcamento) * 100 : 0;
+  const budgetColor =
+    budgetPercent > 100
+      ? HERO_UP
+      : budgetPercent >= 80
+        ? colors.warning
+        : HERO_DOWN;
+
+  // caixa aberta pelo menu: limite do mês ou receita
+  const [prompt, setPrompt] = useState<"orcamento" | null>(null);
+
   //-------------------------- 3 gastos mais recentes --------------------------
   const recentExpenses = [...expenses]
     .sort(
@@ -144,6 +159,15 @@ const HomeScreen: React.FC<HomeProps> = ({
           ? `${formatBRL(totalReservas)} guardados`
           : "Seu dinheiro guardado",
       onPress: () => navigation.navigate("Reservas"),
+    },
+    {
+      key: "orcamento",
+      icon: "speedometer-outline",
+      label: "Limite do mês",
+      subtitle: orcamento
+        ? `${formatBRL(orcamento)} por mês`
+        : "Defina quanto quer gastar",
+      onPress: () => setPrompt("orcamento"),
     },
     {
       key: "backup",
@@ -259,6 +283,27 @@ const HomeScreen: React.FC<HomeProps> = ({
                 ? "1 gasto neste mês"
                 : `${monthExpenses.length} gastos neste mês`}
             </Text>
+            {orcamento !== null && (
+              <View style={styles.budget}>
+                <View style={styles.budgetBar}>
+                  <View
+                    style={[
+                      styles.budgetFill,
+                      {
+                        width: `${Math.min(budgetPercent, 100)}%`,
+                        backgroundColor: budgetColor,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.budgetText}>
+                  {formatBRL(valorTotal)} de {formatBRL(orcamento)}
+                  {budgetPercent > 100
+                    ? ` · passou ${formatBRL(valorTotal - orcamento)}`
+                    : ` · restam ${formatBRL(orcamento - valorTotal)}`}
+                </Text>
+              </View>
+            )}
             {comparison && (
               <View style={styles.compareRow}>
                 <Ionicons
@@ -369,6 +414,19 @@ const HomeScreen: React.FC<HomeProps> = ({
           visible={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
           items={drawerItems}
+        />
+
+        <MoneyPrompt
+          visible={prompt === "orcamento"}
+          title="Limite do mês"
+          message="Quanto você quer gastar por mês, no máximo? Deixe vazio para tirar o limite."
+          icon="speedometer-outline"
+          value={orcamento}
+          onSave={(value) => {
+            setStored("orcamento", value === null ? null : String(value));
+            setPrompt(null);
+          }}
+          onCancel={() => setPrompt(null)}
         />
 
         {/* confirmação do restaurar: fica fora da gaveta, que fecha no toque */}
@@ -503,6 +561,28 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.heroMuted,
     marginTop: 8,
+  },
+
+  budget: {
+    marginTop: 14,
+  },
+
+  budgetBar: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.18)",
+    overflow: "hidden",
+  },
+
+  budgetFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+
+  budgetText: {
+    fontSize: 13,
+    color: colors.heroMuted,
+    marginTop: 6,
   },
 
   compareRow: {

@@ -31,7 +31,8 @@ publicada no GitHub Pages.
 - `public/` + `workbox-config.js`: manifest, ícones e service worker da PWA
 
 ## Regras importantes
-- Chaves do AsyncStorage: `expenses`, `bills`, `reservas`, `nome`, `backup:*`. Se mudar o formato de
+- Chaves do AsyncStorage: `expenses`, `bills`, `reservas`, `nome`, `backup:*` e as de
+  `EXTRA_KEYS` em `storedValues.ts` (`orcamento`...), que entram no backup no campo `extras`. Se mudar o formato de
   `Type`, `InterfaceBill` ou `Reserva`, mantenha a leitura de dados antigos e confira
   `BACKUP_VERSION` em `backup.ts` (hoje 2): arquivos de backup já salvos (versão 1 e 2) precisam
   continuar restaurando. Dado novo que a pessoa cadastra tem que entrar no backup.

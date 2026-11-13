@@ -6,21 +6,14 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 ## Regras que valem para todas
 - Campo novo em `Type`, `InterfaceBill` ou `Reserva` é sempre **opcional** (`?`), para dados antigos
   e backups antigos continuarem funcionando. Assim não precisa subir `BACKUP_VERSION`.
-- Chave nova no AsyncStorage (ex: `orcamento`) = campo opcional novo no backup, igual ao `nome`
-  (ver `userName.ts` e `backup.ts`: export, `parseBackup`, `restoreBackup`, `useBackup`), e
-  recarregar no `onDataRestored`. Anotar a chave em CLAUDE.md.
+- Chave nova no AsyncStorage: acrescentar em `EXTRA_KEYS` (`storedValues.ts`) e usar
+  `useStoredValue`/`setStored`; assim ela já entra no backup. Anotar a chave em CLAUDE.md.
 - Funções de cálculo (datas, meses, totais) vão em arquivo `.ts` próprio, sem React.
 - Textos em pt-BR. Funciona no Android e na web (`isWeb` ou `.web.ts`).
 - Modais seguem `ModalReserva.tsx` (modo edição por prop) e `formStyles.ts`.
 - Confirmações usam `ConfirmDialog`, nunca `alert` novo.
 
 ---
-
-## 8. Limite/orçamento mensal
-- [ ] Chave `orcamento` (número). Item "Limite do mês" no `SideDrawer` abre modal com o valor
-  (`maskMoneyInput`); vazio = sem limite.
-- [ ] Home: com limite, `ProgressBar` no card do total ("R$ X de R$ Y"); cor de aviso acima de
-  80% e vermelho acima de 100%.
 
 ## 9. Receita do mês e quanto sobra
 - [ ] Chave `receita` (número). Item "Receita do mês" no `SideDrawer`, modal igual ao da tarefa 8.
