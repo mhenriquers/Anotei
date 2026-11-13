@@ -53,13 +53,13 @@ Nome provisório: "Reservas". Alternativas: "Cofrinhos", "Caixinhas", "Meu dinhe
 
 ## 6. Aviso de nova versão (APK)
 
-- [ ] 6.1 Instalar `expo-constants` (com `npx expo install`) para ler a versão do app
-- [ ] 6.2 Criar `updates.ts`: no Android, buscar a última release em `https://api.github.com/repos/mhenriquers/Anotei/releases/latest`, comparar a tag (ex: `v1.1.0`) com a versão do app; sem internet ou com erro, não faz nada
-- [ ] 6.3 Criar `updates.web.ts` vazio (a PWA já se atualiza sozinha)
-- [ ] 6.4 Mostrar um aviso na Home "Nova versão disponível" com botão que abre o link do APK da release; botão "Agora não" esconde até a próxima versão
-- [ ] 6.5 No README, trocar o link do APK para `releases/latest/download/Anotei.apk` (sempre aponta para a versão mais nova)
-- [ ] 6.6 Em `eas.json`, garantir que o perfil `production` gere `.apk` (não `.aab`)
-- [ ] 6.7 Documentar o fluxo de publicação no CLAUDE.md (seção "Versões e publicação")
+- [x] 6.1 Instalar `expo-application` (com `npx expo install`) para ler a versão do APK instalado (a doc do SDK 58 indica ele no lugar do `expo-constants` para isso)
+- [x] 6.2 Criar `updates.ts`: no Android, buscar a última release em `https://api.github.com/repos/mhenriquers/Anotei/releases/latest`, comparar a tag (ex: `v1.1.0`) com a versão do app; sem internet ou com erro, não faz nada
+- [x] 6.3 Criar `updates.web.ts` vazio (a PWA já se atualiza sozinha)
+- [x] 6.4 Mostrar um aviso na Home "Nova versão disponível" com botão que abre o link do APK da release; botão "Agora não" esconde até a próxima versão
+- [x] 6.5 No README, trocar o link do APK para `releases/latest/download/Anotei.apk` (sempre aponta para a versão mais nova)
+- [x] 6.6 Em `eas.json`, garantir que o perfil `production` gere `.apk` (não `.aab`)
+- [x] 6.7 Documentar o fluxo de publicação no CLAUDE.md (seção "Versões e publicação")
 
 ## 7. Publicação automática (opcional, precisa de ação sua)
 

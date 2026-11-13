@@ -32,7 +32,7 @@ Este projeto foi construído utilizando as melhores práticas do ecossistema Rea
 
 Você pode testar a versão estável do aplicativo diretamente no seu celular Android sem precisar configurar um ambiente de desenvolvimento:
 
-👉 **Clique [aqui](https://github.com/mhenriquers/Anotei/releases/download/v1.0.0/Anotei.apk) para baixar o APK**
+👉 **Clique [aqui](https://github.com/mhenriquers/Anotei/releases/latest/download/Anotei.apk) para baixar o APK**
 
 ### Passo a passo para instalar:
 

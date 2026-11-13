@@ -46,6 +46,18 @@ publicada no GitHub Pages.
 - Toda feature nova entra nos dois ao mesmo tempo; diferenças só via `.web.ts` ou `isWeb`.
 - A PWA se atualiza sozinha a cada push na `main`. O APK é publicado como release no GitHub
   (tag `vX.Y.Z` igual à `version` do `app.json`, arquivo `Anotei.apk`).
+- O app Android avisa quando há versão nova (`updates.ts` + `components/UpdateBanner.tsx`):
+  compara a tag da última release com `Application.nativeApplicationVersion` (expo-application).
+  Na web `updates.web.ts` não faz nada. Única chamada de internet do app; não envia dados.
+
+### Como publicar uma versão nova
+1. Subir a `version` no `app.json` (ex: 1.0.0 → 1.1.0): correção = último número, feature = do meio.
+2. Commit e push na `main` → a PWA é publicada sozinha.
+3. Gerar o APK: `eas build -p android --profile production` (o perfil gera `.apk`; o
+   `versionCode` sobe sozinho).
+4. Criar a release no GitHub com a tag `v` + versão (ex: `v1.1.0`) e anexar o APK com o nome
+   exato `Anotei.apk`. O README aponta para `releases/latest/download/Anotei.apk`.
+5. Quem usa o APK antigo vê o aviso "Nova versão disponível" ao abrir o app.
 
 ## Comandos
 - `npm start` / `npm run web`: rodar em desenvolvimento

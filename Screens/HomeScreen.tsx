@@ -21,6 +21,7 @@ import {
   useBackupRestore,
 } from "../components/BackupSection";
 import SideDrawer, { DrawerItem } from "../components/SideDrawer";
+import UpdateBanner from "../components/UpdateBanner";
 import PaymentSummary from "../components/PaymentSummary";
 import { colors, radius, shadow, formatBRL } from "../theme";
 import { PaymentTotals } from "../paymentMethods";
@@ -144,6 +145,9 @@ const HomeScreen: React.FC<HomeProps> = ({
               />
             </View>
           </View>
+
+          {/*---------- Nova versão do APK (só aparece no Android) ---------- */}
+          <UpdateBanner />
 
           {/*---------- Contas a vencer (só na web, no lugar das notificações) ---------- */}
           {isWeb && (
