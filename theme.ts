@@ -47,7 +47,21 @@ export const shadow = {
 };
 
 //------------------------------ formatação ------------------------------
+// "Ocultar valores" (olho na Home): o App liga/desliga antes de desenhar as
+// telas, e todo valor em R$ aparece como "R$ ••••".
+let valuesHidden = false;
+export const setValuesHidden = (hidden: boolean) => {
+  valuesHidden = hidden;
+};
+export const areValuesHidden = () => valuesHidden;
+
 export const formatBRL = (value: number): string => {
+  if (valuesHidden) return "R$ ••••";
+  return formatBRLVisible(value);
+};
+
+// sempre mostra o valor (ex: arquivo exportado, que não é a tela)
+export const formatBRLVisible = (value: number): string => {
   const safe = Number.isFinite(value) ? value : 0;
   const [inteiro, decimal] = Math.abs(safe).toFixed(2).split(".");
   const comPontos = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");

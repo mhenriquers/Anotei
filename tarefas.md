@@ -15,11 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 19. Ocultar valores
-- [ ] Chave `ocultarValores`. Ícone de olho no cabeçalho da Home.
-- [ ] `formatBRL` passa a aceitar um modo oculto ("R$ ••••") via contexto simples
-  (`hideValues.tsx` com Provider em `App.tsx`); todas as telas usam.
-
 ## 20. Tamanho e data do backup no menu
 - [ ] `useBackup`: calcular tamanho do JSON do backup (`new Blob`/`length`) e mostrar no subtítulo
   do item "Fazer backup": "Último: 10/11 · 24 KB".

@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Type } from "../Types";
-import { colors, radius, shadow } from "../theme";
+import { colors, radius, shadow, formatBRL, areValuesHidden } from "../theme";
 import { addMonths, filterByMonth, monthName, sumAmounts } from "../months";
 
 interface MonthChartProps {
@@ -47,13 +47,13 @@ const MonthChart: React.FC<MonthChartProps> = ({
               onPress={() => onSelectMonth?.(bar.key)}
               disabled={!onSelectMonth}
               activeOpacity={0.7}
-              accessibilityLabel={`${monthName(bar.key)}: R$ ${bar.total.toFixed(2)}`}
+              accessibilityLabel={`${monthName(bar.key)}: ${formatBRL(bar.total)}`}
             >
               <Text
                 style={[styles.value, active && styles.valueActive]}
                 numberOfLines={1}
               >
-                {bar.total > 0 ? shortValue(bar.total) : ""}
+                {bar.total > 0 && !areValuesHidden() ? shortValue(bar.total) : ""}
               </Text>
               <View
                 style={[

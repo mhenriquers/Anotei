@@ -15,6 +15,7 @@ export const EXTRA_KEYS = [
   "recorrentes",
   "contasMes",
   "historicoContas",
+  "ocultarValores",
 ] as const;
 
 export type ExtraKey = (typeof EXTRA_KEYS)[number];

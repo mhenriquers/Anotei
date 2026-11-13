@@ -36,7 +36,11 @@ import {
 import { isWeb } from "../pwa";
 import { useBackup } from "../backup";
 import { USER_NAME_MAX, useUserName } from "../userName";
-import { setStored, useStoredNumber } from "../storedValues";
+import {
+  setStored,
+  useStoredNumber,
+  useStoredValue,
+} from "../storedValues";
 import MoneyPrompt from "../components/MoneyPrompt";
 import { faturaAtual } from "../fatura";
 
@@ -102,6 +106,8 @@ const HomeScreen: React.FC<HomeProps> = ({
       up: percent > 0,
     };
   })();
+
+  const ocultarValores = useStoredValue("ocultarValores") === "1";
 
   //-------------------------- limite do mês --------------------------
   const orcamento = useStoredNumber("orcamento");
@@ -285,6 +291,22 @@ const HomeScreen: React.FC<HomeProps> = ({
                 </TouchableOpacity>
               )}
             </View>
+            <TouchableOpacity
+              onPress={() =>
+                setStored("ocultarValores", ocultarValores ? null : "1")
+              }
+              style={styles.eyeButton}
+              hitSlop={8}
+              accessibilityLabel={
+                ocultarValores ? "Mostrar valores" : "Ocultar valores"
+              }
+            >
+              <Ionicons
+                name={ocultarValores ? "eye-off-outline" : "eye-outline"}
+                size={22}
+                color={colors.hero}
+              />
+            </TouchableOpacity>
             <View style={styles.logoBox}>
               <Image
                 source={require("./../assets/logo.png")}
@@ -637,6 +659,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.primary,
     ...(isWeb ? ({ outlineStyle: "none" } as object) : null),
+  },
+
+  eyeButton: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+    ...shadow,
   },
 
   logoBox: {

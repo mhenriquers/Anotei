@@ -14,7 +14,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import HeaderMenu from "./components/HeaderMenu";
-import { colors } from "./theme";
+import { colors, setValuesHidden } from "./theme";
 import Bills from "./Screens/Bills";
 import ModalBill from "./components/ModalBills";
 import MenuOverlay from "./components/MenuOverlay";
@@ -23,7 +23,7 @@ import UndoToast, { ToastData } from "./components/UndoToast";
 import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
 import { needsInstallFirst } from "./pwa";
-import { loadStoredValues } from "./storedValues";
+import { loadStoredValues, useStoredValue } from "./storedValues";
 import { splitInstallments } from "./installments";
 import { applyRecorrentes } from "./recurring";
 import { rollBillsMonth } from "./billsMonth";
@@ -43,6 +43,10 @@ const SalvaConta = async (billsToSave: InterfaceBill[]) => {
 
 const AnoteiApp: React.FC = () => {
   const [expenses, setExpenses] = useState<Type[]>([]);
+
+  // "ocultar valores": vale para todas as telas, que são desenhadas depois desta linha
+  const ocultarValores = useStoredValue("ocultarValores") === "1";
+  setValuesHidden(ocultarValores);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalType, setModalType] = useState<"expense" | "bill" | null>(null);
