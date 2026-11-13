@@ -97,18 +97,35 @@ const AnoteiApp: React.FC = () => {
   };
 
   //------------------------------------------função para salvar
+  // gasto aberto no modal para edição (null = cadastro de um gasto novo)
+  const [editingExpense, setEditingExpense] = useState<Type | null>(null);
+
+  const openExpenseModal = (expense: Type | null) => {
+    setEditingExpense(expense);
+    setModalType("expense");
+    setIsModalVisible(true);
+  };
+
   const handleSaveExpense = (newExpenseData: Omit<Type, "id">) => {
     const completeExpense: Type = {
       ...newExpenseData,
-      id: Math.random().toString(),
+      // ao editar, o gasto mantém o id (e continua no mesmo lugar da lista)
+      id: editingExpense?.id ?? Math.random().toString(),
       // data/hora escolhida no cadastro (por padrão, a de agora)
       createdAt: newExpenseData.createdAt ?? new Date(),
     };
 
-    const updateExpenses = [...expenses, completeExpense];
+    const updateExpenses = editingExpense
+      ? expenses.map((expense) =>
+          expense.id === editingExpense.id
+            ? { ...expense, ...completeExpense }
+            : expense,
+        )
+      : [...expenses, completeExpense];
     setExpenses(updateExpenses);
     saveExpenses(updateExpenses);
     setIsModalVisible(false);
+    setEditingExpense(null);
   };
 
   //----------------------------------------- função para deletar gasto
@@ -228,10 +245,8 @@ const AnoteiApp: React.FC = () => {
             {(props) => (
               <HomeScreen
                 {...props}
-                onOpenModal={() => {
-                  setModalType("expense");
-                  setIsModalVisible(true);
-                }}
+                onOpenModal={() => openExpenseModal(null)}
+                onEditExpense={openExpenseModal}
                 expenses={expenses}
                 paymentTotals={paymentTotals}
                 valorTotal={valorTotal}
@@ -275,6 +290,7 @@ const AnoteiApp: React.FC = () => {
                 isDeleteMode={isDeleteMode}
                 setIsDeleteMode={setIsDeleteMode}
                 onDeleteExpenses={handleDeleteExpenses}
+                onEditExpense={openExpenseModal}
               />
             )}
           </Stack.Screen>
@@ -361,7 +377,11 @@ const AnoteiApp: React.FC = () => {
         {isModalVisible && modalType === "expense" && (
           <ModalScreen
             visible={isModalVisible}
-            onClose={() => setIsModalVisible(false)}
+            expense={editingExpense}
+            onClose={() => {
+              setIsModalVisible(false);
+              setEditingExpense(null);
+            }}
             onSave={handleSaveExpense}
           />
         )}

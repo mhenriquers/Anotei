@@ -24,6 +24,7 @@ import {
   parseDateTimeInput,
   parseBRLInput,
   maskMoneyInput,
+  formatBRLInput,
 } from "../theme";
 import {
   PAYMENT_METHODS,
@@ -37,6 +38,7 @@ interface ModalScreenProps {
   visible: boolean;
   onClose: () => void;
   onSave: (expenseData: Omit<Type, "id">) => void;
+  expense?: Type | null; // se passado, o modal edita esse gasto
 }
 
 //---------------------- função pra tirar modal e fechar teclado ao tocar fora--------------------------
@@ -55,21 +57,28 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
   visible,
   onClose,
   onSave,
+  expense,
 }) => {
   const insets = useSafeAreaInsets();
+  const isEditing = !!expense;
 
   //-----------------------varavel de controle do teclado-----------------------------
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethod>("credit card");
-  const [nameExpense, setNameExpense] = useState("");
-  const [amount, setAmount] = useState("");
-  const [obs, setObs] = useState("");
+  // o modal é montado ao abrir, então os campos começam com os dados do gasto em edição
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    expense?.category ?? "credit card",
+  );
+  const [nameExpense, setNameExpense] = useState(expense?.title ?? "");
+  const [amount, setAmount] = useState(
+    expense ? formatBRLInput(expense.amount) : "",
+  );
+  const [obs, setObs] = useState(expense?.observacao ?? "");
 
-  // data e hora da compra: começam com "agora" (o modal é montado ao abrir)
-  const [dateText, setDateText] = useState(() => formatDateInput(new Date()));
-  const [timeText, setTimeText] = useState(() => formatTime(new Date()));
+  // data e hora da compra: começam com "agora" (ou com as do gasto em edição)
+  const startDate = expense ? new Date(expense.createdAt) : new Date();
+  const [dateText, setDateText] = useState(() => formatDateInput(startDate));
+  const [timeText, setTimeText] = useState(() => formatTime(startDate));
   const [dateError, setDateError] = useState("");
 
   const today = formatDateInput(new Date());
@@ -171,7 +180,9 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
                 <View style={styles.handle} />
 
                 <View style={styles.header}>
-                  <Text style={styles.title}>Novo gasto</Text>
+                  <Text style={styles.title}>
+                    {isEditing ? "Editar gasto" : "Novo gasto"}
+                  </Text>
                   <TouchableOpacity
                     onPress={onClose}
                     style={styles.closeButton}
@@ -329,7 +340,9 @@ const ModalScreen: React.FC<ModalScreenProps> = ({
                     onPress={handleAdd}
                     style={[styles.button, styles.buttonPrimary]}
                   >
-                    <Text style={styles.buttonPrimaryText}>Adicionar</Text>
+                    <Text style={styles.buttonPrimaryText}>
+                      {isEditing ? "Salvar" : "Adicionar"}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>

@@ -33,6 +33,7 @@ import { USER_NAME_MAX, useUserName } from "../userName";
 interface HomeProps {
   navigation: any;
   onOpenModal: () => void;
+  onEditExpense: (expense: Type) => void;
   expenses: Type[];
   paymentTotals: PaymentTotals;
   valorTotal: number;
@@ -44,6 +45,7 @@ interface HomeProps {
 const HomeScreen: React.FC<HomeProps> = ({
   navigation,
   onOpenModal,
+  onEditExpense,
   expenses,
   paymentTotals,
   valorTotal,
@@ -321,6 +323,10 @@ const HomeScreen: React.FC<HomeProps> = ({
         <ExpenseDetails
           expense={selectedExpense}
           onClose={() => setSelectedExpenseId(null)}
+          onEdit={(expense) => {
+            setSelectedExpenseId(null); // fecha os detalhes antes de abrir o cadastro
+            onEditExpense(expense);
+          }}
         />
       </View>
     </SafeAreaView>

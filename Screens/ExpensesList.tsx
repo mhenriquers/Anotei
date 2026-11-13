@@ -16,6 +16,7 @@ interface ExpenseProps {
   isDeleteMode: boolean;
   setIsDeleteMode: (visible: boolean) => void;
   onDeleteExpenses: (ids: string[]) => void; // Mantemos a função que atualiza a lista global
+  onEditExpense: (expense: Type) => void; // abre o cadastro para editar o gasto
 }
 
 const ExpenseList: React.FC<ExpenseProps> = ({
@@ -24,6 +25,7 @@ const ExpenseList: React.FC<ExpenseProps> = ({
   isDeleteMode,
   setIsDeleteMode,
   onDeleteExpenses,
+  onEditExpense,
 }) => {
   //-------------------------- mais recentes primeiro --------------------------
   const sortedExpenses = [...expenseList].sort(
@@ -94,6 +96,10 @@ const ExpenseList: React.FC<ExpenseProps> = ({
       <ExpenseDetails
         expense={selectedExpense}
         onClose={() => setSelectedExpenseId(null)}
+        onEdit={(expense) => {
+          setSelectedExpenseId(null); // fecha os detalhes antes de abrir o cadastro
+          onEditExpense(expense);
+        }}
       />
     </SafeAreaView>
   );

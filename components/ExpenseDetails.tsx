@@ -7,12 +7,14 @@ import { getPaymentInfo } from "../paymentMethods";
 interface ExpenseDetailsProps {
   expense: Type | null; // null = modal fechado
   onClose: () => void;
+  onEdit?: (expense: Type) => void; // abre o cadastro para editar este gasto
 }
 
 //---------------------- modal com as informações de um gasto ----------------------
 const ExpenseDetails: React.FC<ExpenseDetailsProps> = ({
   expense,
   onClose,
+  onEdit,
 }) => {
   // guarda o último gasto aberto para o conteúdo não sumir durante a animação de fechar
   const lastExpense = useRef<Type | null>(null);
@@ -26,6 +28,7 @@ const ExpenseDetails: React.FC<ExpenseDetailsProps> = ({
     <DetailsSheet
       visible={expense !== null}
       onClose={onClose}
+      onEdit={onEdit ? () => onEdit(item) : undefined}
       title="Detalhes do gasto"
       icon={payment.icon}
       iconImage={payment.image}

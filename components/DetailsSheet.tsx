@@ -37,6 +37,7 @@ interface DetailsSheetProps {
   badge: { label: string; color: string; backgroundColor: string };
   rows: DetailRow[]; // linhas de informação (rótulo à esquerda, valor à direita)
   children?: React.ReactNode; // conteúdo extra abaixo das informações
+  onEdit?: () => void; // mostra o botão "Editar" ao lado do "Fechar"
 }
 
 const DRAG_START = 6; // pixels para baixo até o painel começar a acompanhar o dedo
@@ -57,6 +58,7 @@ const DetailsSheet: React.FC<DetailsSheetProps> = ({
   badge,
   rows,
   children,
+  onEdit,
 }) => {
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(0)).current;
@@ -204,6 +206,22 @@ const DetailsSheet: React.FC<DetailsSheetProps> = ({
           {children}
 
           <View style={formStyles.buttonRow}>
+            {onEdit && (
+              <TouchableOpacity
+                onPress={onEdit}
+                style={[
+                  formStyles.button,
+                  formStyles.buttonSecondary,
+                  styles.editAction,
+                ]}
+                accessibilityLabel="Editar"
+              >
+                <Ionicons name="pencil" size={16} color={colors.text} />
+                <Text style={[formStyles.buttonSecondaryText, styles.editText]}>
+                  Editar
+                </Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               onPress={onClose}
               style={[formStyles.button, styles.closeAction]}
@@ -302,6 +320,12 @@ const styles = StyleSheet.create({
   // botão "Fechar" sólido na cor da marca (a mesma do card "Total gasto" da Home)
   closeAction: {
     backgroundColor: colors.hero,
+  },
+  editAction: {
+    flexDirection: "row",
+  },
+  editText: {
+    marginLeft: 6,
   },
   closeActionText: {
     fontSize: 16,
