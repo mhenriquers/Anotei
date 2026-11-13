@@ -15,15 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 14. Virada de mês das contas fixas
-- [ ] Chave `contasMes` = "2026-11". Ao carregar as contas, se o mês atual for diferente, desmarcar
-  todas as `pago` e gravar o mês novo. Primeira vez (chave ausente): só grava, não desmarca.
-
-## 15. Histórico de contas pagas por mês
-- [ ] Antes de desmarcar na tarefa 14, salvar em `historicoContas`:
-  `{ mes, contas: [{ nome, valor, pago }] }` (guardar no máximo 24 meses).
-- [ ] Em `Bills.tsx`, menu ⋮ → "Histórico": lista por mês com total pago e contas.
-
 ## 16. Valor variável (luz, água)
 - [ ] `InterfaceBill`: `variavel?: boolean`. Interruptor "Valor muda todo mês" no `ModalBills`.
 - [ ] Ao marcar uma conta variável como paga, abrir modal com o valor (começa com o último);

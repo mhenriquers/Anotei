@@ -20,6 +20,7 @@ interface MenuOverlayProps {
   onClose: () => void;
   onDeleteAll?: () => void; // se for passado, o menu mostra a opção "Apagar todos"
   onUncheckAll?: () => void; // se for passado, o menu mostra a opção "Desmarcar todas"
+  onHistory?: () => void; // se for passado, o menu mostra a opção "Histórico"
 }
 
 const MenuOverlay: React.FC<MenuOverlayProps> = ({
@@ -30,6 +31,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
   onClose,
   onDeleteAll,
   onUncheckAll,
+  onHistory,
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -71,9 +73,23 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={[styles.overlay, { paddingTop: insets.top + 52 }]}>
           <View style={styles.menuContainer}>
-            {onUncheckAll && (
+            {onHistory && (
               <TouchableOpacity
                 style={styles.menuItem}
+                onPress={() => {
+                  onClose();
+                  onHistory();
+                }}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="time-outline" size={18} color={colors.text} />
+                <Text style={styles.actionText}>Histórico dos meses</Text>
+              </TouchableOpacity>
+            )}
+
+            {onUncheckAll && (
+              <TouchableOpacity
+                style={[styles.menuItem, !!onHistory && styles.menuItemDivider]}
                 onPress={() => {
                   onClose();
                   onUncheckAll();
@@ -92,7 +108,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
             <TouchableOpacity
               style={[
                 styles.menuItem,
-                !!onUncheckAll && styles.menuItemDivider,
+                (!!onUncheckAll || !!onHistory) && styles.menuItemDivider,
               ]}
               onPress={handlePressDelete}
               activeOpacity={0.7}

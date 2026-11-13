@@ -36,8 +36,8 @@ export interface UpcomingBill {
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 // Contas não pagas, com aviso ligado, que já venceram neste mês ou vencem
-// nos próximos dias. O "pago" vale para o mês atual (o usuário desmarca
-// todas as contas quando o mês vira).
+// nos próximos dias. O "pago" vale para o mês atual (o app desmarca
+// todas as contas quando o mês vira, ver billsMonth.ts).
 export const getUpcomingBills = (
   bills: InterfaceBill[],
   now: Date = new Date(),

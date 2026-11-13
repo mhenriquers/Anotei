@@ -26,6 +26,7 @@ import { needsInstallFirst } from "./pwa";
 import { loadStoredValues } from "./storedValues";
 import { splitInstallments } from "./installments";
 import { applyRecorrentes } from "./recurring";
+import { rollBillsMonth } from "./billsMonth";
 import Recorrentes from "./Screens/Recorrentes";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -312,12 +313,27 @@ const AnoteiApp: React.FC = () => {
     saveExpenses(updated);
   };
 
+  //-------------------------- virada de mês: desmarca as contas pagas
+  const billsRef = useRef(bills);
+  billsRef.current = bills;
+
+  const runBillsMonth = () => {
+    const updated = rollBillsMonth(billsRef.current);
+    if (!updated) return;
+    setBills(updated);
+    SalvaConta(updated);
+  };
+
   useEffect(() => {
     if (!dataLoaded) return;
     runRecorrentes();
+    runBillsMonth();
     // o app fica aberto em segundo plano por dias: confere de novo ao voltar
     const subscription = AppState.addEventListener("change", (state) => {
-      if (state === "active") runRecorrentes();
+      if (state === "active") {
+        runRecorrentes();
+        runBillsMonth();
+      }
     });
     return () => subscription.remove();
   }, [dataLoaded]);

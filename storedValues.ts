@@ -13,6 +13,8 @@ export const EXTRA_KEYS = [
   "receita",
   "diaFechamento",
   "recorrentes",
+  "contasMes",
+  "historicoContas",
 ] as const;
 
 export type ExtraKey = (typeof EXTRA_KEYS)[number];

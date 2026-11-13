@@ -12,6 +12,7 @@ import MenuExclusaoGenerico from "../components/ExcluseMenu";
 import ProgressBar from "../components/ProgressBar";
 import DraggableFab from "../components/DraggableFab";
 import BillDetails from "../components/BillDetails";
+import BillsHistory from "../components/BillsHistory";
 import ConfirmDialog, {
   ConfirmDialogContent,
 } from "../components/ConfirmDialog";
@@ -44,6 +45,7 @@ const Bills: React.FC<BillProps> = ({
   const [progress, setProgress] = useState<number>(0);
   const [selectedBillId, setSelectedBillId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogKind | null>(null);
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
   const closeDialog = () => setDialog(null);
 
   //-------------------------função para salvar contas fixas
@@ -257,6 +259,12 @@ const Bills: React.FC<BillProps> = ({
           onClose={() => setIsMenuVisible(false)}
           onDeleteAll={handleDeleteAllBills}
           onUncheckAll={handleUncheckAllBills}
+          onHistory={() => setIsHistoryVisible(true)}
+        />
+
+        <BillsHistory
+          visible={isHistoryVisible}
+          onClose={() => setIsHistoryVisible(false)}
         />
 
         {isDeleteMode && (
