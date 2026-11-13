@@ -14,15 +14,23 @@ import MenuExclusaoGenerico from "../components/ExcluseMenu";
 import ExpenseItem from "../components/ExpenseItem";
 import ExpenseDetails from "../components/ExpenseDetails";
 import PaymentSummary from "../components/PaymentSummary";
-import { colors, formatBRL, radius } from "../theme";
-import { PaymentTotals } from "../paymentMethods";
+import { colors, formatBRL, radius, shadow } from "../theme";
+import { totalsByPaymentMethod } from "../paymentMethods";
+import {
+  filterByMonth,
+  lastMonthWithData,
+  monthKey,
+  monthLabel,
+  nextMonth,
+  previousMonth,
+  sumAmounts,
+} from "../months";
 import { searchExpenses } from "../search";
 import { groupByDay } from "../expenseGroups";
 import { isWeb } from "../pwa";
 
 interface ExpenseProps {
   expenseList: Type[];
-  paymentTotals: PaymentTotals;
   isDeleteMode: boolean;
   setIsDeleteMode: (visible: boolean) => void;
   onDeleteExpenses: (ids: string[]) => void; // Mantemos a função que atualiza a lista global
@@ -31,18 +39,28 @@ interface ExpenseProps {
 
 const ExpenseList: React.FC<ExpenseProps> = ({
   expenseList,
-  paymentTotals,
   isDeleteMode,
   setIsDeleteMode,
   onDeleteExpenses,
   onEditExpense,
 }) => {
+  //-------------------------- mês mostrado (começa no atual) --------------------------
+  const [month, setMonth] = useState(() => monthKey());
+  const monthExpenses = filterByMonth(expenseList, month);
+  const paymentTotals = totalsByPaymentMethod(monthExpenses);
+  const monthTotal = sumAmounts(monthExpenses);
+  // dá para avançar até o mês atual (ou até o último com gasto lançado à frente)
+  const canGoNext = month < lastMonthWithData(expenseList);
+
   //-------------------------- busca --------------------------
   const [query, setQuery] = useState("");
   const isSearching = query.trim() !== "";
 
   //-------------------------- agrupados por dia, mais recentes primeiro --------------------------
-  const sortedExpenses = searchExpenses(expenseList, query);
+  // a busca procura em todos os meses; sem busca, só o mês escolhido
+  const sortedExpenses = isSearching
+    ? searchExpenses(expenseList, query)
+    : monthExpenses;
   const sections = groupByDay(sortedExpenses);
 
   //-------------------------- gasto aberto no modal de detalhes --------------------------
@@ -68,6 +86,35 @@ const ExpenseList: React.FC<ExpenseProps> = ({
         ListHeaderComponent={
           //--------------------------------CARD TOTAL---------------------------------//
           <View>
+            {/*----------------- seletor de mês: ‹ Novembro 2026 › ----------------- */}
+            <View style={styles.monthBar}>
+              <TouchableOpacity
+                onPress={() => setMonth(previousMonth(month))}
+                style={styles.monthArrow}
+                hitSlop={8}
+                accessibilityLabel="Mês anterior"
+              >
+                <Ionicons name="chevron-back" size={22} color={colors.hero} />
+              </TouchableOpacity>
+              <View style={styles.monthCenter}>
+                <Text style={styles.monthLabel}>{monthLabel(month)}</Text>
+                <Text style={styles.monthTotal}>{formatBRL(monthTotal)}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setMonth(nextMonth(month))}
+                style={[styles.monthArrow, !canGoNext && styles.monthArrowOff]}
+                disabled={!canGoNext}
+                hitSlop={8}
+                accessibilityLabel="Próximo mês"
+              >
+                <Ionicons
+                  name="chevron-forward"
+                  size={22}
+                  color={colors.hero}
+                />
+              </TouchableOpacity>
+            </View>
+
             <PaymentSummary totals={paymentTotals} />
             {expenseList.length > 0 && (
               <View style={styles.searchBox}>
@@ -99,7 +146,7 @@ const ExpenseList: React.FC<ExpenseProps> = ({
             )}
             {sortedExpenses.length > 0 && (
               <Text style={styles.sectionTitle}>
-                {isSearching ? "Resultados" : "Histórico"} (
+                {isSearching ? "Resultados em todos os meses" : "Histórico"} (
                 {sortedExpenses.length})
               </Text>
             )}
@@ -129,9 +176,15 @@ const ExpenseList: React.FC<ExpenseProps> = ({
               size={40}
               color={colors.textLight}
             />
-            <Text style={styles.emptyTitle}>Nenhum gasto registrado</Text>
+            <Text style={styles.emptyTitle}>
+              {expenseList.length === 0
+                ? "Nenhum gasto registrado"
+                : `Nenhum gasto em ${monthLabel(month).toLowerCase()}`}
+            </Text>
             <Text style={styles.emptyText}>
-              Volte para o início e toque no botão + para adicionar.
+              {expenseList.length === 0
+                ? "Volte para o início e toque no botão + para adicionar."
+                : "Use as setas acima para ver outros meses."}
             </Text>
           </View>
           )
@@ -173,6 +226,40 @@ const styles = StyleSheet.create({
   listContent: {
     padding: 20,
     paddingBottom: 10, // + 10 de margem do último card = 20, igual às laterais
+  },
+  monthBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: 8,
+    marginBottom: 16,
+    ...shadow,
+  },
+  monthArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceMuted,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  monthArrowOff: {
+    opacity: 0.3,
+  },
+  monthCenter: {
+    flex: 1,
+    alignItems: "center",
+  },
+  monthLabel: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  monthTotal: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   searchBox: {
     flexDirection: "row",

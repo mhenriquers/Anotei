@@ -16,14 +16,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 6. Filtro por mês
-- [ ] `months.ts`: `monthKey(date)` → "2026-11", `monthLabel(key)` → "Novembro 2026",
-  `filterByMonth(expenses, key)`, `previousMonth(key)`, `nextMonth(key)`.
-- [ ] `ExpensesList.tsx`: seletor `‹ Novembro 2026 ›` no topo; mostra só o mês escolhido
-  (começa no atual). `PaymentSummary` e busca usam os gastos do mês.
-- [ ] Home: "Total gasto" e `PaymentSummary` passam a mostrar o **mês atual** (rótulo
-  "Gasto em novembro").
-
 ## 7. Comparação com o mês anterior
 - [ ] Home, card do total: linha "12% a mais que outubro" (vermelho) ou "a menos" (verde), usando
   `months.ts`. Não mostra se o mês anterior não tiver gastos.

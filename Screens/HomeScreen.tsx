@@ -25,7 +25,8 @@ import SideDrawer, { DrawerItem } from "../components/SideDrawer";
 import UpdateBanner from "../components/UpdateBanner";
 import PaymentSummary from "../components/PaymentSummary";
 import { colors, radius, shadow, formatBRL } from "../theme";
-import { PaymentTotals } from "../paymentMethods";
+import { totalsByPaymentMethod } from "../paymentMethods";
+import { filterByMonth, monthKey, monthName, sumAmounts } from "../months";
 import { isWeb } from "../pwa";
 import { useBackup } from "../backup";
 import { USER_NAME_MAX, useUserName } from "../userName";
@@ -35,8 +36,6 @@ interface HomeProps {
   onOpenModal: () => void;
   onEditExpense: (expense: Type) => void;
   expenses: Type[];
-  paymentTotals: PaymentTotals;
-  valorTotal: number;
   innerBill: InterfaceBill[];
   reservas: Reserva[];
   onDataRestored: () => Promise<void>; // recarrega os dados depois de restaurar um backup
@@ -47,8 +46,6 @@ const HomeScreen: React.FC<HomeProps> = ({
   onOpenModal,
   onEditExpense,
   expenses,
-  paymentTotals,
-  valorTotal,
   innerBill,
   reservas,
   onDataRestored,
@@ -60,6 +57,12 @@ const HomeScreen: React.FC<HomeProps> = ({
     0,
   );
   const billsProgress = totalBills > 0 ? (paidBills / totalBills) * 100 : 0;
+
+  //-------------------------- gastos do mês atual --------------------------
+  const currentMonth = monthKey();
+  const monthExpenses = filterByMonth(expenses, currentMonth);
+  const paymentTotals = totalsByPaymentMethod(monthExpenses);
+  const valorTotal = sumAmounts(monthExpenses);
 
   //-------------------------- 3 gastos mais recentes --------------------------
   const recentExpenses = [...expenses]
@@ -215,12 +218,14 @@ const HomeScreen: React.FC<HomeProps> = ({
 
           {/*-------------------------- Card Total -------------------------- */}
           <View style={styles.heroCard}>
-            <Text style={styles.heroLabel}>Total gasto</Text>
+            <Text style={styles.heroLabel}>
+              Gasto em {monthName(currentMonth)}
+            </Text>
             <Text style={styles.heroValue}>{formatBRL(valorTotal)}</Text>
             <Text style={styles.heroHint}>
-              {expenses.length === 1
-                ? "1 gasto registrado"
-                : `${expenses.length} gastos registrados`}
+              {monthExpenses.length === 1
+                ? "1 gasto neste mês"
+                : `${monthExpenses.length} gastos neste mês`}
             </Text>
           </View>
 

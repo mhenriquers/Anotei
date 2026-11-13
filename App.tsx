@@ -23,7 +23,6 @@ import UndoToast, { ToastData } from "./components/UndoToast";
 import { syncBillReminders } from "./notifications";
 import InstallScreen from "./components/InstallScreen";
 import { needsInstallFirst } from "./pwa";
-import { totalsByPaymentMethod } from "./paymentMethods";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -39,11 +38,6 @@ const SalvaConta = async (billsToSave: InterfaceBill[]) => {
 
 const AnoteiApp: React.FC = () => {
   const [expenses, setExpenses] = useState<Type[]>([]);
-
-  // total por forma de pagamento (crédito, débito e pix)
-  const paymentTotals = totalsByPaymentMethod(expenses);
-  const valorTotal =
-    paymentTotals["credit card"] + paymentTotals.debit + paymentTotals.pix;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalType, setModalType] = useState<"expense" | "bill" | null>(null);
@@ -294,8 +288,6 @@ const AnoteiApp: React.FC = () => {
                 onOpenModal={() => openExpenseModal(null)}
                 onEditExpense={openExpenseModal}
                 expenses={expenses}
-                paymentTotals={paymentTotals}
-                valorTotal={valorTotal}
                 innerBill={bills}
                 reservas={reservas}
                 onDataRestored={async () => {
@@ -332,7 +324,6 @@ const AnoteiApp: React.FC = () => {
             {(props) => (
               <ExpenseList
                 expenseList={expenses}
-                paymentTotals={paymentTotals}
                 isDeleteMode={isDeleteMode}
                 setIsDeleteMode={setIsDeleteMode}
                 onDeleteExpenses={handleDeleteExpenses}
