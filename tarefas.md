@@ -19,11 +19,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 - [ ] Ler a doc do Expo 58 sobre app shortcuts/quick actions antes. Se precisar de lib de terceiros
   ou config nativa complexa, **parar e perguntar** antes de instalar.
 
-## 34. Testes automáticos
-- [ ] Instalar `jest-expo` + `jest`, script `test`.
-- [ ] Testes de `dueDates.ts`, `months.ts`, `parseBackup` (backup v1, v2, com e sem `nome`) e
-  `maskMoneyInput`/`parseBRLInput`. Adicionar `npm test` no Actions.
-
 ## 35. Bloqueio com PIN ou biometria (APK)
 - [ ] Ler a doc de `expo-local-authentication` (SDK 58). Interruptor "Bloquear com digital" no
   `SideDrawer` (só Android). Ao abrir/voltar ao app, pedir a digital. Sem biometria no aparelho:

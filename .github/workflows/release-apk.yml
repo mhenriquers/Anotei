@@ -46,6 +46,9 @@ jobs:
       - name: Checar tipos
         run: npx tsc --noEmit
 
+      - name: Testes
+        run: npm test -- --ci
+
       # o perfil production gera .apk (eas.json); espera o build terminar
       - name: Build do APK no EAS
         run: eas build --platform android --profile production --non-interactive --wait --json > build.json
