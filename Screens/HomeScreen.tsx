@@ -43,6 +43,7 @@ import {
 } from "../storedValues";
 import MoneyPrompt from "../components/MoneyPrompt";
 import { faturaAtual } from "../fatura";
+import { exportExpensesCsv } from "../csv";
 
 // "12/11"
 const formatShortDate = (date: Date) =>
@@ -223,6 +224,20 @@ const HomeScreen: React.FC<HomeProps> = ({
       subtitle: describeLastBackup(backup.lastBackup, backup.lastSize),
       onPress: backup.backupNow, // chamado direto no toque (exigência do iPhone)
       disabled: !backup.hasData,
+    },
+    {
+      key: "csv",
+      icon: "document-text-outline",
+      label: "Exportar planilha",
+      subtitle: "Todos os gastos em .csv (Excel)",
+      // chamado direto no toque, sem await antes (exigência do iPhone)
+      onPress: () => {
+        exportExpensesCsv(expenses).catch((error) => {
+          console.error("Erro ao exportar planilha", error);
+          alert("Não foi possível exportar a planilha. Tente de novo.");
+        });
+      },
+      disabled: expenses.length === 0,
     },
     {
       key: "restore",

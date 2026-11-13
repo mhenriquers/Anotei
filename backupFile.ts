@@ -5,12 +5,14 @@ import * as DocumentPicker from "expo-document-picker";
 //---------------------- arquivo de backup: versão Android ----------------------
 // Na web o Metro usa backupFile.web.ts no lugar deste arquivo.
 
-// Grava o .json no cache do app e abre o Compartilhar do Android (Drive,
+// Grava o arquivo no cache do app e abre o Compartilhar do Android (Drive,
 // WhatsApp, Arquivos...). Retorna false se não deu para abrir o Compartilhar.
 // O Android não avisa se a pessoa fechou o menu sem escolher nada.
-export const shareBackupFile = async (
+export const shareTextFile = async (
   fileName: string,
-  json: string,
+  text: string,
+  mimeType: string,
+  title: string,
 ): Promise<boolean> => {
   if (!(await Sharing.isAvailableAsync())) {
     throw new Error("Compartilhamento indisponível neste aparelho.");
@@ -18,13 +20,13 @@ export const shareBackupFile = async (
   const file = new File(Paths.cache, fileName);
   if (file.exists) file.delete();
   file.create();
-  await file.write(json);
-  await Sharing.shareAsync(file.uri, {
-    mimeType: "application/json",
-    dialogTitle: "Backup do Anotei",
-  });
+  await file.write(text);
+  await Sharing.shareAsync(file.uri, { mimeType, dialogTitle: title });
   return true;
 };
+
+export const shareBackupFile = (fileName: string, json: string) =>
+  shareTextFile(fileName, json, "application/json", "Backup do Anotei");
 
 // Abre o seletor de arquivos e devolve o texto do arquivo (null = cancelou).
 export const pickBackupText = async (): Promise<string | null> => {

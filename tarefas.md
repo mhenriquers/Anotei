@@ -15,12 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 21. Exportar em CSV
-- [ ] `csv.ts`: gera CSV com `;` e BOM UTF-8 (abre certo no Excel): Data; Hora; Descrição;
-  Forma; Valor (vírgula decimal); Observação. Campos com `;` ou `"` entre aspas.
-- [ ] Item "Exportar planilha" no `SideDrawer`; reaproveitar `shareBackupFile` para o arquivo
-  `anotei-gastos-AAAA-MM-DD.csv` (adaptar para aceitar o tipo `text/csv`).
-
 ## 22. Tela "Sobre"
 - [ ] Item "Sobre" no `SideDrawer` → modal com logo, versão (`app.json`), link do GitHub
   (`Linking.openURL`) e frase "Seus dados ficam só no aparelho".

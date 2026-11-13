@@ -16,15 +16,17 @@ const downloadFile = (file: File) => {
 // Sem suporte (computador), baixa o arquivo. Retorna false se a pessoa cancelou.
 // Precisa ser chamado direto no toque do botão: o iPhone só abre o menu
 // Compartilhar se não houver espera entre o toque e a chamada.
-export const shareBackupFile = async (
+export const shareTextFile = async (
   fileName: string,
-  json: string,
+  text: string,
+  mimeType: string,
+  title: string,
 ): Promise<boolean> => {
-  const file = new File([json], fileName, { type: "application/json" });
+  const file = new File([text], fileName, { type: mimeType });
 
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: "Backup do Anotei" });
+      await navigator.share({ files: [file], title });
       return true;
     } catch (error) {
       if ((error as Error).name === "AbortError") return false; // cancelou
@@ -34,6 +36,9 @@ export const shareBackupFile = async (
   downloadFile(file);
   return true;
 };
+
+export const shareBackupFile = (fileName: string, json: string) =>
+  shareTextFile(fileName, json, "application/json", "Backup do Anotei");
 
 // Abre o seletor de arquivos e devolve o texto do arquivo (null = cancelou).
 // Também precisa ser chamado direto no toque do botão (exigência do iPhone).
