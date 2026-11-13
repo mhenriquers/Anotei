@@ -15,10 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 22. Tela "Sobre"
-- [ ] Item "Sobre" no `SideDrawer` → modal com logo, versão (`app.json`), link do GitHub
-  (`Linking.openURL`) e frase "Seus dados ficam só no aparelho".
-
 ## 23. Toque longo para ações rápidas
 - [ ] `ExpenseItem` e `RenderCard`: `onLongPress` abre menu pequeno com "Editar" e "Apagar"
   (reaproveitar tarefas 1, 2 e 3).

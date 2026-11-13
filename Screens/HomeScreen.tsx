@@ -44,6 +44,7 @@ import {
 import MoneyPrompt from "../components/MoneyPrompt";
 import { faturaAtual } from "../fatura";
 import { exportExpensesCsv } from "../csv";
+import AboutDialog from "../components/AboutDialog";
 
 // "12/11"
 const formatShortDate = (date: Date) =>
@@ -169,6 +170,7 @@ const HomeScreen: React.FC<HomeProps> = ({
 
   //-------------------------- menu lateral (gaveta) --------------------------
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const totalReservas = reservas.reduce((soma, r) => soma + (r.valor || 0), 0);
 
@@ -245,6 +247,13 @@ const HomeScreen: React.FC<HomeProps> = ({
       label: "Restaurar backup",
       subtitle: "Recuperar dados de um arquivo",
       onPress: restore.startRestore,
+    },
+    {
+      key: "sobre",
+      icon: "information-circle-outline",
+      label: "Sobre",
+      subtitle: "Versão e privacidade",
+      onPress: () => setIsAboutOpen(true),
     },
   ];
 
@@ -581,6 +590,11 @@ const HomeScreen: React.FC<HomeProps> = ({
             setPrompt(null);
           }}
           onCancel={() => setPrompt(null)}
+        />
+
+        <AboutDialog
+          visible={isAboutOpen}
+          onClose={() => setIsAboutOpen(false)}
         />
 
         {/* confirmação do restaurar: fica fora da gaveta, que fecha no toque */}
