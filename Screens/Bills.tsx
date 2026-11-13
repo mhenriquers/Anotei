@@ -14,6 +14,7 @@ import DraggableFab from "../components/DraggableFab";
 import BillDetails from "../components/BillDetails";
 import BillsHistory from "../components/BillsHistory";
 import MoneyPrompt from "../components/MoneyPrompt";
+import ActionSheet from "../components/ActionSheet";
 import ConfirmDialog, {
   ConfirmDialogContent,
 } from "../components/ConfirmDialog";
@@ -47,6 +48,10 @@ const Bills: React.FC<BillProps> = ({
   const [selectedBillId, setSelectedBillId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogKind | null>(null);
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
+
+  // toque longo numa conta: menu rápido (editar / apagar) e confirmação de apagar
+  const [quickBillId, setQuickBillId] = useState<string | null>(null);
+  const [deleteBillId, setDeleteBillId] = useState<string | null>(null);
   const closeDialog = () => setDialog(null);
 
   //-------------------------função para salvar contas fixas
@@ -186,6 +191,8 @@ const Bills: React.FC<BillProps> = ({
 
   //-------------------------- conta aberta no modal de detalhes --------------------------
   const selectedBill = bills.find((bill) => bill.id === selectedBillId) ?? null;
+  const quickBill = bills.find((bill) => bill.id === quickBillId) ?? null;
+  const billToDelete = bills.find((bill) => bill.id === deleteBillId);
 
   //-------------------------- conteúdo das caixas de confirmação --------------------------
   const dialogContent: Record<DialogKind, ConfirmDialogContent> = {
@@ -256,6 +263,7 @@ const Bills: React.FC<BillProps> = ({
               itemCard={item}
               onTogglePaid={() => handleTogglePaid(item.id)}
               onPress={() => setSelectedBillId(item.id)}
+              onLongPress={() => setQuickBillId(item.id)}
             />
           )}
           keyExtractor={(item) => item.id}
@@ -286,6 +294,43 @@ const Bills: React.FC<BillProps> = ({
           onDeleteAll={handleDeleteAllBills}
           onUncheckAll={handleUncheckAllBills}
           onHistory={() => setIsHistoryVisible(true)}
+        />
+
+        <ActionSheet
+          title={quickBill ? quickBill.nome : null}
+          onClose={() => setQuickBillId(null)}
+          actions={
+            quickBill
+              ? [
+                  {
+                    icon: "pencil",
+                    label: "Editar",
+                    onPress: () => onEditBill(quickBill),
+                  },
+                  {
+                    icon: "trash-outline",
+                    label: "Apagar",
+                    danger: true,
+                    onPress: () => setDeleteBillId(quickBill.id),
+                  },
+                ]
+              : []
+          }
+        />
+
+        <ConfirmDialog
+          visible={deleteBillId !== null}
+          title="Apagar conta?"
+          message={`"${billToDelete?.nome ?? ""}" será apagada. Essa ação não pode ser desfeita.`}
+          icon="trash-outline"
+          tone="danger"
+          confirmLabel="Apagar"
+          cancelLabel="Cancelar"
+          onConfirm={() => {
+            if (deleteBillId) handleDeleteBill([deleteBillId]);
+            setDeleteBillId(null);
+          }}
+          onCancel={() => setDeleteBillId(null)}
         />
 
         <BillsHistory

@@ -45,6 +45,8 @@ import MoneyPrompt from "../components/MoneyPrompt";
 import { faturaAtual } from "../fatura";
 import { exportExpensesCsv } from "../csv";
 import AboutDialog from "../components/AboutDialog";
+import ActionSheet from "../components/ActionSheet";
+import { expenseTitle } from "../installments";
 
 // "12/11"
 const formatShortDate = (date: Date) =>
@@ -54,6 +56,7 @@ interface HomeProps {
   navigation: any;
   onOpenModal: () => void;
   onEditExpense: (expense: Type) => void;
+  onDeleteExpenses: (ids: string[]) => void; // apaga (com "Desfazer" no rodapé)
   expenses: Type[];
   innerBill: InterfaceBill[];
   reservas: Reserva[];
@@ -64,6 +67,7 @@ const HomeScreen: React.FC<HomeProps> = ({
   navigation,
   onOpenModal,
   onEditExpense,
+  onDeleteExpenses,
   expenses,
   innerBill,
   reservas,
@@ -149,6 +153,9 @@ const HomeScreen: React.FC<HomeProps> = ({
   );
   const selectedExpense =
     expenses.find((expense) => expense.id === selectedExpenseId) ?? null;
+
+  // gasto com o menu de ações rápidas aberto (toque longo)
+  const [quickExpense, setQuickExpense] = useState<Type | null>(null);
 
   //-------------------------- backup (os dados ficam só no aparelho) --------------------------
   const userName = useUserName();
@@ -532,6 +539,7 @@ const HomeScreen: React.FC<HomeProps> = ({
                 key={item.id}
                 item={item}
                 onPress={() => setSelectedExpenseId(item.id)}
+                onLongPress={() => setQuickExpense(item)}
               />
             ))
           )}
@@ -599,6 +607,29 @@ const HomeScreen: React.FC<HomeProps> = ({
 
         {/* confirmação do restaurar: fica fora da gaveta, que fecha no toque */}
         {restore.dialog}
+
+        {/* toque longo num gasto: editar ou apagar */}
+        <ActionSheet
+          title={quickExpense ? expenseTitle(quickExpense) : null}
+          onClose={() => setQuickExpense(null)}
+          actions={
+            quickExpense
+              ? [
+                  {
+                    icon: "pencil",
+                    label: "Editar",
+                    onPress: () => onEditExpense(quickExpense),
+                  },
+                  {
+                    icon: "trash-outline",
+                    label: "Apagar",
+                    danger: true,
+                    onPress: () => onDeleteExpenses([quickExpense.id]),
+                  },
+                ]
+              : []
+          }
+        />
 
         <ExpenseDetails
           expense={selectedExpense}

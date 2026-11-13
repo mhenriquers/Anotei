@@ -10,17 +10,24 @@ import PaymentIcon from "./PaymentIcon";
 interface ExpenseItemProps {
   item: Type;
   onPress?: () => void; // abre o modal com os detalhes do gasto
+  onLongPress?: () => void; // abre as ações rápidas (editar, apagar)
 }
 
 //---------------------- card de um gasto (usado na Home e na lista) ----------------------
-const ExpenseItem: React.FC<ExpenseItemProps> = ({ item, onPress }) => {
+const ExpenseItem: React.FC<ExpenseItemProps> = ({
+  item,
+  onPress,
+  onLongPress,
+}) => {
   const payment = getPaymentInfo(item.category);
 
   return (
     <TouchableOpacity
       style={styles.card}
       onPress={onPress}
-      disabled={!onPress}
+      onLongPress={onLongPress}
+      delayLongPress={350}
+      disabled={!onPress && !onLongPress}
       activeOpacity={0.7}
       accessibilityRole={onPress ? "button" : undefined}
       accessibilityHint={onPress ? "Abre os detalhes do gasto" : undefined}

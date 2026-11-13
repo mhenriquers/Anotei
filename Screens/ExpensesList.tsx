@@ -28,6 +28,7 @@ import {
 import { searchExpenses } from "../search";
 import { groupByDay } from "../expenseGroups";
 import MonthChart from "../components/MonthChart";
+import ActionSheet from "../components/ActionSheet";
 import { expenseTitle } from "../installments";
 import { isWeb } from "../pwa";
 
@@ -71,6 +72,9 @@ const ExpenseList: React.FC<ExpenseProps> = ({
   );
   const selectedExpense =
     expenseList.find((expense) => expense.id === selectedExpenseId) ?? null;
+
+  // gasto com o menu de ações rápidas aberto (toque longo)
+  const [quickExpense, setQuickExpense] = useState<Type | null>(null);
 
   return (
     // edges "bottom": a lista termina acima dos botões do celular
@@ -167,6 +171,7 @@ const ExpenseList: React.FC<ExpenseProps> = ({
           <ExpenseItem
             item={item}
             onPress={() => setSelectedExpenseId(item.id)}
+            onLongPress={() => setQuickExpense(item)}
           />
         )}
         keyboardShouldPersistTaps="handled"
@@ -216,6 +221,29 @@ const ExpenseList: React.FC<ExpenseProps> = ({
       )}
 
       {/* MODAL COM OS DETALHES DO GASTO TOCADO */}
+      {/* toque longo num gasto: editar ou apagar */}
+      <ActionSheet
+        title={quickExpense ? expenseTitle(quickExpense) : null}
+        onClose={() => setQuickExpense(null)}
+        actions={
+          quickExpense
+            ? [
+                {
+                  icon: "pencil",
+                  label: "Editar",
+                  onPress: () => onEditExpense(quickExpense),
+                },
+                {
+                  icon: "trash-outline",
+                  label: "Apagar",
+                  danger: true,
+                  onPress: () => onDeleteExpenses([quickExpense.id]),
+                },
+              ]
+            : []
+        }
+      />
+
       <ExpenseDetails
         expense={selectedExpense}
         onClose={() => setSelectedExpenseId(null)}

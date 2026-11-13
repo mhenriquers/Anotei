@@ -15,10 +15,6 @@ marcar `[x]`, commit e push (ver CLAUDE.md).
 
 ---
 
-## 23. Toque longo para ações rápidas
-- [ ] `ExpenseItem` e `RenderCard`: `onLongPress` abre menu pequeno com "Editar" e "Apagar"
-  (reaproveitar tarefas 1, 2 e 3).
-
 ## 24. Feedback ao salvar
 - [ ] Instalar `expo-haptics` (`npx expo install expo-haptics`). `feedback.ts` com `vibrar()`;
   `feedback.web.ts` vazio. Chamar ao salvar gasto, conta e reserva.

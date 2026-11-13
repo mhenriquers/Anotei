@@ -8,6 +8,7 @@ interface RenderItemProps {
   itemCard: InterfaceBill;
   onTogglePaid?: () => void;
   onPress?: () => void; // abre o modal com os detalhes da conta
+  onLongPress?: () => void; // abre as ações rápidas (editar, apagar)
 }
 
 //---------------------- card de uma conta fixa ----------------------
@@ -15,6 +16,7 @@ const RenderCard: React.FC<RenderItemProps> = ({
   itemCard,
   onTogglePaid,
   onPress,
+  onLongPress,
 }) => {
   const paid = itemCard.pago;
 
@@ -32,7 +34,9 @@ const RenderCard: React.FC<RenderItemProps> = ({
       <TouchableOpacity
         style={styles.content}
         onPress={onPress}
-        disabled={!onPress}
+        onLongPress={onLongPress}
+        delayLongPress={350}
+        disabled={!onPress && !onLongPress}
         activeOpacity={0.7}
         accessibilityRole={onPress ? "button" : undefined}
         accessibilityHint={onPress ? "Abre os detalhes da conta" : undefined}

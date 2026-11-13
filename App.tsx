@@ -372,6 +372,7 @@ const AnoteiApp: React.FC = () => {
                 {...props}
                 onOpenModal={() => openExpenseModal(null)}
                 onEditExpense={openExpenseModal}
+                onDeleteExpenses={handleDeleteExpenses}
                 expenses={expenses}
                 innerBill={bills}
                 reservas={reservas}
