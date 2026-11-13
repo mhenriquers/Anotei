@@ -212,6 +212,10 @@ const AnoteiApp: React.FC = () => {
                 paymentTotals={paymentTotals}
                 valorTotal={valorTotal}
                 innerBill={bills}
+                onDataRestored={async () => {
+                  // relê tudo do armazenamento depois de restaurar um backup
+                  await Promise.all([loadExpenses(), carregaConta()]);
+                }}
               />
             )}
           </Stack.Screen>

@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
+import { AppState } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { InterfaceBill, Type } from "./Types";
+import { shareBackupFile } from "./backupFile";
 
-//---------------------- backup da versão web (PWA) ----------------------
+//---------------------- backup (Android e web) ----------------------
 // Os dados ficam só no aparelho. O backup é um arquivo .json que a pessoa guarda
-// onde quiser (Arquivos/iCloud, WhatsApp, e-mail) e usa para restaurar depois.
+// onde quiser (Arquivos/iCloud, Drive, WhatsApp, e-mail) e usa para restaurar
+// depois. O arquivo é o mesmo nas duas versões: dá para fazer o backup no
+// iPhone e restaurar no Android, e vice-versa.
+// A parte que depende da plataforma (gerar e escolher o arquivo) fica em
+// backupFile.ts (Android) e backupFile.web.ts (web).
 
 const BACKUP_APP = "anotei";
 const BACKUP_VERSION = 1;
@@ -29,22 +35,10 @@ const todayStamp = () => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-const downloadFile = (file: File) => {
-  const url = URL.createObjectURL(file);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = file.name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
-};
-
-// Abre o menu Compartilhar do celular (Salvar em Arquivos, WhatsApp...).
-// Sem suporte (computador), baixa o arquivo. Retorna false se a pessoa cancelou.
-// Precisa ser chamado direto no toque do botão: o iPhone só abre o menu
-// Compartilhar se não houver espera entre o toque e a chamada.
-export const exportBackup = async (
+// Retorna false se a pessoa cancelou. Precisa ser chamado direto no toque do
+// botão: o iPhone só abre o menu Compartilhar se não houver espera entre o
+// toque e a chamada (por isso nada de await antes de shareBackupFile).
+export const exportBackup = (
   expenses: Type[],
   bills: InterfaceBill[],
 ): Promise<boolean> => {
@@ -55,51 +49,22 @@ export const exportBackup = async (
     expenses,
     bills,
   };
-  const file = new File(
-    [JSON.stringify(data, null, 2)],
+  return shareBackupFile(
     `anotei-backup-${todayStamp()}.json`,
-    { type: "application/json" },
+    JSON.stringify(data, null, 2),
   );
-
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: "Backup do Anotei" });
-      return true;
-    } catch (error) {
-      if ((error as Error).name === "AbortError") return false; // cancelou
-      // outro erro (ex: navegador recusou o compartilhamento): baixa o arquivo
-    }
-  }
-  downloadFile(file);
-  return true;
 };
 
-//---------------------- escolher e ler um arquivo de backup ----------------------
-export const pickBackupFile = (): Promise<File | null> =>
-  new Promise((resolve) => {
-    // o iPhone só abre o seletor se o campo estiver na página
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json,application/json";
-    input.style.display = "none";
-    const finish = (file: File | null) => {
-      input.remove();
-      resolve(file);
-    };
-    input.onchange = () => finish(input.files?.[0] ?? null);
-    input.oncancel = () => finish(null);
-    document.body.appendChild(input);
-    input.click();
-  });
-
+//---------------------- ler um arquivo de backup ----------------------
 const isObjectWithId = (item: unknown) =>
   typeof item === "object" && item !== null && "id" in item;
 
-// Lança um Error com a mensagem para mostrar à pessoa se o arquivo não servir
-export const parseBackup = async (file: File): Promise<BackupData> => {
+// Recebe o texto do arquivo. Lança um Error com a mensagem para mostrar à
+// pessoa se o arquivo não servir.
+export const parseBackup = (text: string): BackupData => {
   let data: any;
   try {
-    data = JSON.parse(await file.text());
+    data = JSON.parse(text);
   } catch {
     throw new Error("Esse arquivo não é um backup do Anotei.");
   }
@@ -146,46 +111,49 @@ interface BackupInfo {
 const toNumber = (value: string | null) =>
   value !== null && Number.isFinite(Number(value)) ? Number(value) : null;
 
-// enabled = false (Android/iOS nativo): não lê nada e nunca lembra
-export const useBackup = (
-  expenses: Type[],
-  bills: InterfaceBill[],
-  enabled: boolean,
-) => {
+const readBackupInfo = async (): Promise<BackupInfo> => {
+  const values = Object.fromEntries(
+    await AsyncStorage.multiGet([KEY_LAST, KEY_FIRST_SEEN, KEY_SNOOZE]),
+  );
+  let firstSeen = toNumber(values[KEY_FIRST_SEEN]);
+  if (firstSeen === null) {
+    firstSeen = Date.now();
+    await AsyncStorage.setItem(KEY_FIRST_SEEN, String(firstSeen));
+  }
+  return {
+    lastBackup: toNumber(values[KEY_LAST]),
+    firstSeen,
+    snoozeUntil: toNumber(values[KEY_SNOOZE]),
+  };
+};
+
+export const useBackup = (expenses: Type[], bills: InterfaceBill[]) => {
   const [info, setInfo] = useState<BackupInfo | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
-  useEffect(() => {
-    if (!enabled) return;
-    (async () => {
-      const values = Object.fromEntries(
-        await AsyncStorage.multiGet([KEY_LAST, KEY_FIRST_SEEN, KEY_SNOOZE]),
-      );
-      let firstSeen = toNumber(values[KEY_FIRST_SEEN]);
-      if (firstSeen === null) {
-        firstSeen = Date.now();
-        await AsyncStorage.setItem(KEY_FIRST_SEEN, String(firstSeen));
-      }
-      setInfo({
-        lastBackup: toNumber(values[KEY_LAST]),
-        firstSeen,
-        snoozeUntil: toNumber(values[KEY_SNOOZE]),
-      });
-    })().catch((error) => console.error("Erro ao ler dados do backup", error));
+  // relê as datas salvas (ex: depois de restaurar um backup)
+  const reload = useCallback(async () => {
+    try {
+      setInfo(await readBackupInfo());
+      setNow(Date.now());
+    } catch (error) {
+      console.error("Erro ao ler dados do backup", error);
+    }
+  }, []);
 
-    // o app instalado fica aberto em segundo plano por dias
-    const refresh = () => {
-      if (document.visibilityState === "visible") setNow(Date.now());
-    };
-    document.addEventListener("visibilitychange", refresh);
-    return () => document.removeEventListener("visibilitychange", refresh);
-  }, [enabled]);
+  useEffect(() => {
+    reload();
+    // o app fica aberto em segundo plano por dias: atualiza ao voltar
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") setNow(Date.now());
+    });
+    return () => subscription.remove();
+  }, [reload]);
 
   const hasData = expenses.length > 0 || bills.length > 0;
   const reference = info ? (info.lastBackup ?? info.firstSeen) : now;
   const daysSinceBackup = Math.floor((now - reference) / DAY);
   const shouldRemind =
-    enabled &&
     info !== null &&
     hasData &&
     now >= (info.snoozeUntil ?? 0) &&
@@ -222,5 +190,6 @@ export const useBackup = (
     daysSinceBackup: info?.lastBackup ? daysSinceBackup : null,
     backupNow,
     snooze,
+    reload,
   };
 };

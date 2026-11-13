@@ -3,12 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, formatDate } from "../theme";
 import ConfirmDialog, { ConfirmDialogContent } from "./ConfirmDialog";
-import {
-  BackupData,
-  parseBackup,
-  pickBackupFile,
-  restoreBackup,
-} from "../backup";
+import { BackupData, parseBackup, restoreBackup } from "../backup";
+import { pickBackupText } from "../backupFile";
 
 //---------------------- lembrete de backup (topo da tela inicial) ----------------------
 interface BackupReminderProps {
@@ -71,7 +67,11 @@ const describeBackup = (data: BackupData) => {
 // `startRestore` precisa ser chamado direto no toque do botão: o iPhone só abre
 // o seletor de arquivos se não houver espera entre o toque e a chamada.
 // `dialog` é a caixa de confirmação: renderize fora da gaveta, que fecha no toque.
-export const useBackupRestore = (hasData: boolean) => {
+// `onRestored` recarrega os dados do app depois de restaurar.
+export const useBackupRestore = (
+  hasData: boolean,
+  onRestored: () => Promise<void>,
+) => {
   const [dialog, setDialog] = useState<ConfirmDialogContent | null>(null);
   const closeDialog = () => setDialog(null);
 
@@ -86,12 +86,19 @@ export const useBackupRestore = (hasData: boolean) => {
     });
 
   const startRestore = async () => {
-    const file = await pickBackupFile();
-    if (!file) return;
+    let text: string | null;
+    try {
+      text = await pickBackupText();
+    } catch (error) {
+      console.error("Erro ao ler o arquivo de backup", error);
+      showError("Não foi possível abrir esse arquivo. Tente de novo.");
+      return;
+    }
+    if (text === null) return; // cancelou
 
     let data: BackupData;
     try {
-      data = await parseBackup(file);
+      data = parseBackup(text);
     } catch (error) {
       showError((error as Error).message);
       return;
@@ -109,8 +116,16 @@ export const useBackupRestore = (hasData: boolean) => {
       onConfirm: async () => {
         try {
           await restoreBackup(data);
-          // recarrega o app para todas as telas lerem os dados restaurados
-          window.location.reload();
+          // as telas leem os dados restaurados
+          await onRestored();
+          setDialog({
+            title: "Backup restaurado",
+            message: "Seus gastos e contas foram recuperados.",
+            icon: "checkmark-circle-outline",
+            tone: "brand",
+            confirmLabel: "OK",
+            onConfirm: closeDialog,
+          });
         } catch (error) {
           console.error("Erro ao restaurar backup", error);
           showError("Algo deu errado ao salvar os dados. Tente de novo.");

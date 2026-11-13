@@ -34,10 +34,10 @@
 
 Hoje o backup só existe na web; o APK não tem nenhum.
 
-- [ ] 4.1 Instalar `expo-file-system`, `expo-sharing` e `expo-document-picker` (com `npx expo install`)
-- [ ] 4.2 Separar o que depende da plataforma: gerar/compartilhar o arquivo e escolher o arquivo vão para `backupFile.ts` (Android) e `backupFile.web.ts` (o código atual da web). `parseBackup` passa a receber o texto do arquivo, igual nos dois
-- [ ] 4.3 Ligar o backup no Android: `useBackup` ativo, itens de backup na gaveta e lembrete na Home
-- [ ] 4.4 O arquivo `.json` é o mesmo nos dois: um backup feito no iPhone restaura no Android e vice-versa
+- [x] 4.1 Instalar `expo-file-system`, `expo-sharing` e `expo-document-picker` (com `npx expo install`)
+- [x] 4.2 Separar o que depende da plataforma: gerar/compartilhar o arquivo e escolher o arquivo vão para `backupFile.ts` (Android) e `backupFile.web.ts` (o código atual da web). `parseBackup` passa a receber o texto do arquivo, igual nos dois
+- [x] 4.3 Ligar o backup no Android: `useBackup` ativo, itens de backup na gaveta e lembrete na Home
+- [x] 4.4 O arquivo `.json` é o mesmo nos dois: um backup feito no iPhone restaura no Android e vice-versa
 
 ## 5. Reservas (dinheiro guardado)
 

@@ -33,6 +33,7 @@
     "plugins": [
       "expo-status-bar",
       "expo-font",
+      "expo-sharing",
       [
         "expo-splash-screen",
         {

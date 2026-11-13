@@ -34,6 +34,7 @@ interface HomeProps {
   paymentTotals: PaymentTotals;
   valorTotal: number;
   innerBill: InterfaceBill[];
+  onDataRestored: () => Promise<void>; // recarrega os dados depois de restaurar um backup
 }
 
 const HomeScreen: React.FC<HomeProps> = ({
@@ -43,6 +44,7 @@ const HomeScreen: React.FC<HomeProps> = ({
   paymentTotals,
   valorTotal,
   innerBill,
+  onDataRestored,
 }) => {
   const paidBills = innerBill.filter((bill) => bill.pago).length;
   const totalBills = innerBill.length;
@@ -67,34 +69,33 @@ const HomeScreen: React.FC<HomeProps> = ({
   const selectedExpense =
     expenses.find((expense) => expense.id === selectedExpenseId) ?? null;
 
-  //-------------------------- backup (só na web: lá os dados ficam só no aparelho) --------------------------
-  const backup = useBackup(expenses, innerBill, isWeb);
-  const restore = useBackupRestore(backup.hasData);
+  //-------------------------- backup (os dados ficam só no aparelho) --------------------------
+  const backup = useBackup(expenses, innerBill);
+  const restore = useBackupRestore(backup.hasData, async () => {
+    await onDataRestored();
+    await backup.reload();
+  });
 
   //-------------------------- menu lateral (gaveta) --------------------------
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const drawerItems: DrawerItem[] = [];
-  // por enquanto o backup só existe na web
-  if (isWeb) {
-    drawerItems.push(
-      {
-        key: "backup",
-        icon: "share-outline",
-        label: "Fazer backup",
-        subtitle: describeLastBackup(backup.lastBackup),
-        onPress: backup.backupNow, // chamado direto no toque (exigência do iPhone)
-        disabled: !backup.hasData,
-      },
-      {
-        key: "restore",
-        icon: "download-outline",
-        label: "Restaurar backup",
-        subtitle: "Recuperar dados de um arquivo",
-        onPress: restore.startRestore,
-      },
-    );
-  }
+  const drawerItems: DrawerItem[] = [
+    {
+      key: "backup",
+      icon: "share-outline",
+      label: "Fazer backup",
+      subtitle: describeLastBackup(backup.lastBackup),
+      onPress: backup.backupNow, // chamado direto no toque (exigência do iPhone)
+      disabled: !backup.hasData,
+    },
+    {
+      key: "restore",
+      icon: "download-outline",
+      label: "Restaurar backup",
+      subtitle: "Recuperar dados de um arquivo",
+      onPress: restore.startRestore,
+    },
+  ];
 
   return (
     <SafeAreaView

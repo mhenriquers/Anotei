@@ -52,7 +52,7 @@ No iPhone o Anotei funciona como app web instalável, sem passar pela App Store:
 Diferenças em relação ao app Android:
 
 - **Sem notificações:** no lugar delas, a tela inicial mostra as contas atrasadas e as que vencem nos próximos 7 dias.
-- **Backup:** os dados ficam só no aparelho. Na tela inicial há os botões **Fazer backup** (salva um arquivo em Arquivos/iCloud, WhatsApp etc.) e **Restaurar**. O app lembra de fazer backup a cada 30 dias.
+- **Backup:** os dados ficam só no aparelho. No menu ☰ da tela inicial há **Fazer backup** (salva um arquivo em Arquivos/iCloud, WhatsApp etc.) e **Restaurar backup**. O app lembra de fazer backup a cada 30 dias. O mesmo backup existe no app Android, e o arquivo serve nos dois: dá para trocar de um aparelho para o outro.
 - **Use sempre pelo ícone:** no iPhone, o Safari e o app instalado guardam os dados separados, por isso o app pede para ser instalado antes de usar.
 
 ## 📸 Permissão para app de terceiros:

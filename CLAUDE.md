@@ -21,7 +21,11 @@ publicada no GitHub Pages.
 - `dueDates.ts`: cálculo de vencimentos
 - `notifications.ts` (nativo) e `notifications.web.ts` (web, vazio): o Metro escolhe pelo sufixo `.web`
 - `pwa.ts`: detecção de web/iPhone/PWA instalada
-- `backup.ts`: backup/restauração em .json e lembrete a cada 30 dias (só na web)
+- `backup.ts`: backup/restauração em .json e lembrete a cada 30 dias (Android e web); a parte de
+  arquivo fica em `backupFile.ts` (Android: expo-file-system/sharing/document-picker) e
+  `backupFile.web.ts` (web: menu Compartilhar/download e seletor de arquivo)
+- `paymentMethods.ts`: formas de pagamento (crédito, débito, pix) com rótulo, ícone, cor e totais
+- `components/SideDrawer.tsx`: menu lateral (☰) da Home; novos itens vão na lista `drawerItems`
 - `public/` + `workbox-config.js`: manifest, ícones e service worker da PWA
 
 ## Regras importantes
